@@ -1,0 +1,37 @@
+version: '3.7'
+
+services:
+  api:
+    container_name: api
+    build:
+      context: ./api
+      target: development
+    volumes:
+      - ./api:/usr/src/api
+      - /usr/src/api/node_modules
+    ports:
+      - ${SERVER_PORT}:${SERVER_PORT}
+      - 9229:9229 # for debugging
+    command: yarn start:dev
+    networks:
+      - webnet
+    depends_on:
+      - postgres
+  postgres:
+    container_name: postgres
+    image: postgres:14
+    networks:
+      - webnet
+    environment:
+      POSTGRES_DB: ${DB_DATABASE_NAME}
+      POSTGRES_USER: ${DB_USERNAME}
+      POSTGRES_PASSWORD: ${DB_PASSWORD}
+      PG_DATA: /var/lib/postgresql/data
+    ports:
+      - 5432:5432
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+networks:
+  webnet:
+volumes:
+  pgdata:
