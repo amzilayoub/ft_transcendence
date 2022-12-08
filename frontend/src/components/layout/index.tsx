@@ -1,8 +1,9 @@
 import React from "react";
 
-import Navbar from "@components/navbar";
 import cn from "classnames";
 import Head from "next/head";
+
+import Navbar from "@components/navbar";
 
 interface MainLayoutProps {
   children: React.ReactNode;

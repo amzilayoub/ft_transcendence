@@ -1,8 +1,9 @@
-import DropDown from "@ui/DropDown";
 import Image from "next/image";
 import Link from "next/link";
 import { CgProfile } from "react-icons/cg";
 import { IoSettingsOutline } from "react-icons/io5";
+
+import DropDown from "@ui/DropDown";
 
 /**
  * TODO:
