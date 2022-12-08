@@ -1,25 +1,37 @@
 import React from "react";
 
+import cn from "classnames";
 import Head from "next/head";
 
-const MainLayout = ({
-  children,
-  title = "Transcendence",
-}: {
+import Navbar from "@components/navbar";
+
+interface MainLayoutProps {
   children: React.ReactNode;
   title?: string;
+  backgroundColor?: string;
+}
+
+const MainLayout: React.FC<MainLayoutProps> = ({
+  children,
+  title = "Transcendence",
+  backgroundColor,
 }) => (
   <>
     <Head>
       <title>{title}</title>
-      <meta name="description" content="Ping Pong" />
-      <link rel="icon" href="/favicon.ico" />
     </Head>
-    <div className="flex flex-col min-h-screen">
-      <header className="shrink-0">{/* <Navbar /> */}</header>
-      <main className="grow">{children}</main>
-      <footer className="shrink-0">{/* <Footer /> */}</footer>
-    </div>
+    <Navbar />
+    <main className="flex h-full min-h-screen w-full">
+      <div
+        className={cn(
+          "mt-20 flex flex-col items-center w-full justify-center h-full",
+          backgroundColor
+        )}
+      >
+        {children}
+      </div>
+    </main>
   </>
 );
+
 export default MainLayout;

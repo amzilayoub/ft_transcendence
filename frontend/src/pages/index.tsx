@@ -6,7 +6,7 @@ import TextInput from "@ui/TextInput";
 export default function Home() {
   return (
     <MainLayout title="Home">
-      <main className="flex-col p-10 gap-3 flex justify-end">
+      <main className="flex-col gap-3 flex justify-end">
         <DropDown menuButton={<Button>Click me!</Button>}>
           <p className="px-4 py-3 rounded-md  hover:bg-gray-100 duration-200 hover:text-gray-900 cursor-pointer">
             Profile

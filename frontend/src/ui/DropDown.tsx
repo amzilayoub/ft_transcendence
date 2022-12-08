@@ -40,15 +40,6 @@ const DropDown: React.FC<DropDownProps> = (props) => {
               {React.Children.map(props.children, (child) => (
                 <Menu.Item>
                   <div>{child}</div>
-                  {/* {({ active }) => (
-                    <div
-                      className={`${
-                        active ? "bg-gray-100" : ""
-                      } flex justify-between items-center px-4 py-2 text-sm`}
-                    >
-                      {child}
-                    </div>
-                  )} */}
                 </Menu.Item>
               ))}
             </div>
