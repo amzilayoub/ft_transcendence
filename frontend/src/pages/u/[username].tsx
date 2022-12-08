@@ -1,5 +1,6 @@
-import MainLayout from "@components/layout";
 import { useRouter } from "next/router";
+
+import MainLayout from "@components/layout";
 
 export default function ProfilePage() {
   const router = useRouter();
