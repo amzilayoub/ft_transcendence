@@ -39,4 +39,6 @@ CMD [ "yarn", "start:prod" ]
 
 #docker build --target dev --tag nest-dock .
 
+
 #docker run --detach --publish 3000:3000 nest-dock
+
