@@ -26,6 +26,11 @@ To run the application, we have to use the following command:
 docker-compose up
 ```
 
+To enter the psql database inside the container, run:
+```
+psql -h localhost -U postgres
+```
+
 ### How to work with yarn and docker
 In the `api` service config, we defined `node_modules` as an anonymous volume to prevent our host files from overriding the directory. So if we were to add a new yarn package by using `yarn install`, the package wouldn’t be available in the Docker context, and the application would crash.
 
