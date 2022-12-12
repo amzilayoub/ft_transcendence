@@ -4,9 +4,11 @@ import { AppService } from './app.service';
 import { ChatModule } from './chat/chat.module';
 import { ConfigModule } from '@nestjs/config';
 import { PrismaModule } from './prisma/prisma.module';
+import { AuthModule } from './auth/auth.module';
+import { TestJwtModule } from './test_jwt/test_jwt.module';
 
 @Module({
-	imports: [ChatModule, ConfigModule.forRoot({ isGlobal: true, }), PrismaModule],
+	imports: [ChatModule, ConfigModule.forRoot({ isGlobal: true, }), PrismaModule, AuthModule, TestJwtModule],
 	controllers: [AppController],
 	providers: [AppService],
 })
