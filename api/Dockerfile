@@ -1,5 +1,6 @@
 # development
-FROM node:18.12.1-alpine AS base
+# FROM node:18.12.1-alpine AS base
+FROM node:lts-bullseye-slim AS base
 
 WORKDIR /usr/src/api
 
@@ -9,7 +10,12 @@ FROM base AS development
 
 RUN yarn install --frozen-lockfile
 
+# prisma engine requires openssl in order to work properly (ex: npx prisma generate)
+RUN apt-get update && apt-get -y install openssl && apt-get install -y procps
+
 COPY . .
+
+RUN yarn prisma generate
 
 CMD [ "yarn", "start:dev" ]
 
@@ -18,6 +24,8 @@ CMD [ "yarn", "start:dev" ]
 FROM base AS prod
 
 RUN yarn install --frozen-lockfile --production
+
+RUN apk add openssl
 
 COPY . .
 
