@@ -20,4 +20,5 @@ export class TestJwtController {
       secret: this.configService.get<string>('SECRET_KEY'),
     });
   }
+  
 }
