@@ -11,6 +11,7 @@ services:
       - /usr/src/api/node_modules
     ports:
       - ${SERVER_PORT}:${SERVER_PORT}
+      - 5555:5555 # for prisma studio
       - 9229:9229 # for debugging
     command: yarn start:dev
     networks:
