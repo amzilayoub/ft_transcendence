@@ -16,7 +16,11 @@ model User {
     updated_at DateTime @updatedAt
 
     username   String  @unique
-    email      String
+    email      String  @unique
+    hash       String
+
     first_name String?
     last_name  String?
+
+    @@map("users")
 }
