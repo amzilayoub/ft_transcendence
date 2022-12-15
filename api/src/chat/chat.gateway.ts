@@ -1,30 +1,34 @@
-import { WebSocketGateway, SubscribeMessage, MessageBody, WebSocketServer } from '@nestjs/websockets';
+import {
+    WebSocketGateway,
+    SubscribeMessage,
+    MessageBody,
+    WebSocketServer,
+} from '@nestjs/websockets';
 import { Server } from 'http';
 import { ChatService } from './chat.service';
 import { Message } from './dto/message.dto';
 
 @WebSocketGateway({
-	cors: {
-		origin: '*'
-	}
+    cors: {
+        origin: '*',
+    },
 })
-
 export class ChatGateway {
-	@WebSocketServer()
-	server: Server;
+    @WebSocketServer()
+    server: Server;
 
-	constructor(private readonly chatService: ChatService) { }
+    constructor(private readonly chatService: ChatService) {}
 
-	@SubscribeMessage('createMessage')
-	async create(@MessageBody() createMessage: Message) {
-		const message = await this.chatService.create(createMessage);
-		this.server.emit('createMessage', message);
+    @SubscribeMessage('createMessage')
+    async create(@MessageBody() createMessage: Message) {
+        const message = await this.chatService.create(createMessage);
+        this.server.emit('createMessage', message);
 
-		return (message);
-	}
+        return message;
+    }
 
-	@SubscribeMessage('findAllMessage')
-	findAll() {
-		return this.chatService.findAll();
-	}
+    @SubscribeMessage('findAllMessage')
+    findAll() {
+        return this.chatService.findAll();
+    }
 }

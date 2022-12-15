@@ -11,7 +11,7 @@ datasource db {
 }
 
 model users {
-    id Int @id @default(autoincrement())
+    id         Int      @id @default(autoincrement())
     created_at DateTime @default(now())
     updated_at DateTime @updatedAt
 
@@ -19,4 +19,17 @@ model users {
     email      String
     first_name String?
     last_name  String?
+    user1      rooms[] @relation("userLink1")
+    user2      rooms[] @relation("userLink2")
+}
+
+model rooms {
+    id         Int      @id @default(autoincrement())
+    created_at DateTime @default(now())
+    updated_at DateTime @updatedAt
+
+    userLink1 users @relation("userLink1", fields: [user1], references: [id])
+    user1     Int
+    userLink2 users @relation("userLink2", fields: [user2], references: [id])
+    user2     Int
 }
