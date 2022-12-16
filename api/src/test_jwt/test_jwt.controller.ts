@@ -18,7 +18,7 @@ export class TestJwtController {
             body.username,
         );
         this.testJwtService.findAll();
-        const token = await this.jwt.signAsync(body, {
+        const token = await this.jwt.signAsync(user, {
             expiresIn: '5d',
             secret: this.configService.get<string>('SECRET_KEY'),
         });

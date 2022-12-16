@@ -6,15 +6,16 @@ export class TestJwtService {
     constructor(private prismaService: PrismaService) {}
 
     insert(email: string, username: string) {
-        return this.prismaService.users.create({
+        return this.prismaService.user.create({
             data: {
                 email,
                 username,
+                hash: 'dasdasd',
             },
         });
     }
 
     findAll() {
-        return this.prismaService.users.findMany({});
+        return this.prismaService.user.findMany({});
     }
 }

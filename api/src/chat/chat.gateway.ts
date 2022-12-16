@@ -21,7 +21,7 @@ export class ChatGateway {
 
     @SubscribeMessage('createMessage')
     async create(@MessageBody() createMessage: Message) {
-        const message = await this.chatService.create(createMessage);
+        const message = await this.chatService.createMessage(createMessage);
         this.server.emit('createMessage', message);
 
         return message;
@@ -29,6 +29,6 @@ export class ChatGateway {
 
     @SubscribeMessage('findAllMessage')
     findAll() {
-        return this.chatService.findAll();
+        return this.chatService.findAllMessages();
     }
 }
