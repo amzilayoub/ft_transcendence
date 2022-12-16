@@ -10,17 +10,41 @@ datasource db {
     url      = env("DATABASE_URL")
 }
 
-model User {
+model user {
     id Int @id @default(autoincrement())
-    created_at DateTime @default(now())
-    updated_at DateTime @updatedAt
 
-    username   String  @unique
-    email      String  @unique
-    hash       String
+    username String @unique
+    email    String @unique
+    hash     String
 
     first_name String?
     last_name  String?
+    rooms      rooms[]
+
+    created_at DateTime @default(now())
+    updated_at DateTime @updatedAt
 
     @@map("users")
+}
+
+model rooms {
+    id Int @id @default(autoincrement())
+
+    userLink1 user @relation(fields: [owner_id], references: [id])
+    owner_id  Int
+
+    room_type    room_type @relation(fields: [room_type_id], references: [id])
+    room_type_id Int
+
+    created_at DateTime @default(now())
+    updated_at DateTime @updatedAt
+}
+
+model room_type {
+    id Int @id @default(autoincrement())
+
+    type       String
+    created_at DateTime @default(now())
+    updated_at DateTime @updatedAt
+    room       rooms[]
 }
