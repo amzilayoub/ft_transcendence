@@ -8,8 +8,14 @@ import { TestJwtModule } from './test_jwt/test_jwt.module';
 import { AuthModule } from './auth/auth.module';
 
 @Module({
-	imports: [ChatModule, ConfigModule.forRoot({ isGlobal: true, }), PrismaModule, TestJwtModule, AuthModule],
-	controllers: [AppController],
-	providers: [AppService],
+  imports: [
+    ChatModule,
+    ConfigModule.forRoot({ isGlobal: true }),
+    PrismaModule,
+    TestJwtModule,
+    AuthModule,
+  ],
+  controllers: [AppController],
+  providers: [AppService],
 })
-export class AppModule { }
+export class AppModule {}

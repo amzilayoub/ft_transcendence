@@ -31,7 +31,7 @@
     "@nestjs/platform-socket.io": "^9.2.1",
     "@nestjs/websockets": "^9.2.1",
     "@prisma/client": "4.7.1",
-    "@types/passport-jwt": "^3.0.7",
+    "@types/passport-jwt": "^3.0.8",
     "argon2": "^0.30.2",
     "class-transformer": "^0.5.1",
     "class-validator": "^0.14.0",
