@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { ReactElement, useEffect, useState } from "react";
 
 import cn from "classnames";
 import Image from "next/image";
@@ -18,19 +18,20 @@ const UtilityButton = ({
   onClick,
   className,
 }: {
-  icon: JSX.Element | React.ReactNode | IconType;
+  icon: ReactElement<IconType>;
   title?: string;
   onClick: () => void;
   className?: string;
 }) => {
-  const Icon = icon;
-
   return (
     <button
-      // className={`flex items-center justify-center p-2 rounded-full ${className}`}
+      className={cn(
+        "flex items-center justify-center p-2 rounded-full",
+        className
+      )}
       onClick={onClick}
     >
-      <Icon className={cn("h-6 w-6", className)} />
+      {icon}
       {title && <span className="ml-2">{title}</span>}
     </button>
   );
@@ -165,7 +166,7 @@ const ProfilePage = () => {
                   <div className="flex w-1/2 justify-end px-6 py-1 ">
                     {isMyProfile ? (
                       <UtilityButton
-                        icon={BiEdit}
+                        icon={<BiEdit className="h-6 w-6" />}
                         onClick={() => {
                           setIsAvatarModalOpen(true);
                         }}

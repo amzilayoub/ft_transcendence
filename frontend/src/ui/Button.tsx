@@ -2,7 +2,8 @@ import React, { ReactNode } from "react";
 
 import cn from "classnames";
 
-export interface ButtonProps {
+export interface ButtonProps
+  extends React.ButtonHTMLAttributes<HTMLButtonElement> {
   children: ReactNode;
   variant?: "primary" | "secondary" | "danger";
   type?: "submit" | "button";
