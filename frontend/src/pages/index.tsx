@@ -5,7 +5,7 @@ import TextInput from "@ui/TextInput";
 
 export default function Home() {
   return (
-    <MainLayout title="Home">
+    <MainLayout title="Home" pageIsProtected={false}>
       <main className="flex-col gap-3 flex justify-end">
         <DropDown menuButton={<Button>Click me!</Button>}>
           <p className="px-4 py-3 rounded-md  hover:bg-gray-100 duration-200 hover:text-gray-900 cursor-pointer">
@@ -22,7 +22,7 @@ export default function Home() {
           <TextInput
             label="Email"
             placeholder="Enter your email"
-            type="email"
+            name="email"
             onChange={() => {}}
           />
         </div>
