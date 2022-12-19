@@ -19,6 +19,7 @@
       "@components/*": ["components/*"],
       "@ui/*": ["ui/*"],
       "@utils/*": ["utils/*"],
+      "@lib/*": ["lib/*"],
       "@hooks/*": ["hooks/*"],
       "@styles/*": ["styles/*"],
       "@types/*": ["types/*"]

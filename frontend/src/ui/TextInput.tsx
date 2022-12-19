@@ -3,7 +3,7 @@ import React from "react";
 export interface TextInputProps {
   label: string;
   placeholder: string;
-  type: string;
+  name: string;
   onChange: (event: React.ChangeEvent<HTMLInputElement>) => void;
   error?: string;
   required?: boolean;
@@ -12,10 +12,10 @@ export interface TextInputProps {
 const TextInput: React.FC<TextInputProps> = ({
   label,
   placeholder,
-  type,
+  name,
   onChange,
   error,
-  required,
+  required = false,
   ...props
 }) => (
   <div className="flex flex-col">
@@ -24,9 +24,9 @@ const TextInput: React.FC<TextInputProps> = ({
     )}
     <input
       className="px-2 py-1 text-gray-800 border-primary/40 rounded-lg border focus:border-primary mt-1 block w-full focus:outline-none hover:border-primary/80 duration-200 focus:ring-primary/80 min-w-max"
-      type={type}
       placeholder={placeholder}
       required={required}
+      name={name}
       onChange={onChange}
       {...props}
     />

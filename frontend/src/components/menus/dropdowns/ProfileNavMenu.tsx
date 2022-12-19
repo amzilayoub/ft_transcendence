@@ -1,6 +1,7 @@
 import Image from "next/image";
 import Link from "next/link";
 import { CgProfile } from "react-icons/cg";
+import { IoLogOutOutline } from "react-icons/io5";
 import { IoSettingsOutline } from "react-icons/io5";
 
 import DropDown from "@ui/DropDown";
@@ -15,16 +16,22 @@ interface Props {
   firstName: string;
   lastName: string;
   avatarUrl: string;
+  isLoading: boolean;
   onLogout: () => void;
 }
 
 const ProfileNavMenu: React.FC<Props> = (props) => {
+  if (props.isLoading) {
+    return (
+      <div className="hover:ring-secondary relative h-11 w-11 overflow-hidden flex justify-center rounded-full p-1 outline-none hover:bg-gray-100 hover:ring-1" />
+    );
+  }
   return (
     <DropDown
       menuButton={
         <div className="hover:ring-secondary relative h-11 w-11 overflow-hidden flex justify-center rounded-full p-1 outline-none hover:bg-gray-100 hover:ring-1">
           <Image
-            src={props.avatarUrl}
+            src={props.avatarUrl || "/images/default-avatar.png"}
             alt={props.username}
             fill
             className="cursor-pointer"
@@ -60,6 +67,16 @@ const ProfileNavMenu: React.FC<Props> = (props) => {
         />
         Settings
       </Link>
+      <li
+        onClick={props.onLogout}
+        className="group hover:bg-red-500 text-red-500 hover:text-white flex w-full items-center rounded-md p-2 text-sm cursor-pointer"
+      >
+        <IoLogOutOutline
+          aria-hidden="true"
+          className="text-red-500 mr-3 h-5  w-5 group-hover:text-white"
+        />
+        Logout
+      </li>
     </DropDown>
   );
 };
