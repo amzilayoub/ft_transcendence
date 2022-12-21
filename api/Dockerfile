@@ -13,7 +13,7 @@ RUN yarn install --frozen-lockfile
 # prisma engine requires openssl in order to work properly (ex: npx prisma generate)
 RUN apt-get update && apt-get -y install openssl && apt-get install -y procps
 
-COPY . .
+COPY ./prisma ./prisma
 
 RUN yarn prisma generate
 

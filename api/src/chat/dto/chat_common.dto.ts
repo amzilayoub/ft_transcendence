@@ -1,4 +1,13 @@
-import { IsInt, isNumber, isNumberString, IsString } from 'class-validator';
+import {
+    IsIn,
+    isIn,
+    isInt,
+    IsInt,
+    isNumber,
+    isNumberString,
+    IsOptional,
+    IsString,
+} from 'class-validator';
 
 export class CreateRoomDto {
     @IsInt()
@@ -6,4 +15,13 @@ export class CreateRoomDto {
 
     @IsInt()
     roomId: number;
+}
+
+export class JoinRoomDto {
+    @IsInt()
+    roomId: number;
+
+    @IsOptional()
+    @IsInt()
+    userId?: number;
 }

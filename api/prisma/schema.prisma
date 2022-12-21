@@ -19,15 +19,16 @@ model user {
 
     first_name String?
     last_name  String?
-    rooms      rooms[]
+    rooms      room[]
 
-    created_at DateTime @default(now())
-    updated_at DateTime @updatedAt
+    created_at    DateTime        @default(now())
+    updated_at    DateTime        @updatedAt
+    room_user_rel room_user_rel[]
 
     @@map("users")
 }
 
-model rooms {
+model room {
     id Int @id @default(autoincrement())
 
     userLink1 user @relation(fields: [owner_id], references: [id])
@@ -36,8 +37,9 @@ model rooms {
     room_type    room_type @relation(fields: [room_type_id], references: [id])
     room_type_id Int
 
-    created_at DateTime @default(now())
-    updated_at DateTime @updatedAt
+    created_at    DateTime        @default(now())
+    updated_at    DateTime        @updatedAt
+    room_user_rel room_user_rel[]
 }
 
 model room_type {
@@ -46,5 +48,18 @@ model room_type {
     type       String
     created_at DateTime @default(now())
     updated_at DateTime @updatedAt
-    room       rooms[]
+    room       room[]
+}
+
+model room_user_rel {
+    id Int @id @default(autoincrement())
+
+    roomLink room @relation(fields: [room_id], references: [id])
+    room_id  Int
+
+    userLink user @relation(fields: [user_id], references: [id])
+    user_id  Int
+
+    created_at DateTime @default(now())
+    updated_at DateTime @updatedAt
 }
