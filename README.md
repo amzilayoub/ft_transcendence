@@ -34,6 +34,7 @@ psql -h localhost -U postgres
 ### How to work with yarn and docker
 In the `api` service config, we defined `node_modules` as an anonymous volume to prevent our host files from overriding the directory. So if we were to add a new yarn package by using `yarn install`, the package wouldn’t be available in the Docker context, and the application would crash.
 
+
 Even if you run `docker-compose down` and then `docker-compose up` again in order to start over, the `volume` would stay the same. It won’t work because anonymous volumes aren’t removed until their parent container is removed.
 
 To fix this, we can run the following command:
