@@ -6,15 +6,22 @@ import {
     isNumber,
     isNumberString,
     IsOptional,
+    isString,
     IsString,
 } from 'class-validator';
 
 export class CreateRoomDto {
+    @IsOptional()
     @IsInt()
     userId: number;
 
+    @IsOptional()
     @IsInt()
-    roomId: number;
+    roomTypeId: number;
+
+    @IsOptional()
+    @IsString()
+    title: string;
 }
 
 export class JoinRoomDto {
@@ -24,4 +31,15 @@ export class JoinRoomDto {
     @IsOptional()
     @IsInt()
     userId?: number;
+}
+
+export class CreateMessageDto {
+    @IsInt()
+    roomId: number;
+
+    @IsString()
+    token: string;
+
+    @IsString()
+    message: string;
 }
