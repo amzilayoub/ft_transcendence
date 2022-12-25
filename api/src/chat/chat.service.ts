@@ -40,7 +40,7 @@ export class ChatService {
     /*
      ** Get all rooms that the current user has been joined
      */
-    getUserRooms(userId: number): Promise<Array<any>> {
+    getUserRooms(userId: number, offset: number = 0): Promise<Array<any>> {
         return this.prismaService.$queryRaw(Prisma.sql`
 			SELECT u2.*, room_type.type,
 				CASE
