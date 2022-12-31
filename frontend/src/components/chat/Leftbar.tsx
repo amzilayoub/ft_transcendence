@@ -25,7 +25,7 @@ const Leftbar = () => {
 
   return (
     <div
-      className=" w-30 h-screen bg-[#36404A] flex flex-col 
+      className=" w-[90px] h-screen bg-[#36404A] flex flex-col 
       justify-around drop-shadow-lg"
     >
       <div className="flex justify-center items-center">
@@ -55,8 +55,8 @@ const Leftbar = () => {
         <Image
           src={face.src}
           alt="test"
-          width={100}
-          height={100}
+          width={80}
+          height={80}
           className=" rounded-full p-3 cursor-pointer"
         />
       </div>
