@@ -1,25 +1,26 @@
-import Head from "next/head";
 import React from "react";
-import Leftbar from "../../components/Leftbar";
-import { Context } from "../../context";
-import { useRouter } from "next/router";
+
+import Head from "next/head";
+import Link from "next/link";
+// import { useRouter } from "next/router";
 import { BiSearchAlt2 } from "react-icons/bi";
+import { Swiper, SwiperSlide } from "swiper/react";
+
 import friend1 from "../../assets/friends/friend1.jpeg";
 import friend2 from "../../assets/friends/friend2.jpeg";
 import friend3 from "../../assets/friends/friend3.jpeg";
-import { Swiper, SwiperSlide } from "swiper/react";
 import "swiper/css";
-import Convo from "../../components/Convo";
-import Link from "next/link";
+import Convo from "../../components/chat/Conversation";
+import Leftbar from "../../components/chat/Leftbar";
 
 const Chat = () => {
-  const { username } = React.useContext(Context);
-  const router = useRouter();
-  const { id } = router.query;
-  console.log(id);
-  const redirect = (id: string) => {
-    router.push(`${id}`);
-  };
+  // const { username } = React.useContext(Context);
+  // const router = useRouter();
+  // const { id } = router.query;
+  // console.log(id);
+  // const redirect = (id: string) => {
+  //   router.push(`${id}`);
+  // };
   const chatData = [
     {
       id: 1,
@@ -103,7 +104,7 @@ const Chat = () => {
               onSwiper={(swiper) => console.log(swiper)}
             >
               {onlineFriends.map((friend) => (
-                <SwiperSlide className=" cursor-pointer">
+                <SwiperSlide className=" cursor-pointer" key={`${friend.id}`}>
                   <Link
                     href={`/chat/${friend.id}`}
                     className="flex flex-col hover:bg-slate-400 transition duration-300  w-full bg-[#36404A] shadow-2xl rounded-lg"
@@ -129,6 +130,7 @@ const Chat = () => {
           <div className="text-4xl text-black w-full flex justify-center items-center flex-col">
             {chatData.map((chat) => (
               <Link
+                key={`${chat.id}`}
                 href={`/chat/${chat.id}`}
                 className=" cursor-pointer flex hover:bg-slate-400 transition duration-300  gap-3 w-[95%] rounded-lg"
               >

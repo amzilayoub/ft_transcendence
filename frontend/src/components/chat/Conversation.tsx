@@ -1,5 +1,6 @@
-import { useRouter } from "next/router";
 import React from "react";
+
+import { useRouter } from "next/router";
 
 const Convo = () => {
   const coversation = [
@@ -40,11 +41,10 @@ const Convo = () => {
     };
 
     if (messageInput === "") return;
-    else
-      {
-        setChatData([...chatData, newMessage]);
-        setMessageInput("");
-      }
+    else {
+      setChatData([...chatData, newMessage]);
+      setMessageInput("");
+    }
   };
 
   React.useEffect(() => {

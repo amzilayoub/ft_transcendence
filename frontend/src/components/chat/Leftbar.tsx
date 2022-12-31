@@ -1,16 +1,17 @@
 import React from "react";
+
 import Image from "next/image";
-import logo from "../assets/logo.png";
-import face from "../assets/face.jpg";
+import Link from "next/link";
+import { useRouter } from "next/router";
 import { BiUser } from "react-icons/bi";
+import { BiSmile } from "react-icons/bi";
 import { BsChatDots } from "react-icons/bs";
 import { FiUsers } from "react-icons/fi";
-import { BiSmile } from "react-icons/bi";
 import { FiSettings } from "react-icons/fi";
-import { useRouter } from "next/router";
-import dashboard from "../pages/dashboard/[id]";
-import { Context } from "../context";
-import Link from "next/link";
+
+import face from "../../assets/face.jpg";
+import logo from "../../assets/logo.png";
+import { Context } from "../../context/chat.context";
 
 const icons =
   "h-14 w-14 text-[#A6B0CF] hover:bg-[#3E4A56] p-3 rounded-lg cursor-pointer";

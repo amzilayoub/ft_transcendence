@@ -1,16 +1,18 @@
-import Head from "next/head";
 import React from "react";
-import Leftbar from "../components/Leftbar";
-import { Context } from "../context";
+
+import Head from "next/head";
+import Link from "next/link";
 import { useRouter } from "next/router";
 import { BiSearchAlt2 } from "react-icons/bi";
+import { Swiper, SwiperSlide } from "swiper/react";
+
 import friend1 from "../assets/friends/friend1.jpeg";
 import friend2 from "../assets/friends/friend2.jpeg";
 import friend3 from "../assets/friends/friend3.jpeg";
-import { Swiper, SwiperSlide } from "swiper/react";
+import Leftbar from "../components/chat/Leftbar";
+import { Context } from "../context/chat.context";
+
 import "swiper/css";
-import Convo from "../components/Convo";
-import Link from "next/link";
 
 const Chat = () => {
   const { username, id } = React.useContext(Context);
@@ -146,8 +148,7 @@ const Chat = () => {
             ))}
           </div>
         </div>
-        <div className="w-full h-full bg-[#262E35]">
-        </div>
+        <div className="w-full h-full bg-[#262E35]"></div>
       </div>
     </div>
   );

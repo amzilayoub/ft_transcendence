@@ -1,9 +1,7 @@
+import React, { createContext } from "react";
 
-import React, { useState, createContext, useContext } from "react";
-
-const getUserData = () =>{
-  
-  var data : ContextProps =  {
+const getUserData = () => {
+  var data: ContextProps = {
     username: "mbifenzi",
     firstName: "mohamed",
     lastName: "bifenzi",
@@ -12,15 +10,13 @@ const getUserData = () =>{
     friends: [],
     rooms: [],
     id: 1,
-  }
+  };
   // axios.get("http://localhost:3000/api/user").then((res) => {
-     // data = res.data;
+  // data = res.data;
   // }).catch((err) => {
-    // o the error
-    return data
-  }
-
-    
+  // o the error
+  return data;
+};
 
 interface ContextProps {
   username: string;
@@ -32,13 +28,16 @@ interface ContextProps {
   rooms: string[];
   id: number;
 }
- 
+
 export const Context = createContext(getUserData());
 
 // export const userContext = () => useContext(Context);
 
-export const ContextProvider = ({children}: {children:React.ReactNode}) => {
-  
+export const ContextProvider = ({
+  children,
+}: {
+  children: React.ReactNode;
+}) => {
   const userContext = {
     username: "",
     firstName: "",
@@ -48,12 +47,7 @@ export const ContextProvider = ({children}: {children:React.ReactNode}) => {
     avatar: "",
     rooms: [""],
     id: 1,
-  }
-  
-  return (
-    <Context.Provider
-      value={userContext}
-      >
-    </Context.Provider>
-  );
+  };
+
+  return <Context.Provider value={userContext}></Context.Provider>;
 };
