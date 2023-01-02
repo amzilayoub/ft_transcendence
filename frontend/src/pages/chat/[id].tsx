@@ -1,19 +1,20 @@
 import React from "react";
 
+import MiddleBar from "@components/chat/MiddleBar";
+import TextInput from "@ui/TextInput";
+import cn from "classnames";
 import Head from "next/head";
 import Link from "next/link";
-// import { useRouter } from "next/router";
-import { BiSearchAlt2 } from "react-icons/bi";
 import { Swiper, SwiperSlide } from "swiper/react";
-import cn from "classnames";
+
+// import { useRouter } from "next/router";
+
 import friend1 from "../../assets/friends/friend1.jpeg";
 import friend2 from "../../assets/friends/friend2.jpeg";
 import friend3 from "../../assets/friends/friend3.jpeg";
 import "swiper/css";
 import Convo from "../../components/chat/Conversation";
 import Leftbar from "../../components/chat/Leftbar";
-import MiddleBar from "@components/chat/MiddleBar";
-import TextInput from "@ui/TextInput";
 
 const Chat = () => {
   // const { username } = React.useContext(Context);
@@ -102,8 +103,8 @@ const Chat = () => {
             console.log(e.target.value);
           }}
         />
-        <div className="flex flex-col justify-center items-center ">
-          <h1 className="text-white text-2xl font-bold">Online Friends</h1>
+        <div className="flex flex-col items-center justify-center ">
+          <h1 className="text-2xl font-bold text-white">Online Friends</h1>
           <Swiper
             spaceBetween={10}
             slidesPerView={4}
@@ -129,12 +130,12 @@ const Chat = () => {
           >
             {onlineFriends.map((friend) => (
               <SwiperSlide key={friend.id}>
-                <div className="flex flex-col justify-center items-center">
+                <div className="flex flex-col items-center justify-center">
                   <img
                     src={friend.avatar.src}
                     className="w-12 h-12 rounded-full"
                   />
-                  <h1 className="text-white text-sm text-center">
+                  <h1 className="text-sm text-center text-white">
                     {friend.name}
                   </h1>
                 </div>
@@ -142,31 +143,31 @@ const Chat = () => {
             ))}
           </Swiper>
         </div>
-        <div className="flex flex-col justify-center items-center">
-          <h1 className="text-white text-2xl font-bold">Chats</h1>
-          <div className="flex flex-col justify-center items-center w-full">
+        <div className="flex flex-col items-center justify-center">
+          <h1 className="text-2xl font-bold text-white">Chats</h1>
+          <div className="flex flex-col items-center justify-center w-full">
             {chatData.map((chat) => (
               <Link href={`/chat/${chat.id}`} key={chat.id} className="w-full">
-                <div className="flex flex-col justify-between items-center  p-4 hover:bg-gray-700 rounded-xl cursor-pointer">
-                  <div className="flex  justify-center items-center">
+                <div className="flex flex-col items-center justify-between p-4 cursor-pointer hover:bg-gray-700 rounded-xl">
+                  <div className="flex items-center justify-center">
                     <img
                       src={chat.avatar.src}
                       className="w-12 h-12 rounded-full"
                     />
-                    <div className="flex flex-col justify-center items-start ml-4">
-                      <h1 className="text-white text-lg">{chat.name}</h1>
-                      <h1 className="text-gray-500 text-sm">
+                    <div className="flex flex-col items-start justify-center ml-4">
+                      <h1 className="text-lg text-white">{chat.name}</h1>
+                      <h1 className="text-sm text-gray-500">
                         {chat.lastMessage}
                       </h1>
                     </div>
                   </div>
-                  <div className="flex flex-col justify-center items-center">
-                    <h1 className="text-gray-500 text-sm">
+                  <div className="flex flex-col items-center justify-center">
+                    <h1 className="text-sm text-gray-500">
                       {chat.lastMessageTime}
                     </h1>
                     {chat.unreadMessages > 0 && ( // if unread messages > 0 show the badge with the number of unread messages
-                      <div className="flex flex-row justify-center items-center bg-secondary rounded-full w-6 h-6">
-                        <h1 className="text-white text-sm">
+                      <div className="flex flex-row items-center justify-center w-6 h-6 rounded-full bg-secondary">
+                        <h1 className="text-sm text-white">
                           {chat.unreadMessages}
                         </h1>
                       </div>

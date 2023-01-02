@@ -14,7 +14,9 @@ const MiddleBar = ({ title, children }: IProps) => {
           {title}
         </h1>
       </div>
-      <div className="w-full h-full flex flex-col p-4 space-y-5">{children}</div>
+      <div className="w-full h-full flex flex-col p-4 space-y-5">
+        {children}
+      </div>
     </div>
   );
 };

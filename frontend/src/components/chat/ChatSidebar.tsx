@@ -2,7 +2,8 @@ import React, { useState } from "react";
 
 import { truncateString } from "@utils/format";
 import cn from "classnames";
-import { BsThreeDots } from "react-icons/bs";
+import { BsThreeDots, BsVolumeMute } from "react-icons/bs";
+import { MdBlockFlipped } from "react-icons/md";
 import { SlArrowDown } from "react-icons/sl";
 
 const sampleConvos = [
@@ -46,19 +47,21 @@ const Conversation = ({
   lastMessage,
   lastMessageTime,
   unreadMessages,
-  onClick,
-  onButtonClick,
+  onConversationClick,
+  onMuteClick,
+  onBlockClick,
 }: {
   avatar: string;
   name: string;
   lastMessage: string;
   lastMessageTime: string;
   unreadMessages: number;
-  onClick: () => void;
-  onButtonClick: () => void;
+  onConversationClick: () => void;
+  onMuteClick: () => void;
+  onBlockClick: () => void;
 }) => {
   return (
-    <div onClick={onClick} className="w-full cursor-pointer group">
+    <div onClick={onConversationClick} className="w-full cursor-pointer group">
       <div className="flex items-center ">
         <img
           src={avatar}
@@ -73,16 +76,35 @@ const Conversation = ({
               <h1 className="text-xs text-gray-500 group-hover:hidden">
                 {lastMessageTime}
               </h1>
-              <button
-                onClick={onButtonClick}
-                className="items-center justify-center hidden text-xs duration-200 rounded-full w-7 h-7 hover:bg-gray-300 group-hover:flex"
-              >
+              <button className="relative items-center justify-center hidden text-xs duration-200 group/dots w-7 h-7 hover:bg-gray-300 group-hover:flex">
                 <BsThreeDots />
+                <div className="absolute top-0 right-0 flex-col hidden w-full overflow-hidden bg-white rounded-l-lg min-w-min group-hover/dots:flex">
+                  <button
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      onMuteClick();
+                    }}
+                    className="flex items-center w-full px-4 py-2 font-semibold text-red-500 bg-white gap-x-2 hover:text-red-500 hover:bg-gray-100 min-w-min"
+                  >
+                    <BsVolumeMute />
+                    Mute
+                  </button>
+                  <button
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      onBlockClick();
+                    }}
+                    className="flex items-center px-4 py-2 font-semibold text-red-600 gap-x-2 hover:text-white hover:bg-red-500 min-w-min"
+                  >
+                    <MdBlockFlipped />
+                    Block
+                  </button>
+                </div>
               </button>
             </div>
           </div>
           <p className="text-xs text-gray-500">
-            {truncateString(lastMessage, 20)}
+            {truncateString(lastMessage, 32)}
           </p>
         </div>
       </div>
@@ -99,11 +121,12 @@ const Conversation = ({
 
 const ChatSidebar = () => {
   const [showChatSidebar, setShowChatSidebar] = useState(true);
+
   const allUnreadMessages = 5;
   return (
     <div
       className={cn(
-        "flex flex-col w-72  items-center h-full bg-white border border-gray-300 shadow-lg rounded-t-2xl",
+        "flex flex-col w-72 items-center h-full bg-white border border-gray-300 shadow-lg rounded-t-2xl",
         {
           "min-h-[calc(100vh-40rem)]": showChatSidebar,
         }
@@ -121,7 +144,7 @@ const ChatSidebar = () => {
           </div>
           <div
             onClick={() => setShowChatSidebar(!showChatSidebar)}
-            className="flex items-center justify-center text-xs duration-200 rounded-full cursor-pointer w-7 h-7 hover:bg-gray-200 "
+            className="flex items-center justify-center text-xs duration-100 rounded-full cursor-pointer w-7 h-7 hover:bg-gray-200 "
           >
             <SlArrowDown
               className={cn({ "transform rotate-180": !showChatSidebar })}
@@ -142,6 +165,9 @@ const ChatSidebar = () => {
                 lastMessage={item.lastMessage}
                 lastMessageTime={item.lastMessageTime}
                 unreadMessages={item.unreadMessages}
+                onConversationClick={() => console.log("conversation clicked")}
+                onMuteClick={() => console.log("mute clicked")}
+                onBlockClick={() => console.log("block clicked")}
               />
             </li>
           ))}

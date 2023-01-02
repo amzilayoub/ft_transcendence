@@ -129,7 +129,9 @@ const Chat = () => {
                     src={friend.avatar.src}
                     className="w-12 h-12 rounded-full"
                   />
-                  <h1 className="text-sm text-center text-white">{friend.name}</h1>
+                  <h1 className="text-sm text-center text-white">
+                    {friend.name}
+                  </h1>
                 </div>
               </SwiperSlide>
             ))}

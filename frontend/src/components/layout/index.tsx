@@ -1,5 +1,6 @@
 import React from "react";
 
+import ChatBox from "@components/chat/ChatBox";
 import ChatSidebar from "@components/chat/ChatSidebar";
 import Navbar from "@components/navbar";
 import cn from "classnames";
@@ -41,8 +42,15 @@ const MainLayout: React.FC<MainLayoutProps> = ({
         >
           {children}
         </div>
-        <div className="absolute bottom-0 right-0  max-h-[calc(100vh-10rem)]">
+        <div className="absolute bottom-0 right-0  max-h-[calc(100vh-10rem)] px-6">
           {true && <ChatSidebar />}
+          <ul className="absolute bottom-0 flex right-80 gap-x-3">
+            {[1, 2, 4].map((i) => (
+              <li key={i} className="w-full">
+                <ChatBox />
+              </li>
+            ))}
+          </ul>
         </div>
       </main>
     </>
