@@ -1,9 +1,9 @@
 import React from "react";
 
+import ChatSidebar from "@components/chat/ChatSidebar";
+import Navbar from "@components/navbar";
 import cn from "classnames";
 import Head from "next/head";
-
-import Navbar from "@components/navbar";
 
 interface MainLayoutProps {
   children: React.ReactNode;
@@ -32,14 +32,17 @@ const MainLayout: React.FC<MainLayoutProps> = ({
         <title>{title}</title>
       </Head>
       <Navbar />
-      <main className="flex h-full min-h-screen w-full">
+      <main className="flex w-full h-full min-h-screen">
         <div
           className={cn(
-            "pt-20 flex flex-col items-center w-full justify-center h-full",
+            "pt-20 flex flex-col items-center w-full justify-center h-full relative",
             backgroundColor
           )}
         >
           {children}
+        </div>
+        <div className="absolute bottom-0 right-0  max-h-[calc(100vh-10rem)]">
+          {true && <ChatSidebar />}
         </div>
       </main>
     </>
