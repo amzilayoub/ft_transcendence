@@ -1,19 +1,18 @@
 import { ReactElement, useEffect, useState } from "react";
 
-import cn from "classnames";
-import Image from "next/image";
-import { useRouter } from "next/router";
-import { BiEdit } from "react-icons/bi";
-import { FaGlobe, FaTwitter } from "react-icons/fa";
-import { IconType } from "react-icons/lib";
-
 import BaseModal from "@components/common/BaseModal";
 import { ExternalLink } from "@components/common/Links";
 import MainLayout from "@components/layout";
 import * as api from "@lib/api";
 import Button from "@ui/Button";
+import cn from "classnames";
 import { useAuthContext } from "context/auth.context";
 import { IUser, SetStateFunc } from "global/types";
+import Image from "next/image";
+import { useRouter } from "next/router";
+import { BiEdit } from "react-icons/bi";
+import { FaGlobe, FaTwitter } from "react-icons/fa";
+import { IconType } from "react-icons/lib";
 
 const UtilityButton = ({
   icon,
@@ -237,7 +236,7 @@ const ProfilePage = () => {
 
   useEffect(() => {
     if (router.isReady && ctx.isAuthenticated === false) {
-      router.replace("/");
+      router.push("/");
     }
   }, [router, ctx.isAuthenticated]);
 
@@ -251,6 +250,36 @@ const ProfilePage = () => {
       });
     }
   }, [username, isMyProfile, ctx.user, router.isReady]);
+
+  if (ctx.isAuthenticated === false) {
+    return (
+      <div className="flex items-center justify-center h-screen w-full">
+        <svg
+          className="animate-spin h-5 w-5 mr-3"
+          xmlns="http://www.w3.org/2000/svg"
+          fill="none"
+          viewBox="0 0 24 24"
+        >
+          <circle
+            className="opacity-25"
+            cx="12"
+            cy="12"
+            r="10"
+            stroke="currentColor"
+            strokeWidth="4"
+          ></circle>
+          <path
+            className="opacity-75"
+            fill="currentColor"
+            d="M4 12a8 8 0 018-8v8H4z"
+          ></path>
+        </svg>
+        <span className="text-gray-500 text-sm font-medium">
+          Redirecting...
+        </span>
+      </div>
+    );
+  }
 
   return (
     <MainLayout title={username as string} backgroundColor="bg-gray-100">
