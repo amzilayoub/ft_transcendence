@@ -6,7 +6,7 @@ import { MdBlockFlipped } from "react-icons/md";
 import { SlArrowDown } from "react-icons/sl";
 
 import { truncateString } from "@utils/format";
-import { IConversation } from "global/types";
+import { IConversationMetaData } from "global/types";
 
 const Conversation = ({
   avatar,
@@ -90,7 +90,7 @@ const ChatSidebar = ({
   conversations,
   onConversationClick,
 }: {
-  conversations: IConversation[];
+  conversations: IConversationMetaData[];
   onConversationClick: (convoId: string) => void;
 }) => {
   const [showChatSidebar, setShowChatSidebar] = useState(true);
@@ -101,12 +101,12 @@ const ChatSidebar = ({
       className={cn(
         "flex flex-col w-72 items-center h-full bg-white border border-gray-300 shadow-lg rounded-t-2xl",
         {
-          "min-h-[calc(100vh-40rem)]": showChatSidebar,
+          "min-h-[calc(100vh-32vh)]": showChatSidebar,
         }
       )}
     >
       <div className="flex items-center justify-between w-full p-3 border-b">
-        <p className="font-semibold ">Massages</p>
+        <p className="font-semibold ">Messages</p>
         <div className="flex items-center justify-between gap-x-2">
           <div className="flex justify-end">
             {allUnreadMessages > 0 && (

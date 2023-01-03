@@ -1,9 +1,67 @@
 import React from "react";
 
+import cn from "classnames";
 import { RxCross2 } from "react-icons/rx";
-const ChatBox = ({ onClose }: { onClose: () => void }) => {
+
+import { useChatContext } from "context/chat.context";
+
+interface IMessage {
+  id: string;
+  senderId: string;
+  text: string;
+  time: string;
+}
+
+interface IConversation {
+  members: string[];
+  messages: IMessage[];
+}
+
+const Message = ({
+  message,
+  isMe,
+  senderAvatar,
+}: {
+  message: string;
+  isMe: boolean;
+  senderAvatar: string;
+}) => (
+  <li className="">
+    <div
+      className={cn("flex items-end", {
+        "flex-row-reverse pl-6": isMe,
+        "pl-0 pr-6": !isMe,
+      })}
+    >
+      <div
+        className={cn(
+          "flex flex-col order-2 max-w-xs mx-2 space-y-2  text-xs  rounded-lg",
+          {
+            "items-end text-white bg-blue-600 rounded-br-none": isMe,
+            "items-start text-gray-600 bg-gray-300 rounded-bl-none": !isMe,
+          }
+        )}
+      >
+        <div>
+          <span className={cn("inline-block px-4 py-2", {})}>{message}</span>
+        </div>
+      </div>
+      <img src={senderAvatar} className="w-6 h-6 rounded-full" />
+    </div>
+  </li>
+);
+
+const ChatBox = ({
+  conversation,
+  onClose,
+}: {
+  conversation: IConversation;
+  onClose: any;
+}) => {
+  const { wholeConversation } = useChatContext();
+
   return (
-    <section className="relative flex flex-col h-full  bg-white border border-gray-200 max-h-[440px] rounded-t-xl w-[340px]">
+    <section className="relative flex flex-col h-full  bg-white border border-gray-200  h-[440px] rounded-t-xl w-[340px]">
       <div className="flex justify-between p-3 border-b-2 border-gray-200 sm:items-center">
         <div className="relative flex items-center space-x-4">
           <div className="relative">
@@ -13,14 +71,16 @@ const ChatBox = ({ onClose }: { onClose: () => void }) => {
               </svg>
             </span>
             <img
-              src="https://images.unsplash.com/photo-1549078642-b2ba4bda0cdb?ixlib=rb-1.2.1&amp;ixid=eyJhcHBfaWQiOjEyMDd9&amp;auto=format&amp;fit=facearea&amp;facepad=3&amp;w=144&amp;h=144"
-              alt=""
+              src={wholeConversation.members[0].avatarUrl}
+              alt={`${wholeConversation.members[0].name || "User"}'s avatar`}
               className="w-10 h-10 rounded-full sm:w-16 sm:h-16"
             />
           </div>
           <div className="flex flex-col leading-tight">
             <div className="flex items-center mt-1 text-2xl">
-              <span className="mr-3 text-gray-700">Anderson Vanhron</span>
+              <span className="mr-3 text-gray-700">
+                {wholeConversation.members[0].name}
+              </span>
             </div>
           </div>
         </div>
@@ -36,88 +96,14 @@ const ChatBox = ({ onClose }: { onClose: () => void }) => {
         id="messages"
         className="scrolling-touch scrollbar-thumb scrollbar-thumb-rounded scrollbar-track scrollbar-w-2 flex flex-col h-full p-3 space-y-4 overflow-y-scroll mb-14"
       >
-        <li className="chat-message">
-          <div className="flex items-end">
-            <div className="flex flex-col items-start order-2 max-w-xs mx-2 space-y-2 text-xs">
-              <div>
-                <span className="inline-block px-4 py-2 text-gray-600 bg-gray-300 rounded-lg rounded-bl-none">
-                  Can be verified on any platform using docker
-                </span>
-              </div>
-            </div>
-            <img
-              src="https://images.unsplash.com/photo-1549078642-b2ba4bda0cdb?ixlib=rb-1.2.1&amp;ixid=eyJhcHBfaWQiOjEyMDd9&amp;auto=format&amp;fit=facearea&amp;facepad=3&amp;w=144&amp;h=144"
-              alt="My profile"
-              className="order-1 w-6 h-6 rounded-full"
-            />
-          </div>
-        </li>
-        <li className="chat-message">
-          <div className="flex items-end justify-end">
-            <div className="flex flex-col items-end order-1 max-w-xs mx-2 space-y-2 text-xs">
-              <div>
-                <span className="inline-block px-4 py-2 text-white bg-blue-600 rounded-lg rounded-br-none ">
-                  Your error message says permission denied, npm global installs
-                  must be given root privileges.
-                </span>
-              </div>
-            </div>
-            <img
-              src="https://images.unsplash.com/photo-1590031905470-a1a1feacbb0b?ixlib=rb-1.2.1&amp;ixid=eyJhcHBfaWQiOjEyMDd9&amp;auto=format&amp;fit=facearea&amp;facepad=3&amp;w=144&amp;h=144"
-              alt="My profile"
-              className="order-2 w-6 h-6 rounded-full"
-            />
-          </div>
-        </li>
-        <li className="chat-message">
-          <div className="flex items-end">
-            <div className="flex flex-col items-start order-2 max-w-xs mx-2 space-y-2 text-xs">
-              <div>
-                <span className="inline-block px-4 py-2 text-gray-600 bg-gray-300 rounded-lg">
-                  Command was run with root privileges. I'm sure about that.
-                </span>
-              </div>
-              <div>
-                <span className="inline-block px-4 py-2 text-gray-600 bg-gray-300 rounded-lg">
-                  I've update the description so it's more obviously now
-                </span>
-              </div>
-              <div>
-                <span className="inline-block px-4 py-2 text-gray-600 bg-gray-300 rounded-lg">
-                  FYI https://askubuntu.com/a/700266/510172
-                </span>
-              </div>
-              <div>
-                <span className="inline-block px-4 py-2 text-gray-600 bg-gray-300 rounded-lg rounded-bl-none">
-                  Check the line above (it ends with a # so, I'm running it as
-                  root )<pre># npm install -g @vue/devtools</pre>
-                </span>
-              </div>
-            </div>
-            <img
-              src="https://images.unsplash.com/photo-1549078642-b2ba4bda0cdb?ixlib=rb-1.2.1&amp;ixid=eyJhcHBfaWQiOjEyMDd9&amp;auto=format&amp;fit=facearea&amp;facepad=3&amp;w=144&amp;h=144"
-              alt="My profile"
-              className="order-1 w-6 h-6 rounded-full"
-            />
-          </div>
-        </li>
-        <li className="chat-message">
-          <div className="flex items-end justify-end">
-            <div className="flex flex-col items-end order-1 max-w-xs mx-2 space-y-2 text-xs">
-              <div>
-                <span className="inline-block px-4 py-2 text-white bg-blue-600 rounded-lg rounded-br-none ">
-                  Any updates on this issue? I'm getting the same error when
-                  trying to install devtools. Thanks
-                </span>
-              </div>
-            </div>
-            <img
-              src="https://images.unsplash.com/photo-1590031905470-a1a1feacbb0b?ixlib=rb-1.2.1&amp;ixid=eyJhcHBfaWQiOjEyMDd9&amp;auto=format&amp;fit=facearea&amp;facepad=3&amp;w=144&amp;h=144"
-              alt="My profile"
-              className="order-2 w-6 h-6 rounded-full"
-            />
-          </div>
-        </li>
+        {wholeConversation.messages.map((message: IMessage, index: number) => (
+          <Message
+            key={message.id}
+            message={message.text}
+            senderAvatar={wholeConversation.members[0].avatarUrl}
+            isMe={index % 2 === 0}
+          />
+        ))}
       </ul>
       {/* inputa */}
       <div className="absolute bottom-0 w-full h-16 pt-4 mb-2 border-gray-200 sm:mb-0">

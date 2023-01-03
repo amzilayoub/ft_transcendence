@@ -40,7 +40,7 @@ export interface IUserAnalytics {
 export interface ICurrentUser extends IUser {}
 
 // this holds only the data that is needed to display a conversation
-export interface IConversation {
+export interface IConversationMetaData {
   id: string;
   name: string;
   avatarUrl: string;

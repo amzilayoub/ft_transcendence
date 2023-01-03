@@ -6,6 +6,7 @@ import { IConversation } from "global/types";
 export interface IChatContext {
   activeBoxes: string[];
   conversations: IConversation[];
+  wholeConversations: any[];
   error: string;
   setError: React.Dispatch<React.SetStateAction<string>>;
   activateBox: (id: string) => void;
@@ -54,6 +55,36 @@ const initialState: IChatContext = {
       unreadMessagesCount: 1,
     },
   ],
+  wholeConversation: {
+    id: "1",
+    members: [
+      {
+        id: "1",
+        name: "John Doe",
+        avatarUrl: "https://martinfowler.com/mf.jpg",
+      },
+      {
+        id: "2",
+        name: "Mike Doe",
+        avatarUrl: "https://martinfowler.com/mf.jpg",
+      },
+    ],
+    messages: [
+      {
+        id: "1",
+        senderId: "1",
+        text: "Lorem ipsum dolor sit amet consectetur adipisicing elit. Quisquam, quod. Lorem ipsum dolor sit amet consectetur adipisicing elit. Quisquam, quodZ.",
+        time: "12:00",
+      },
+      {
+        id: "2",
+        senderId: "2",
+        text: "Lorem ipsum dolor sit amet consectetur adipisicing elit. Quisquam, quod.",
+        time: "12:00",
+      },
+    ],
+  },
+
   error: "",
   setError: () => {},
   activateBox: () => {},
@@ -125,6 +156,12 @@ export const ChatProvider = ({ children }: { children: React.ReactNode }) => {
       activeBoxes,
       deleteBox,
       conversations: initialState.conversations,
+      wholeConversation: {
+        ...initialState.wholeConversation,
+        messages: [
+          ...Array(10).fill(initialState.wholeConversation.messages[0]),
+        ],
+      },
       error,
       setError,
       activateBox,
