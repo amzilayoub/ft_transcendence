@@ -1,7 +1,7 @@
 import React from "react";
 
 import { RxCross2 } from "react-icons/rx";
-const ChatBox = () => {
+const ChatBox = ({ onClose }: { onClose: () => void }) => {
   return (
     <section className="relative flex flex-col h-full  bg-white border border-gray-200 max-h-[440px] rounded-t-xl w-[340px]">
       <div className="flex justify-between p-3 border-b-2 border-gray-200 sm:items-center">
@@ -24,14 +24,17 @@ const ChatBox = () => {
             </div>
           </div>
         </div>
-        <span className="absolute p-1 text-gray-400 duration-300 rounded-full cursor-pointer hover:text-slate-600 top-1 right-1 hover:bg-gray-200">
+        <span
+          onClick={onClose}
+          className="absolute p-1 text-gray-400 duration-300 rounded-full cursor-pointer hover:text-slate-600 top-1 right-1 hover:bg-gray-200"
+        >
           <RxCross2 className="w-5 h-5" />
         </span>
       </div>
 
       <ul
         id="messages"
-        className="flex flex-col h-full p-3 space-y-4 overflow-y-scroll scrolling-touch scrollbar-thumb scrollbar-thumb-rounded scrollbar-track scrollbar-w-2 mb-14"
+        className="scrolling-touch scrollbar-thumb scrollbar-thumb-rounded scrollbar-track scrollbar-w-2 flex flex-col h-full p-3 space-y-4 overflow-y-scroll mb-14"
       >
         <li className="chat-message">
           <div className="flex items-end">
