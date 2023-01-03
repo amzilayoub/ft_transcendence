@@ -1,10 +1,11 @@
 import React, { useState } from "react";
 
-import { truncateString } from "@utils/format";
 import cn from "classnames";
 import { BsThreeDots, BsVolumeMute } from "react-icons/bs";
 import { MdBlockFlipped } from "react-icons/md";
 import { SlArrowDown } from "react-icons/sl";
+
+import { truncateString } from "@utils/format";
 
 const sampleConvos = [
   {
@@ -61,7 +62,7 @@ const Conversation = ({
   onBlockClick: () => void;
 }) => {
   return (
-    <div onClick={onConversationClick} className="w-full cursor-pointer group">
+    <div onClick={onConversationClick} className="group w-full cursor-pointer">
       <div className="flex items-center ">
         <img
           src={avatar}
@@ -76,7 +77,7 @@ const Conversation = ({
               <h1 className="text-xs text-gray-500 group-hover:hidden">
                 {lastMessageTime}
               </h1>
-              <button className="relative items-center justify-center hidden text-xs duration-200 group/dots w-7 h-7 hover:bg-gray-300 group-hover:flex">
+              <div className="group/dots relative items-center justify-center hidden text-xs duration-200 w-7 h-7 hover:bg-gray-300 group-hover:flex">
                 <BsThreeDots />
                 <div className="absolute top-0 right-0 flex-col hidden w-full overflow-hidden bg-white rounded-l-lg min-w-min group-hover/dots:flex">
                   <button
@@ -100,7 +101,7 @@ const Conversation = ({
                     Block
                   </button>
                 </div>
-              </button>
+              </div>
             </div>
           </div>
           <p className="text-xs text-gray-500">
@@ -153,7 +154,7 @@ const ChatSidebar = () => {
         </div>
       </div>
       {showChatSidebar && (
-        <ul className="w-full overflow-scroll no-scrollbar ">
+        <ul className="no-scrollbar w-full overflow-scroll ">
           {sampleConvos.map((item, idx) => (
             <li
               key={idx}

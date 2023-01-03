@@ -1,18 +1,20 @@
 import { ReactElement, useEffect, useState } from "react";
 
-import BaseModal from "@components/common/BaseModal";
-import { ExternalLink } from "@components/common/Links";
-import MainLayout from "@components/layout";
-import * as api from "@lib/api";
-import Button from "@ui/Button";
 import cn from "classnames";
-import { useAuthContext } from "context/auth.context";
-import { IUser, SetStateFunc } from "global/types";
 import Image from "next/image";
 import { useRouter } from "next/router";
 import { BiEdit } from "react-icons/bi";
 import { FaGlobe, FaTwitter } from "react-icons/fa";
 import { IconType } from "react-icons/lib";
+
+import BaseModal from "@components/common/BaseModal";
+import { ExternalLink } from "@components/common/Links";
+import LoadingPage from "@components/common/LoadingPage";
+import MainLayout from "@components/layout";
+import * as api from "@lib/api";
+import Button from "@ui/Button";
+import { useAuthContext } from "context/auth.context";
+import { IUser, SetStateFunc } from "global/types";
 
 const UtilityButton = ({
   icon,
@@ -51,7 +53,7 @@ const SocialLink = ({
   return (
     <ExternalLink
       href={href}
-      className="group flex h-8 cursor-pointer items-center overflow-hidden"
+      className="group flex items-center h-8 overflow-hidden cursor-pointer"
     >
       {icon}
       <p className="w-56">
@@ -86,13 +88,13 @@ const UserInfo = ({
       </header>
       {/* Socials */}
       <article className="hidden sm:flex">
-        <ul className="flex flex-col items-start gap-y-4 px-4">
+        <ul className="flex flex-col items-start px-4 gap-y-4">
           {links?.twitter && (
             <SocialLink
               href={`https://twitter.com/${links.twitter}`}
               title={`@${links.twitter}`}
               icon={
-                <FaTwitter className="mr-3 h-6 w-6 text-blue-500 group-hover:text-blue-400" />
+                <FaTwitter className="w-6 h-6 mr-3 text-blue-500 group-hover:text-blue-400" />
               }
             />
           )}
@@ -100,7 +102,7 @@ const UserInfo = ({
             href={`https://intra.42.fr/users/${links.intra}`}
             title={`@${links.intra}`}
             icon={
-              <FaGlobe className="mr-3 h-6 w-6 text-gray-700 group-hover:text-gray-500" />
+              <FaGlobe className="w-6 h-6 mr-3 text-gray-700 group-hover:text-gray-500" />
             }
           />
         </ul>
@@ -109,7 +111,7 @@ const UserInfo = ({
   );
 };
 const UserNotFoundHeader = ({ username }: { username: string }) => (
-  <section className="w-full rounded-b-xl bg-white py-2 shadow-md">
+  <section className="w-full py-2 bg-white shadow-md rounded-b-xl">
     <div className="flex items-start justify-between p-10">
       <p className="text-lg font-semibold text-gray-800">@{username}</p>
     </div>
@@ -137,8 +139,8 @@ const UserInfoHeader = ({
   setIsCoverModalOpen: SetStateFunc<boolean>;
   setIsAvatarModalOpen: SetStateFunc<boolean>;
 }) => (
-  <div className="flex w-full flex-col gap-y-2 px-2">
-    <div className="flex w-full justify-between gap-x-2">
+  <div className="flex flex-col w-full px-2 gap-y-2">
+    <div className="flex justify-between w-full gap-x-2">
       {/* Cover and profile picture */}
       <div className="w-full">
         <figure className="relative w-full h-[220px]">
@@ -152,10 +154,10 @@ const UserInfoHeader = ({
               }
               onClick={() => setIsCoverModalOpen(true)}
               fill
-              className="rounded-t-xl object-fill cursor-pointer"
+              className="object-fill cursor-pointer rounded-t-xl"
             />
           ) : (
-            <div className="w-full h-full rounded-t-xl bg-gray-300 " />
+            <div className="w-full h-full bg-gray-300 rounded-t-xl " />
           )}
           <figure
             className="w-[160px] h-[160px] absolute -bottom-14 left-8 rounded-full sm:-bottom-8 sm:left-10 ring-4 ring-white"
@@ -170,21 +172,21 @@ const UserInfoHeader = ({
                     : "avatar placeholder"
                 }
                 fill
-                className="rounded-full object-cover cursor-pointer"
+                className="object-cover rounded-full cursor-pointer"
               />
             ) : (
-              <div className="w-full h-full rounded-full bg-gray-200 " />
+              <div className="w-full h-full bg-gray-200 rounded-full " />
             )}
           </figure>
         </figure>
         {user ? (
-          <section className="w-full rounded-b-xl bg-white py-2 shadow-md">
+          <section className="w-full py-2 bg-white shadow-md rounded-b-xl">
             {/* Action buttons */}
-            <div className="flex h-12 w-full justify-end ">
-              <div className="flex w-1/2 justify-end px-6 py-1 ">
+            <div className="flex justify-end w-full h-12 ">
+              <div className="flex justify-end w-1/2 px-6 py-1 ">
                 {isMyProfile ? (
                   <UtilityButton
-                    icon={<BiEdit className="h-6 w-6" />}
+                    icon={<BiEdit className="w-6 h-6" />}
                     onClick={() => {
                       setIsAvatarModalOpen(true);
                     }}
@@ -253,31 +255,10 @@ const ProfilePage = () => {
 
   if (ctx.isAuthenticated === false) {
     return (
-      <div className="flex items-center justify-center h-screen w-full">
-        <svg
-          className="animate-spin h-5 w-5 mr-3"
-          xmlns="http://www.w3.org/2000/svg"
-          fill="none"
-          viewBox="0 0 24 24"
-        >
-          <circle
-            className="opacity-25"
-            cx="12"
-            cy="12"
-            r="10"
-            stroke="currentColor"
-            strokeWidth="4"
-          ></circle>
-          <path
-            className="opacity-75"
-            fill="currentColor"
-            d="M4 12a8 8 0 018-8v8H4z"
-          ></path>
-        </svg>
-        <span className="text-gray-500 text-sm font-medium">
-          Redirecting...
-        </span>
-      </div>
+      <LoadingPage
+        message="You are not logged in. Redirecting to home page..."
+        loadingMessage="Redirecting to home page..."
+      />
     );
   }
 
@@ -303,7 +284,7 @@ const ProfilePage = () => {
               src={user?.avatarUrl || "/images/avatar-placeholder.png"}
               alt={`avatar for ${username}`}
               fill
-              className="rounded-full object-cover"
+              className="object-cover rounded-full"
             />
           </div>
         </BaseModal>

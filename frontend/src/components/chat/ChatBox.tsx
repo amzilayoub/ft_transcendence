@@ -31,7 +31,7 @@ const ChatBox = () => {
 
       <ul
         id="messages"
-        className="flex flex-col h-full p-3 space-y-4 overflow-y-scroll scrolling-touch scrollbar-thumb scrollbar-thumb-rounded scrollbar-track scrollbar-w-2 mb-14"
+        className="scrolling-touch scrollbar-thumb scrollbar-thumb-rounded scrollbar-track scrollbar-w-2 flex flex-col h-full p-3 space-y-4 overflow-y-scroll mb-14"
       >
         <li className="chat-message">
           <div className="flex items-end">

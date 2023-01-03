@@ -1,10 +1,11 @@
 import React from "react";
 
+import cn from "classnames";
+import Head from "next/head";
+
 import ChatBox from "@components/chat/ChatBox";
 import ChatSidebar from "@components/chat/ChatSidebar";
 import Navbar from "@components/navbar";
-import cn from "classnames";
-import Head from "next/head";
 
 interface MainLayoutProps {
   children: React.ReactNode;
