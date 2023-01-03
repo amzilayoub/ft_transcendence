@@ -1,11 +1,12 @@
 import React from "react";
 
-import MiddleBar from "@components/chat/MiddleBar";
-import TextInput from "@ui/TextInput";
 import cn from "classnames";
 import Head from "next/head";
 import Link from "next/link";
 import { Swiper, SwiperSlide } from "swiper/react";
+
+import MiddleBar from "@components/chat/MiddleBar";
+import TextInput from "@ui/TextInput";
 
 // import { useRouter } from "next/router";
 

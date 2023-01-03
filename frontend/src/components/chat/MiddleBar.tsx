@@ -1,6 +1,5 @@
 import React from "react";
 
-import { BiSearchAlt2 } from "react-icons/bi";
 interface IProps {
   title: string;
   children: React.ReactNode;

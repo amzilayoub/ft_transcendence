@@ -1,18 +1,19 @@
 import { ReactElement, useEffect, useState } from "react";
 
-import BaseModal from "@components/common/BaseModal";
-import { ExternalLink } from "@components/common/Links";
-import MainLayout from "@components/layout";
-import * as api from "@lib/api";
-import Button from "@ui/Button";
 import cn from "classnames";
-import { useAuthContext } from "context/auth.context";
-import { IUser, SetStateFunc } from "global/types";
 import Image from "next/image";
 import { useRouter } from "next/router";
 import { BiEdit } from "react-icons/bi";
 import { FaGlobe, FaTwitter } from "react-icons/fa";
 import { IconType } from "react-icons/lib";
+
+import BaseModal from "@components/common/BaseModal";
+import { ExternalLink } from "@components/common/Links";
+import MainLayout from "@components/layout";
+import * as api from "@lib/api";
+import Button from "@ui/Button";
+import { useAuthContext } from "context/auth.context";
+import { IUser, SetStateFunc } from "global/types";
 
 const UtilityButton = ({
   icon,

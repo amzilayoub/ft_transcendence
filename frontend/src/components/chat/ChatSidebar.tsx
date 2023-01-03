@@ -1,45 +1,12 @@
 import React, { useState } from "react";
 
-import { truncateString } from "@utils/format";
 import cn from "classnames";
 import { BsThreeDots, BsVolumeMute } from "react-icons/bs";
 import { MdBlockFlipped } from "react-icons/md";
 import { SlArrowDown } from "react-icons/sl";
 
-const sampleConvos = [
-  {
-    avatar: "https://martinfowler.com/mf.jpg",
-    name: "John Doe",
-    lastMessage:
-      "Lorem ipsum dolor sit amet consectetur adipisicing elit. Quisquam, quod.",
-    lastMessageTime: "12:00",
-    unreadMessages: 1,
-  },
-  {
-    avatar: "https://martinfowler.com/mf.jpg",
-    name: "John Doe",
-    lastMessage:
-      "Lorem ipsum dolor sit amet consectetur adipisicing elit. Quisquam, quod.",
-    lastMessageTime: "12:00",
-    unreadMessages: 1,
-  },
-  {
-    avatar: "https://martinfowler.com/mf.jpg",
-    name: "John Doe",
-    lastMessage:
-      "Lorem ipsum dolor sit amet consectetur adipisicing elit. Quisquam, quod.",
-    lastMessageTime: "12:00",
-    unreadMessages: 1,
-  },
-  {
-    avatar: "https://martinfowler.com/mf.jpg",
-    name: "John Doe",
-    lastMessage:
-      "Lorem ipsum dolor sit amet consectetur adipisicing elit. Quisquam, quod.",
-    lastMessageTime: "12:00",
-    unreadMessages: 1,
-  },
-];
+import { truncateString } from "@utils/format";
+import { IConversation } from "global/types";
 
 const Conversation = ({
   avatar,
@@ -61,7 +28,7 @@ const Conversation = ({
   onBlockClick: () => void;
 }) => {
   return (
-    <div onClick={onConversationClick} className="w-full cursor-pointer group">
+    <div onClick={onConversationClick} className="group w-full cursor-pointer">
       <div className="flex items-center ">
         <img
           src={avatar}
@@ -76,7 +43,7 @@ const Conversation = ({
               <h1 className="text-xs text-gray-500 group-hover:hidden">
                 {lastMessageTime}
               </h1>
-              <button className="relative items-center justify-center hidden text-xs duration-200 group/dots w-7 h-7 hover:bg-gray-300 group-hover:flex">
+              <div className="group/dots relative items-center justify-center hidden text-xs duration-200 w-7 h-7 hover:bg-gray-300 group-hover:flex">
                 <BsThreeDots />
                 <div className="absolute top-0 right-0 flex-col hidden w-full overflow-hidden bg-white rounded-l-lg min-w-min group-hover/dots:flex">
                   <button
@@ -100,7 +67,7 @@ const Conversation = ({
                     Block
                   </button>
                 </div>
-              </button>
+              </div>
             </div>
           </div>
           <p className="text-xs text-gray-500">
@@ -119,7 +86,13 @@ const Conversation = ({
   );
 };
 
-const ChatSidebar = () => {
+const ChatSidebar = ({
+  conversations,
+  onConversationClick,
+}: {
+  conversations: IConversation[];
+  onConversationClick: (convoId: string) => void;
+}) => {
   const [showChatSidebar, setShowChatSidebar] = useState(true);
 
   const allUnreadMessages = 5;
@@ -153,19 +126,19 @@ const ChatSidebar = () => {
         </div>
       </div>
       {showChatSidebar && (
-        <ul className="w-full overflow-scroll no-scrollbar ">
-          {sampleConvos.map((item, idx) => (
+        <ul className="no-scrollbar w-full overflow-scroll ">
+          {conversations.map((item, idx) => (
             <li
               key={idx}
               className="flex items-center justify-between w-full px-3 py-2 border-b border-gray-200 hover:bg-slate-200"
             >
               <Conversation
-                avatar={item.avatar}
+                avatar={item.avatarUrl}
                 name={item.name}
                 lastMessage={item.lastMessage}
                 lastMessageTime={item.lastMessageTime}
                 unreadMessages={item.unreadMessages}
-                onConversationClick={() => console.log("conversation clicked")}
+                onConversationClick={() => onConversationClick(item.id)}
                 onMuteClick={() => console.log("mute clicked")}
                 onBlockClick={() => console.log("block clicked")}
               />
