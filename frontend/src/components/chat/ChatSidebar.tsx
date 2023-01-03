@@ -29,7 +29,7 @@ const Conversation = ({
 }) => {
   return (
     <div onClick={onConversationClick} className="group w-full cursor-pointer">
-      <div className="flex items-center ">
+      <div className="flex items-center">
         <img
           src={avatar}
           alt={`${name} avatar`}
@@ -99,13 +99,16 @@ const ChatSidebar = ({
   return (
     <div
       className={cn(
-        "flex flex-col w-72 items-center h-full bg-white border border-gray-300 shadow-lg rounded-t-2xl",
+        "flex flex-col w-72 items-center bg-white border border-gray-300 overflow-hidden shadow-lg rounded-t-2xl",
         {
-          "min-h-[calc(100vh-32vh)]": showChatSidebar,
+          "h-[calc(100vh-32vh)]": showChatSidebar,
         }
       )}
     >
-      <div className="flex items-center justify-between w-full p-3 border-b">
+      <div
+        onClick={() => setShowChatSidebar(!showChatSidebar)}
+        className="flex cursor-pointer items-center justify-between w-full p-3 border-b "
+      >
         <p className="font-semibold ">Messages</p>
         <div className="flex items-center justify-between gap-x-2">
           <div className="flex justify-end">
@@ -115,37 +118,38 @@ const ChatSidebar = ({
               </div>
             )}
           </div>
-          <div
-            onClick={() => setShowChatSidebar(!showChatSidebar)}
-            className="flex items-center justify-center text-xs duration-100 rounded-full cursor-pointer w-7 h-7 hover:bg-gray-200 "
-          >
+          <div className="flex items-center justify-center text-xs duration-100 rounded-full cursor-pointer w-7 h-7 hover:bg-gray-200 ">
             <SlArrowDown
               className={cn({ "transform rotate-180": !showChatSidebar })}
             />
           </div>
         </div>
       </div>
-      {showChatSidebar && (
-        <ul className="no-scrollbar w-full overflow-scroll ">
-          {conversations.map((item, idx) => (
-            <li
-              key={idx}
-              className="flex items-center justify-between w-full px-3 py-2 border-b border-gray-200 hover:bg-slate-200"
-            >
-              <Conversation
-                avatar={item.avatarUrl}
-                name={item.name}
-                lastMessage={item.lastMessage}
-                lastMessageTime={item.lastMessageTime}
-                unreadMessages={item.unreadMessages}
-                onConversationClick={() => onConversationClick(item.id)}
-                onMuteClick={() => console.log("mute clicked")}
-                onBlockClick={() => console.log("block clicked")}
-              />
-            </li>
-          ))}
-        </ul>
-      )}
+      <ul
+        className={cn("w-full overflow-y-scroll ", {
+          block: showChatSidebar,
+          hidden: !showChatSidebar,
+        })}
+      >
+        {conversations.map((item, idx) => (
+          <li
+            key={idx}
+            onClick={() => onConversationClick(item.id)}
+            className="flex items-center justify-between cursor-pointer w-full px-3 py-3.5 border-b border-gray-200 hover:bg-slate-200"
+          >
+            <Conversation
+              avatar={item.avatarUrl}
+              onConversationClick={() => {}}
+              name={item.name}
+              lastMessage={item.lastMessage}
+              lastMessageTime={item.lastMessageTime}
+              unreadMessages={item.unreadMessages}
+              onMuteClick={() => console.log("mute clicked")}
+              onBlockClick={() => console.log("block clicked")}
+            />
+          </li>
+        ))}
+      </ul>
     </div>
   );
 };

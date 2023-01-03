@@ -155,7 +155,7 @@ export const ChatProvider = ({ children }: { children: React.ReactNode }) => {
     () => ({
       activeBoxes,
       deleteBox,
-      conversations: initialState.conversations,
+      conversations: [...new Array(20)].fill(initialState.conversations[0]),
       wholeConversation: {
         ...initialState.wholeConversation,
         messages: [
