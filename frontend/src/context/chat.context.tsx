@@ -1,53 +1,154 @@
-import React, { createContext } from "react";
+import React, { createContext, useMemo } from "react";
 
-const getUserData = () => {
-  var data: ContextProps = {
-    username: "mbifenzi",
-    firstName: "mohamed",
-    lastName: "bifenzi",
-    email: "mbifenzi@1337.student.ma",
-    avatar: "",
-    friends: [],
-    rooms: [],
-    id: 1,
-  };
-  // axios.get("http://localhost:3000/api/user").then((res) => {
-  // data = res.data;
-  // }).catch((err) => {
-  // o the error
-  return data;
-};
+import { getToken } from "@utils/auth-token";
+import { IConversation } from "global/types";
 
-interface ContextProps {
-  username: string;
-  firstName: string;
-  lastName: string;
-  email: string;
-  friends: string[];
-  avatar: string;
-  rooms: string[];
-  id: number;
+export interface IChatContext {
+  activeBoxes: string[];
+  conversations: IConversation[];
+  error: string;
+  setError: React.Dispatch<React.SetStateAction<string>>;
+  activateBox: (id: string) => void;
+  deleteBox: (id: string) => void;
+  loadConversations: () => Promise<void>;
+  loadSingleConversation: (id: string) => Promise<any>;
 }
 
-export const Context = createContext(getUserData());
+const initialState: IChatContext = {
+  activeBoxes: [],
+  conversations: [
+    {
+      id: "1",
+      avatarUrl: "https://martinfowler.com/mf.jpg",
+      name: "John Doe",
+      lastMessage:
+        "Lorem ipsum dolor sit amet consectetur adipisicing elit. Quisquam, quod.",
+      lastMessageTime: "12:00",
+      unreadMessagesCount: 1,
+    },
+    {
+      id: "2",
+      avatarUrl: "https://martinfowler.com/mf.jpg",
+      name: "John Doe",
+      lastMessage:
+        "Lorem ipsum dolor sit amet consectetur adipisicing elit. Quisquam, quod.",
+      lastMessageTime: "12:00",
+      unreadMessagesCount: 1,
+    },
+    {
+      id: "3",
+      avatarUrl: "https://martinfowler.com/mf.jpg",
+      name: "John Doe",
+      lastMessage:
+        "Lorem ipsum dolor sit amet consectetur adipisicing elit. Quisquam, quod.",
+      lastMessageTime: "12:00",
+      unreadMessagesCount: 1,
+    },
+    {
+      id: "4",
+      avatarUrl: "https://martinfowler.com/mf.jpg",
+      name: "John Doe",
+      lastMessage:
+        "Lorem ipsum dolor sit amet consectetur adipisicing elit. Quisquam, quod.",
+      lastMessageTime: "12:00",
+      unreadMessagesCount: 1,
+    },
+  ],
+  error: "",
+  setError: () => {},
+  activateBox: () => {},
+  deleteBox: () => {},
+  loadConversations: () => Promise.resolve(),
+  loadSingleConversation: () => Promise.resolve(),
+};
 
-// export const userContext = () => useContext(Context);
+export const ChatContext = createContext<IChatContext>(initialState);
 
-export const ContextProvider = ({
-  children,
-}: {
-  children: React.ReactNode;
-}) => {
-  const userContext = {
-    username: "",
-    firstName: "",
-    lastName: "",
-    email: "",
-    friends: [""],
-    avatar: "",
-    rooms: [""],
-    id: 1,
+export const ChatProvider = ({ children }: { children: React.ReactNode }) => {
+  const [activeBoxes, setActiveBoxes] = React.useState<string[]>([]);
+  const [conversations, setConversations] = React.useState([]); // these only contain the last message (meta data)
+  const [error, setError] = React.useState("");
+
+  const loadConversations = async () => {
+    try {
+      const resp = await fetch(
+        `${process.env.NEXT_PUBLIC_API_URL}/conversations`,
+        {
+          headers: {
+            Authorization: "Bearer " + getToken(),
+          },
+        }
+      );
+
+      if (resp.status === 200) {
+        const data = await resp.json();
+        setConversations(data);
+      }
+    } catch (error) {
+      setError(error.message);
+    }
   };
 
-  return <Context.Provider value={userContext}></Context.Provider>;
+  const loadSingleConversation = async (id: string) => {
+    try {
+      const resp = await fetch(
+        `${process.env.NEXT_PUBLIC_API_URL}/conversations/${id}`,
+        {
+          headers: {
+            Authorization: "Bearer " + getToken(),
+          },
+        }
+      );
+
+      if (resp.status === 200) {
+        const data = await resp.json();
+        return data;
+      }
+    } catch (error) {
+      setError(error.message);
+    }
+  };
+
+  const activateBox = (id: string) => {
+    if (activeBoxes.includes(id)) return;
+    if (activeBoxes.length === 3) {
+      setActiveBoxes([...activeBoxes.slice(1), id]);
+    } else setActiveBoxes([...activeBoxes, id]);
+  };
+
+  const deleteBox = (id: string) => {
+    setActiveBoxes(activeBoxes.filter((box) => box !== id));
+  };
+
+  const value = useMemo(
+    () => ({
+      activeBoxes,
+      deleteBox,
+      conversations: initialState.conversations,
+      error,
+      setError,
+      activateBox,
+      loadConversations,
+      loadSingleConversation,
+    }),
+    [
+      activeBoxes,
+      conversations,
+      error,
+      setError,
+      // activateBox,
+      // loadConversations,
+      // loadSingleConversation,
+    ]
+  );
+
+  return <ChatContext.Provider value={value}>{children}</ChatContext.Provider>;
+};
+
+export const useChatContext = () => {
+  const context = React.useContext(ChatContext);
+  if (context === undefined) {
+    throw new Error("useChatContext must be used within a ChatProvider");
+  }
+  return context;
 };

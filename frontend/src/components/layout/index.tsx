@@ -3,6 +3,7 @@ import React from "react";
 import cn from "classnames";
 import Head from "next/head";
 
+import ChatStuff from "@components/chat/ChatStuff";
 import Navbar from "@components/navbar";
 
 interface MainLayoutProps {
@@ -32,15 +33,16 @@ const MainLayout: React.FC<MainLayoutProps> = ({
         <title>{title}</title>
       </Head>
       <Navbar />
-      <main className="flex h-full min-h-screen w-full">
+      <main className="flex w-full h-full min-h-screen">
         <div
           className={cn(
-            "pt-20 flex flex-col items-center w-full justify-center h-full",
+            "pt-20 flex flex-col items-center w-full justify-center h-full relative",
             backgroundColor
           )}
         >
           {children}
         </div>
+        <ChatStuff />
       </main>
     </>
   );

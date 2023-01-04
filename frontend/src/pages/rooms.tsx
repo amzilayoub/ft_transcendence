@@ -1,10 +1,10 @@
 import React from "react";
 
-import Leftbar from "@components/chat/Leftbar";
-import MiddleBar from "@components/chat/MiddleBar";
 import Head from "next/head";
 import Link from "next/link";
-import { BiSearchAlt2 } from "react-icons/bi";
+
+import Leftbar from "@components/chat/Leftbar";
+import MiddleBar from "@components/chat/MiddleBar";
 
 const Rooms = () => {
   const rooms = [

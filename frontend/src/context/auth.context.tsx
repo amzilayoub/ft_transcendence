@@ -61,6 +61,7 @@ const AuthContextProvider = ({ children }: { children: React.ReactNode }) => {
         setUser(userData);
         setLoadingUser(false);
       } else {
+        console.log("resp", resp);
         const data = await resp.json();
         setError(data.message);
       }
@@ -148,6 +149,7 @@ const AuthContextProvider = ({ children }: { children: React.ReactNode }) => {
     if (getToken()) {
       setIsAuthenticated(true); // tmp
       (async () => {
+        console.log("loadUserData()");
         const data = await loadUserData();
         setUser(data);
         setLoadingUser(false);

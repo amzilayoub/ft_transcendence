@@ -38,3 +38,13 @@ export interface IUserAnalytics {
 }
 
 export interface ICurrentUser extends IUser {}
+
+// this holds only the data that is needed to display a conversation
+export interface IConversation {
+  id: string;
+  name: string;
+  avatarUrl: string;
+  lastMessage: string;
+  lastMessageTime: string;
+  unreadMessagesCount: number;
+}
