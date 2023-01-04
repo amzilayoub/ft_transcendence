@@ -1,12 +1,11 @@
 import React, { createContext, useMemo } from "react";
 
 import { getToken } from "@utils/auth-token";
-import { IConversation } from "global/types";
+import { IConversation, IConversationMetaData } from "global/types";
 
 export interface IChatContext {
   activeBoxes: string[];
-  conversations: IConversation[];
-  wholeConversations: any[];
+  conversationsMetadata: IConversationMetaData[];
   error: string;
   setError: React.Dispatch<React.SetStateAction<string>>;
   activateBox: (id: string) => void;
@@ -17,7 +16,7 @@ export interface IChatContext {
 
 const initialState: IChatContext = {
   activeBoxes: [],
-  conversations: [
+  conversationsMetadata: [
     {
       id: "1",
       avatarUrl: "https://martinfowler.com/mf.jpg",
@@ -55,35 +54,6 @@ const initialState: IChatContext = {
       unreadMessagesCount: 1,
     },
   ],
-  wholeConversation: {
-    id: "1",
-    members: [
-      {
-        id: "1",
-        name: "John Doe",
-        avatarUrl: "https://martinfowler.com/mf.jpg",
-      },
-      {
-        id: "2",
-        name: "Mike Doe",
-        avatarUrl: "https://martinfowler.com/mf.jpg",
-      },
-    ],
-    messages: [
-      {
-        id: "1",
-        senderId: "1",
-        text: "Lorem ipsum dolor sit amet consectetur adipisicing elit. Quisquam, quod. Lorem ipsum dolor sit amet consectetur adipisicing elit. Quisquam, quodZ.",
-        time: "12:00",
-      },
-      {
-        id: "2",
-        senderId: "2",
-        text: "Lorem ipsum dolor sit amet consectetur adipisicing elit. Quisquam, quod.",
-        time: "12:00",
-      },
-    ],
-  },
 
   error: "",
   setError: () => {},
@@ -97,10 +67,10 @@ export const ChatContext = createContext<IChatContext>(initialState);
 
 export const ChatProvider = ({ children }: { children: React.ReactNode }) => {
   const [activeBoxes, setActiveBoxes] = React.useState<string[]>([]);
-  const [conversations, setConversations] = React.useState([]); // these only contain the last message (meta data)
+  const [conversationsMetadata, setConversationsMetadata] = React.useState([]); // these only contain the last message (meta data)
   const [error, setError] = React.useState("");
 
-  const loadConversations = async () => {
+  const loadConversationsMetadata = async () => {
     try {
       const resp = await fetch(
         `${process.env.NEXT_PUBLIC_API_URL}/conversations`,
@@ -113,7 +83,7 @@ export const ChatProvider = ({ children }: { children: React.ReactNode }) => {
 
       if (resp.status === 200) {
         const data = await resp.json();
-        setConversations(data);
+        setConversationsMetadata(data);
       }
     } catch (error) {
       setError(error.message);
@@ -155,22 +125,18 @@ export const ChatProvider = ({ children }: { children: React.ReactNode }) => {
     () => ({
       activeBoxes,
       deleteBox,
-      conversations: [...new Array(20)].fill(initialState.conversations[0]),
-      wholeConversation: {
-        ...initialState.wholeConversation,
-        messages: [
-          ...Array(10).fill(initialState.wholeConversation.messages[0]),
-        ],
-      },
+      conversationsMetadata: [...new Array(20)].fill(
+        initialState.conversationsMetadata[0]
+      ),
       error,
       setError,
       activateBox,
-      loadConversations,
+      loadConversationsMetadata,
       loadSingleConversation,
     }),
     [
       activeBoxes,
-      conversations,
+      conversationsMetadata,
       error,
       setError,
       // activateBox,

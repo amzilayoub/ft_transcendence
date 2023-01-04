@@ -1,21 +1,8 @@
-import React from "react";
+import React, { useState } from "react";
 
 import cn from "classnames";
 import { RxCross2 } from "react-icons/rx";
-
-import { useChatContext } from "context/chat.context";
-
-interface IMessage {
-  id: string;
-  senderId: string;
-  text: string;
-  time: string;
-}
-
-interface IConversation {
-  members: string[];
-  messages: IMessage[];
-}
+import { IConversationMetaData, IMessage } from "global/types";
 
 const Message = ({
   message,
@@ -51,17 +38,64 @@ const Message = ({
   </li>
 );
 
+const sampleWholeConversation = {
+  id: "1",
+  members: [
+    {
+      id: "1",
+      name: "John Doe",
+      avatarUrl: "https://martinfowler.com/mf.jpg",
+    },
+    {
+      id: "2",
+      name: "Mike Doe",
+      avatarUrl: "https://martinfowler.com/mf.jpg",
+    }
+  ],
+  messages: [
+    {
+      id: "1",
+      senderId: "1",
+      text: "Lorem ipsum dolor sit amet consectetur adipisicing elit. Quisquam, quod. Lorem ipsum dolor sit amet consectetur adipisicing elit. Quisquam, quodZ.",
+      time: "12:00",
+    },
+    {
+      id: "2",
+      senderId: "2",
+      text: "Lorem ipsum dolor sit amet consectetur adipisicing elit. Quisquam, quod.",
+      time: "12:00",
+    }
+  ]
+};
+
 const ChatBox = ({
-  conversation,
+  conversationMetadata,
   onClose,
 }: {
-  conversation: IConversation;
+  conversationMetadata: IConversationMetaData;
   onClose: any;
 }) => {
-  const { wholeConversation } = useChatContext();
+  const [conversation, setConversation] = useState(sampleWholeConversation);
+  const [input, setInput] = useState("");
+
+  const handleSendMessage = (e: any) => {
+    e.preventDefault();
+    if (!input || input.trim() === "" || input.length > 1000) return;
+    const newMessage: IMessage = {
+      id: "123",
+      senderId: "123",
+      text: input,
+      time: "12:00",
+    };
+    setConversation({
+      ...conversation,
+      messages: [...conversation.messages, newMessage],
+    });
+    setInput("");
+  };
 
   return (
-    <section className="relative flex flex-col h-full  bg-white border border-gray-200  h-[440px] rounded-t-xl w-[340px]">
+    <section className="relative flex flex-col bg-white border border-gray-200  h-[440px] rounded-t-xl w-[340px]">
       <div className="flex justify-between p-3 border-b-2 border-gray-200 sm:items-center">
         <div className="relative flex items-center space-x-4">
           <div className="relative">
@@ -71,15 +105,15 @@ const ChatBox = ({
               </svg>
             </span>
             <img
-              src={wholeConversation.members[0].avatarUrl}
-              alt={`${wholeConversation.members[0].name || "User"}'s avatar`}
+              src={conversation.members[0].avatarUrl}
+              alt={`${conversation.members[0].name || "User"}'s avatar`}
               className="w-10 h-10 rounded-full sm:w-16 sm:h-16"
             />
           </div>
           <div className="flex flex-col leading-tight">
             <div className="flex items-center mt-1 text-2xl">
               <span className="mr-3 text-gray-700">
-                {wholeConversation.members[0].name}
+                {conversation.members[0].name}
               </span>
             </div>
           </div>
@@ -96,28 +130,34 @@ const ChatBox = ({
         id="messages"
         className="scrolling-touch scrollbar-thumb scrollbar-thumb-rounded scrollbar-track scrollbar-w-2 flex flex-col h-full p-3 space-y-4 overflow-y-scroll mb-14"
       >
-        {wholeConversation.messages.map((message: IMessage, index: number) => (
+        {conversation.messages.map((message: IMessage, index: number) => (
           <Message
             key={message.id}
             message={message.text}
-            senderAvatar={wholeConversation.members[0].avatarUrl}
+            senderAvatar={conversation.members[0].avatarUrl}
             isMe={index % 2 === 0}
           />
         ))}
       </ul>
       {/* inputa */}
       <div className="absolute bottom-0 w-full h-16 pt-4 mb-2 border-gray-200 sm:mb-0">
-        <div className="relative flex">
+        <form className="relative flex" onSubmit={handleSendMessage}>
           <input
+            value={input}
+          onChange={(e) => {
+            setInput(e.target.value);
+          }}
             type="text"
             placeholder="Write your message!"
             className="w-full py-3 pl-3 text-gray-600 bg-gray-200 rounded-md placeholder:text-gray-600 focus:outline-none focus:placeholder:text-gray-400"
           />
           <div className="absolute inset-y-0 right-0 items-center hidden sm:flex">
             <button
+              onClick={handleSendMessage}
               type="button"
               className="inline-flex items-center justify-center px-4 py-3 text-white transition duration-500 ease-in-out bg-blue-500 rounded-lg hover:bg-blue-400 focus:outline-none"
             >
+              send
               <svg
                 xmlns="http://www.w3.org/2000/svg"
                 viewBox="0 0 20 20"
@@ -128,7 +168,7 @@ const ChatBox = ({
               </svg>
             </button>
           </div>
-        </div>
+        </form>
       </div>
 
       <style>{`

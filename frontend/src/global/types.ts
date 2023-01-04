@@ -48,3 +48,15 @@ export interface IConversationMetaData {
   lastMessageTime: string;
   unreadMessagesCount: number;
 }
+
+export interface IMessage {
+  id: string;
+  senderId: string;
+  text: string;
+  time: string;
+}
+
+export interface IConversation {
+  members: string[];
+  messages: IMessage[];
+}

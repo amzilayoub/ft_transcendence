@@ -17,6 +17,7 @@ const Conversation = ({
   onConversationClick,
   onMuteClick,
   onBlockClick,
+  onSubmitClick,
 }: {
   avatar: string;
   name: string;
@@ -26,6 +27,7 @@ const Conversation = ({
   onConversationClick: () => void;
   onMuteClick: () => void;
   onBlockClick: () => void;
+  onSubmitClick: () => void;
 }) => {
   return (
     <div onClick={onConversationClick} className="group w-full cursor-pointer">
@@ -87,10 +89,10 @@ const Conversation = ({
 };
 
 const ChatSidebar = ({
-  conversations,
+  conversationsMetadata,
   onConversationClick,
 }: {
-  conversations: IConversationMetaData[];
+  conversationsMetadata: IConversationMetaData[];
   onConversationClick: (convoId: string) => void;
 }) => {
   const [showChatSidebar, setShowChatSidebar] = useState(true);
@@ -131,7 +133,7 @@ const ChatSidebar = ({
           hidden: !showChatSidebar,
         })}
       >
-        {conversations.map((item, idx) => (
+        {conversationsMetadata.map((item, idx) => (
           <li
             key={idx}
             onClick={() => onConversationClick(item.id)}
@@ -149,6 +151,7 @@ const ChatSidebar = ({
             />
           </li>
         ))}
+        <div className="h-52" />
       </ul>
     </div>
   );
