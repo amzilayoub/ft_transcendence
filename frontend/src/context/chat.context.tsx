@@ -1,7 +1,7 @@
 import React, { createContext, useMemo } from "react";
 
 import { getToken } from "@utils/auth-token";
-import { IConversation, IConversationMetaData } from "global/types";
+import { IConversationMetaData } from "global/types";
 
 export interface IChatContext {
   activeBoxes: string[];

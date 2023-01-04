@@ -2,6 +2,7 @@ import React, { useState } from "react";
 
 import cn from "classnames";
 import { RxCross2 } from "react-icons/rx";
+
 import { IConversationMetaData, IMessage } from "global/types";
 
 const Message = ({
@@ -50,7 +51,7 @@ const sampleWholeConversation = {
       id: "2",
       name: "Mike Doe",
       avatarUrl: "https://martinfowler.com/mf.jpg",
-    }
+    },
   ],
   messages: [
     {
@@ -64,15 +65,15 @@ const sampleWholeConversation = {
       senderId: "2",
       text: "Lorem ipsum dolor sit amet consectetur adipisicing elit. Quisquam, quod.",
       time: "12:00",
-    }
-  ]
+    },
+  ],
 };
 
 const ChatBox = ({
-  conversationMetadata,
+  _conversationMetadata,
   onClose,
 }: {
-  conversationMetadata: IConversationMetaData;
+  _conversationMetadata: IConversationMetaData;
   onClose: any;
 }) => {
   const [conversation, setConversation] = useState(sampleWholeConversation);
@@ -132,7 +133,7 @@ const ChatBox = ({
       >
         {conversation.messages.map((message: IMessage, index: number) => (
           <Message
-            key={message.id}
+            key={`message-${message.id}-${index}`}
             message={message.text}
             senderAvatar={conversation.members[0].avatarUrl}
             isMe={index % 2 === 0}
@@ -144,9 +145,9 @@ const ChatBox = ({
         <form className="relative flex" onSubmit={handleSendMessage}>
           <input
             value={input}
-          onChange={(e) => {
-            setInput(e.target.value);
-          }}
+            onChange={(e) => {
+              setInput(e.target.value);
+            }}
             type="text"
             placeholder="Write your message!"
             className="w-full py-3 pl-3 text-gray-600 bg-gray-200 rounded-md placeholder:text-gray-600 focus:outline-none focus:placeholder:text-gray-400"

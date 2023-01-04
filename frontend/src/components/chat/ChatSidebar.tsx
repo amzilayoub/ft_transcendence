@@ -8,7 +8,7 @@ import { SlArrowDown } from "react-icons/sl";
 import { truncateString } from "@utils/format";
 import { IConversationMetaData } from "global/types";
 
-const Conversation = ({
+const ConversationMetadata = ({
   avatar,
   name,
   lastMessage,
@@ -17,7 +17,6 @@ const Conversation = ({
   onConversationClick,
   onMuteClick,
   onBlockClick,
-  onSubmitClick,
 }: {
   avatar: string;
   name: string;
@@ -27,7 +26,6 @@ const Conversation = ({
   onConversationClick: () => void;
   onMuteClick: () => void;
   onBlockClick: () => void;
-  onSubmitClick: () => void;
 }) => {
   return (
     <div onClick={onConversationClick} className="group w-full cursor-pointer">
@@ -139,7 +137,7 @@ const ChatSidebar = ({
             onClick={() => onConversationClick(item.id)}
             className="flex items-center justify-between cursor-pointer w-full px-3 py-3.5 border-b border-gray-200 hover:bg-slate-200"
           >
-            <Conversation
+            <ConversationMetadata
               avatar={item.avatarUrl}
               onConversationClick={() => {}}
               name={item.name}
