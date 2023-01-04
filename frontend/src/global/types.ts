@@ -40,11 +40,23 @@ export interface IUserAnalytics {
 export interface ICurrentUser extends IUser {}
 
 // this holds only the data that is needed to display a conversation
-export interface IConversation {
+export interface IConversationMetaData {
   id: string;
   name: string;
   avatarUrl: string;
   lastMessage: string;
   lastMessageTime: string;
   unreadMessagesCount: number;
+}
+
+export interface IMessage {
+  id: string;
+  senderId: string;
+  text: string;
+  time: string;
+}
+
+export interface IConversation {
+  members: string[];
+  messages: IMessage[];
 }

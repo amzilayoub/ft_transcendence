@@ -1,11 +1,11 @@
 import React, { createContext, useMemo } from "react";
 
 import { getToken } from "@utils/auth-token";
-import { IConversation } from "global/types";
+import { IConversationMetaData } from "global/types";
 
 export interface IChatContext {
   activeBoxes: string[];
-  conversations: IConversation[];
+  conversationsMetadata: IConversationMetaData[];
   error: string;
   setError: React.Dispatch<React.SetStateAction<string>>;
   activateBox: (id: string) => void;
@@ -16,7 +16,7 @@ export interface IChatContext {
 
 const initialState: IChatContext = {
   activeBoxes: [],
-  conversations: [
+  conversationsMetadata: [
     {
       id: "1",
       avatarUrl: "https://martinfowler.com/mf.jpg",
@@ -54,6 +54,7 @@ const initialState: IChatContext = {
       unreadMessagesCount: 1,
     },
   ],
+
   error: "",
   setError: () => {},
   activateBox: () => {},
@@ -66,10 +67,10 @@ export const ChatContext = createContext<IChatContext>(initialState);
 
 export const ChatProvider = ({ children }: { children: React.ReactNode }) => {
   const [activeBoxes, setActiveBoxes] = React.useState<string[]>([]);
-  const [conversations, setConversations] = React.useState([]); // these only contain the last message (meta data)
+  const [conversationsMetadata, setConversationsMetadata] = React.useState([]); // these only contain the last message (meta data)
   const [error, setError] = React.useState("");
 
-  const loadConversations = async () => {
+  const loadConversationsMetadata = async () => {
     try {
       const resp = await fetch(
         `${process.env.NEXT_PUBLIC_API_URL}/conversations`,
@@ -82,7 +83,7 @@ export const ChatProvider = ({ children }: { children: React.ReactNode }) => {
 
       if (resp.status === 200) {
         const data = await resp.json();
-        setConversations(data);
+        setConversationsMetadata(data);
       }
     } catch (error) {
       setError(error.message);
@@ -124,16 +125,18 @@ export const ChatProvider = ({ children }: { children: React.ReactNode }) => {
     () => ({
       activeBoxes,
       deleteBox,
-      conversations: initialState.conversations,
+      conversationsMetadata: [...new Array(20)].fill(
+        initialState.conversationsMetadata[0]
+      ),
       error,
       setError,
       activateBox,
-      loadConversations,
+      loadConversationsMetadata,
       loadSingleConversation,
     }),
     [
       activeBoxes,
-      conversations,
+      conversationsMetadata,
       error,
       setError,
       // activateBox,

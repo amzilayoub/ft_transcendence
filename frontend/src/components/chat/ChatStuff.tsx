@@ -6,7 +6,7 @@ import ChatBox from "./ChatBox";
 import ChatSidebar from "./ChatSidebar";
 
 const ChatStuff = () => {
-  const { deleteBox, activeBoxes, activateBox, conversations } =
+  const { deleteBox, activeBoxes, activateBox, conversationsMetadata } =
     useChatContext();
 
   return (
@@ -14,13 +14,16 @@ const ChatStuff = () => {
       {true && (
         <ChatSidebar
           onConversationClick={activateBox}
-          conversations={conversations}
+          conversationsMetadata={conversationsMetadata}
         />
       )}
       <ul className="absolute bottom-0 flex right-80 gap-x-3">
         {activeBoxes?.map((i) => (
           <li key={i} className="w-full">
-            <ChatBox onClose={() => deleteBox(i)} />
+            <ChatBox
+              conversationMetadata={conversationsMetadata[i]}
+              onClose={() => deleteBox(i)}
+            />
           </li>
         ))}
       </ul>
