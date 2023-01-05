@@ -19,10 +19,12 @@ model user {
 
     first_name String?
     last_name  String?
-    rooms      room[]
+    avatar_url String? @default("/uploadedFiles/avatars/default.png")
 
-    created_at    DateTime        @default(now())
-    updated_at    DateTime        @updatedAt
+    created_at DateTime @default(now())
+    updated_at DateTime @updatedAt
+
+    rooms         room[]
     room_user_rel room_user_rel[]
     messages      messages[]
 

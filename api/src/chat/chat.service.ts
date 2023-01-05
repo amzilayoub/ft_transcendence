@@ -43,13 +43,17 @@ export class ChatService {
     getUserRooms(userId: number, offset: number = 0): Promise<Array<any>> {
         return this.prismaService.$queryRaw(Prisma.sql`
 			SELECT u2.*, room_type.type,
+			users.avatar_url AS "avatarUrl",
+			room_type.type AS "lastMessage",
+			room_type.created_at AS "lastMessageTime",
+			room_type.id AS "unreadMessagesCount",
 				CASE
 					WHEN room_type.type = 'dm'
 						THEN users.username
 					ELSE
 					--Here I should return the name of the room
 						'shared room'
-					END AS room_name
+					END AS name
 			FROM room_user_rel as u1, room_user_rel as u2, room, room_type, users
 			-- here is inner join
 			WHERE u1.room_id = room.id

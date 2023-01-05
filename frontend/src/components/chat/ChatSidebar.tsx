@@ -31,7 +31,7 @@ const ConversationMetadata = ({
     <div onClick={onConversationClick} className="group w-full cursor-pointer">
       <div className="flex items-center">
         <img
-          src={avatar}
+          src={`${process.env.NEXT_PUBLIC_RESOURCE_URL}/${avatar}`}
           alt={`${name} avatar`}
           className="w-10 h-10 rounded-full"
         />
@@ -93,6 +93,7 @@ const ChatSidebar = ({
   conversationsMetadata: IConversationMetaData[];
   onConversationClick: (convoId: string) => void;
 }) => {
+  console.log("TEST ", conversationsMetadata);
   const [showChatSidebar, setShowChatSidebar] = useState(true);
 
   const allUnreadMessages = 5;
@@ -143,7 +144,7 @@ const ChatSidebar = ({
               name={item.name}
               lastMessage={item.lastMessage}
               lastMessageTime={item.lastMessageTime}
-              unreadMessages={item.unreadMessages}
+              unreadMessages={item.unreadMessagesCount}
               onMuteClick={() => console.log("mute clicked")}
               onBlockClick={() => console.log("block clicked")}
             />
