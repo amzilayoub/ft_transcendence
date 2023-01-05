@@ -13,12 +13,16 @@ datasource db {
 model user {
     id Int @id @default(autoincrement())
 
-    username String @unique
+    username String? @unique
     email    String @unique
     hash     String
-
+    
+    avatar   String?
     first_name String?
     last_name  String?
+    isTwoFactorEnabled Boolean? @default(false)
+    TwoFactorSecret String?
+
     rooms      room[]
 
     created_at    DateTime        @default(now())
