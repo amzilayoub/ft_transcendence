@@ -60,3 +60,11 @@ export interface IConversation {
   members: string[];
   messages: IMessage[];
 }
+
+// this holds only the data that is needed to display a friend in the friends list, chat list, etc.
+export interface IFriendMetaData {
+  id: string;
+  name: string;
+  avatarUrl: string;
+  isOnline: boolean;
+}
