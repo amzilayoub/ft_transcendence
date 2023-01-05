@@ -13,13 +13,21 @@ datasource db {
 model user {
     id Int @id @default(autoincrement())
 
-    username String @unique
+    username String? @unique
     email    String @unique
     hash     String
-
+    
+    avatar   String?
     first_name String?
     last_name  String?
+<<<<<<< HEAD
     avatar_url String? @default("/uploadedFiles/avatars/default.png")
+=======
+    isTwoFactorEnabled Boolean? @default(false)
+    TwoFactorSecret String?
+
+    rooms      room[]
+>>>>>>> 7b29e64d6ef61429e65aaf8385567a9cfebc8a53
 
     created_at DateTime @default(now())
     updated_at DateTime @updatedAt

@@ -1,6 +1,7 @@
-import React, { useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 
 import cn from "classnames";
+import Image from "next/image";
 import { RxCross2 } from "react-icons/rx";
 
 import { IConversationMetaData, IMessage } from "global/types";
@@ -31,10 +32,23 @@ const Message = ({
         )}
       >
         <div>
-          <span className={cn("inline-block px-4 py-2", {})}>{message}</span>
+          <span className={cn("inline-block px-4 py-2", {})}>
+            {message.split("\n").map((item, key) => (
+              <span key={key}>
+                {item}
+                <br />
+              </span>
+            ))}
+          </span>
         </div>
       </div>
-      <img src={senderAvatar} className="w-6 h-6 rounded-full" />
+      <Image
+        src={senderAvatar}
+        alt="Sender Avatar"
+        width={24}
+        height={24}
+        className="rounded-full"
+      />
     </div>
   </li>
 );
@@ -60,12 +74,6 @@ const sampleWholeConversation = {
       text: "Lorem ipsum dolor sit amet consectetur adipisicing elit. Quisquam, quod. Lorem ipsum dolor sit amet consectetur adipisicing elit. Quisquam, quodZ.",
       time: "12:00",
     },
-    {
-      id: "2",
-      senderId: "2",
-      text: "Lorem ipsum dolor sit amet consectetur adipisicing elit. Quisquam, quod.",
-      time: "12:00",
-    },
   ],
 };
 
@@ -78,25 +86,58 @@ const ChatBox = ({
 }) => {
   const [conversation, setConversation] = useState(sampleWholeConversation);
   const [input, setInput] = useState("");
+  const bottomDiv = useRef<HTMLDivElement>(null);
 
-  const handleSendMessage = (e: any) => {
-    e.preventDefault();
-    if (!input || input.trim() === "" || input.length > 1000) return;
-    const newMessage: IMessage = {
-      id: "123",
-      senderId: "123",
-      text: input,
-      time: "12:00",
-    };
-    setConversation({
-      ...conversation,
-      messages: [...conversation.messages, newMessage],
-    });
-    setInput("");
+  const handleSendMessage = React.useCallback(
+    (e: any) => {
+      e.preventDefault();
+      if (!input || input.length > 1000 || input.trim() === "") return;
+      const newMessage: IMessage = {
+        id: "123",
+        senderId: "123",
+        text: input,
+        time: "12:00",
+      };
+      setConversation({
+        ...conversation,
+        messages: [...conversation.messages, newMessage],
+      });
+      setInput("");
+    },
+    [input, conversation]
+  );
+  // scroll to bottom
+  const scrollToBottom = () => {
+    bottomDiv?.current?.scrollIntoView({ behavior: "smooth" });
   };
 
+  useEffect(() => {
+    scrollToBottom();
+  }, [conversation]);
+
+  // on Enter keydown
+  // make it a callback to avoid infinite loop
+  const handleKeyDown = React.useCallback(
+    (event: any) => {
+      // if only enter key is pressed without shift key
+      if (event.keyCode === 13 && !event.shiftKey) {
+        event.preventDefault();
+        handleSendMessage(event);
+      }
+    },
+    [handleSendMessage]
+  );
+
+  useEffect(() => {
+    const textarea = document.getElementById("textarea");
+    textarea?.addEventListener("keydown", handleKeyDown);
+    return () => {
+      textarea?.removeEventListener("keydown", handleKeyDown);
+    };
+  }, [handleKeyDown]);
+
   return (
-    <section className="relative flex flex-col bg-white border border-gray-200  h-[440px] rounded-t-xl w-[340px]">
+    <section className="relative flex flex-col bg-white border border-gray-200 h-[500px] rounded-t-xl w-[340px]">
       <div className="flex justify-between p-3 border-b-2 border-gray-200 sm:items-center">
         <div className="relative flex items-center space-x-4">
           <div className="relative">
@@ -105,10 +146,12 @@ const ChatBox = ({
                 <circle cx="8" cy="8" r="8" fill="currentColor"></circle>
               </svg>
             </span>
-            <img
+            <Image
               src={conversation.members[0].avatarUrl}
               alt={`${conversation.members[0].name || "User"}'s avatar`}
-              className="w-10 h-10 rounded-full sm:w-16 sm:h-16"
+              width={40}
+              height={40}
+              className="rounded-full sm:w-16 sm:h-16"
             />
           </div>
           <div className="flex flex-col leading-tight">
@@ -121,44 +164,47 @@ const ChatBox = ({
         </div>
         <span
           onClick={onClose}
-          className="absolute p-1 text-gray-400 duration-300 rounded-full cursor-pointer hover:text-slate-600 top-1 right-1 hover:bg-gray-200"
+          className="absolute p-1 text-gray-400 duration-300 rounded-full cursor-pointer hover:text-slate-600 top-3 right-3 hover:bg-gray-200"
         >
           <RxCross2 className="w-5 h-5" />
         </span>
       </div>
-
-      <ul
-        id="messages"
-        className="scrolling-touch scrollbar-thumb scrollbar-thumb-rounded scrollbar-track scrollbar-w-2 flex flex-col h-full p-3 space-y-4 overflow-y-scroll mb-14"
-      >
-        {conversation.messages.map((message: IMessage, index: number) => (
-          <Message
-            key={`message-${message.id}-${index}`}
-            message={message.text}
-            senderAvatar={conversation.members[0].avatarUrl}
-            isMe={index % 2 === 0}
-          />
-        ))}
-      </ul>
-      {/* inputa */}
-      <div className="absolute bottom-0 w-full h-16 pt-4 mb-2 border-gray-200 sm:mb-0">
-        <form className="relative flex" onSubmit={handleSendMessage}>
-          <input
-            value={input}
-            onChange={(e) => {
-              setInput(e.target.value);
-            }}
-            type="text"
-            placeholder="Write your message!"
-            className="w-full py-3 pl-3 text-gray-600 bg-gray-200 rounded-md placeholder:text-gray-600 focus:outline-none focus:placeholder:text-gray-400"
-          />
-          <div className="absolute inset-y-0 right-0 items-center hidden sm:flex">
+      <div className="justify-items-stretch flex flex-col h-full overflow-hidden">
+        <ul
+          id="messages"
+          className="scrolling-touch scrollbar-thumb scrollbar-thumb-rounded scrollbar-track scrollbar-w-2 flex flex-col h-full p-3 space-y-4 overflow-y-scroll"
+        >
+          {conversation.messages.map((message: IMessage, index: number) => (
+            <>
+              <Message
+                key={`message-${message.id}-${index}`}
+                message={message.text}
+                senderAvatar={conversation.members[0].avatarUrl}
+                isMe={index % 2 === 0}
+              />
+            </>
+          ))}
+          <div ref={bottomDiv}></div>
+        </ul>
+        {/* inputa */}
+        <div className="w-full p-3 border-gray-200 sm:mb-0">
+          <form className="relative flex" onSubmit={handleSendMessage}>
+            <textarea
+              id="textarea"
+              value={input}
+              onChange={(e) => {
+                setInput(e.target.value);
+              }}
+              placeholder="Write your message!"
+              className="w-full py-3 pl-3 text-gray-600 bg-gray-200 rounded-md placeholder:text-gray-600 focus:outline-none focus:placeholder:text-gray-400 resize-none"
+            />
+          </form>
+          <div className="justify-end flex py-1">
             <button
               onClick={handleSendMessage}
               type="button"
-              className="inline-flex items-center justify-center px-4 py-3 text-white transition duration-500 ease-in-out bg-blue-500 rounded-lg hover:bg-blue-400 focus:outline-none"
+              className="inline-flex items-center justify-center px-3 py-1 text-white transition duration-500 ease-in-out bg-blue-500 rounded-lg hover:bg-blue-400 focus:outline-none"
             >
-              send
               <svg
                 xmlns="http://www.w3.org/2000/svg"
                 viewBox="0 0 20 20"
@@ -169,31 +215,33 @@ const ChatBox = ({
               </svg>
             </button>
           </div>
-        </form>
+        </div>
       </div>
 
-      <style>{`
-.scrollbar-w-2::-webkit-scrollbar {
-  width: 0.25rem;
-  height: 0.25rem;
-}
+      <style>
+        {`
+          .scrollbar-w-2::-webkit-scrollbar {
+            width: 0.25rem;
+            height: 0.25rem;
+          }
 
-.scrollbar-track::-webkit-scrollbar-track {
-  --bg-opacity: 1;
-  background-color: #f7fafc;
-  background-color: rgba(247, 250, 252, var(--bg-opacity));
-}
+          .scrollbar-track::-webkit-scrollbar-track {
+            --bg-opacity: 1;
+            background-color: #f7fafc;
+            background-color: rgba(247, 250, 252, var(--bg-opacity));
+          }
 
-.scrollbar-thumb::-webkit-scrollbar-thumb {
-  --bg-opacity: 1;
-  background-color: #edf2f7;
-  background-color: rgba(237, 242, 247, var(--bg-opacity));
-}
+          .scrollbar-thumb::-webkit-scrollbar-thumb {
+            --bg-opacity: 1;
+            background-color: #edf2f7;
+            background-color: rgba(237, 242, 247, var(--bg-opacity));
+          }
 
-.scrollbar-thumb-rounded::-webkit-scrollbar-thumb {
-  border-radius: 0.25rem;
-}
-`}</style>
+          .scrollbar-thumb-rounded::-webkit-scrollbar-thumb {
+            border-radius: 0.25rem;
+          }
+      `}
+      </style>
     </section>
   );
 };
