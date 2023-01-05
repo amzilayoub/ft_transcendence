@@ -47,6 +47,10 @@ export interface IConversationMetaData {
   lastMessage: string;
   lastMessageTime: string;
   unreadMessagesCount: number;
+  created_at: Date;
+  room_id: number;
+  type: string;
+  user_id: number;
 }
 
 export interface IMessage {

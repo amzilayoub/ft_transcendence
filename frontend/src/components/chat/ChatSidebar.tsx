@@ -74,7 +74,7 @@ const ConversationMetadata = ({
   avatar: string;
   name: string;
   lastMessage: string;
-  lastMessageTime: string;
+  lastMessageTime: Date;
   unreadMessages: number;
   onConversationClick: () => void;
   onMuteClick: () => void;
@@ -88,7 +88,7 @@ const ConversationMetadata = ({
       <div className="group w-full cursor-pointer">
         <div className="flex items-center">
           <Image
-            src={avatar}
+            src={`${process.env.NEXT_PUBLIC_RESOURCE_URL}${avatar}`}
             alt={`${name} avatar`}
             width={40}
             height={40}
@@ -99,7 +99,7 @@ const ConversationMetadata = ({
               <h1 className="text-sm font-semibold">{name}</h1>
               <div className="flex flex-col items-center justify-center">
                 <h1 className="text-xs text-gray-500 group-hover:hidden">
-                  {lastMessageTime}
+                  {new Date(lastMessageTime).toDateString()}
                 </h1>
                 {/* eslint-disable-next-line tailwindcss/no-custom-classname */}
                 <div className="group/dots relative items-center justify-center hidden text-xs duration-200 w-7 h-7 hover:bg-gray-300 group-hover:flex">

@@ -14,19 +14,20 @@ model user {
     id Int @id @default(autoincrement())
 
     username String? @unique
-    email    String @unique
+    email    String  @unique
     hash     String
-    
-    avatar   String?
-    first_name String?
-    last_name  String?
+
+    first_name         String?
+    last_name          String?
+    avatar_url         String?  @default("/uploadedFiles/avatars/default.png")
     isTwoFactorEnabled Boolean? @default(false)
-    TwoFactorSecret String?
+    TwoFactorSecret    String?
 
-    rooms      room[]
+    rooms room[]
 
-    created_at    DateTime        @default(now())
-    updated_at    DateTime        @updatedAt
+    created_at DateTime @default(now())
+    updated_at DateTime @updatedAt
+
     room_user_rel room_user_rel[]
     messages      messages[]
 
@@ -42,11 +43,13 @@ model room {
     room_type    room_type @relation(fields: [room_type_id], references: [id])
     room_type_id Int
 
-    count_messages Int?            @default(0)
-    created_at     DateTime        @default(now())
-    updated_at     DateTime        @updatedAt
-    room_user_rel  room_user_rel[]
-    messages       messages[]
+    count_messages Int? @default(0)
+
+    created_at DateTime @default(now())
+    updated_at DateTime @updatedAt
+
+    room_user_rel room_user_rel[]
+    messages      messages[]
 }
 
 model room_type {
@@ -81,6 +84,8 @@ model messages {
     room_id  Int
 
     message String
+
+    is_read Boolean @default(false)
 
     created_at DateTime @default(now())
     updated_at DateTime @updatedAt
