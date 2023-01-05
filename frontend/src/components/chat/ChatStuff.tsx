@@ -20,10 +20,7 @@ const ChatStuff = () => {
       <ul className="absolute bottom-0 flex right-80 gap-x-3">
         {activeBoxes?.map((i) => (
           <li key={i} className="w-full">
-            <ChatBox
-              conversationMetadata={conversationsMetadata[i]}
-              onClose={() => deleteBox(i)}
-            />
+            <ChatBox conversationId={i} onClose={() => deleteBox(i)} />
           </li>
         ))}
       </ul>

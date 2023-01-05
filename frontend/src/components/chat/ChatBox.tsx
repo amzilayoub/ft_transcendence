@@ -78,10 +78,10 @@ const sampleWholeConversation = {
 };
 
 const ChatBox = ({
-  _conversationMetadata,
+  conversationId,
   onClose,
 }: {
-  _conversationMetadata: IConversationMetaData;
+  conversationId: number;
   onClose: any;
 }) => {
   const [conversation, setConversation] = useState(sampleWholeConversation);

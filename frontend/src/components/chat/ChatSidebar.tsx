@@ -221,7 +221,7 @@ const ChatSidebar = ({
         {searchResults && searchResults.length > 0 && searchQuery.length > 0 ? (
           searchResults.map((item, idx) => (
             <ConversationMetadata
-              key={idx}
+              key={item.id}
               avatar={item.avatarUrl}
               onConversationClick={() => onConversationClick(item.id)}
               name={item.name}
