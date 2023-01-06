@@ -132,7 +132,7 @@ const UserInfoHeader = ({
   setIsCoverModalOpen,
   setIsAvatarModalOpen,
 }: {
-  user: IUser;
+  user: IUser | null;
   username: string;
   isMyProfile: boolean;
   setIsCoverModalOpen: SetStateFunc<boolean>;
@@ -235,6 +235,7 @@ const ProfilePage = () => {
   const [isCoverModalOpen, setIsCoverModalOpen] = useState(false);
   const [user, setUser] = useState<IUser | null>(null);
 
+  // console.log('C', ctx)
   useEffect(() => {
     if (router.isReady && ctx.isAuthenticated === false) {
       router.replace("/");
