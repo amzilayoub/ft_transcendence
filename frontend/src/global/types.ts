@@ -17,6 +17,7 @@ export interface IUser {
   // firstName: string;
   // middleName: string;
   // lastName: string;
+  twitterUsername: string;
   intraUsername: string;
   email: string;
   bio: string;
