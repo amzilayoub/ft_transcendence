@@ -5,6 +5,7 @@ import Image from "next/image";
 import { RxCross2 } from "react-icons/rx";
 
 import { IConversationMetaData, IMessage } from "global/types";
+import basicFetch from "@utils/basicFetch";
 
 const Message = ({
   message,
@@ -78,10 +79,10 @@ const sampleWholeConversation = {
 };
 
 const ChatBox = ({
-  conversationId,
+  conversationMetaData,
   onClose,
 }: {
-  conversationId: number;
+  conversationMetaData: any;
   onClose: any;
 }) => {
   const [conversation, setConversation] = useState(sampleWholeConversation);
@@ -128,9 +129,39 @@ const ChatBox = ({
     [handleSendMessage]
   );
 
+  const loadMembers = async () => {
+    const data = await basicFetch.get(
+      `/chat/room-members/${conversationMetaData.room_id}`
+    );
+
+    if (data.status == 200) {
+      return await data.json();
+    } else return [];
+  };
+
+  const prepareData = async (messages = []) => {
+    const members = await loadMembers();
+    const conversation = {
+      id: conversationMetaData.id,
+      members,
+      messages,
+    };
+    console.log(conversation);
+    setConversation(conversation);
+  };
+
+  const loadMessages = () => {
+    // const res = await basicFetch.get();
+    return [];
+  };
+
   useEffect(() => {
     const textarea = document.getElementById("textarea");
     textarea?.addEventListener("keydown", handleKeyDown);
+
+    const messages = loadMessages();
+    prepareData(messages);
+
     return () => {
       textarea?.removeEventListener("keydown", handleKeyDown);
     };
@@ -147,7 +178,7 @@ const ChatBox = ({
               </svg>
             </span>
             <Image
-              src={conversation.members[0].avatarUrl}
+              src={`${process.env.NEXT_PUBLIC_RESOURCE_URL}/${conversation.members[0].avatarUrl}`}
               alt={`${conversation.members[0].name || "User"}'s avatar`}
               width={40}
               height={40}
@@ -157,7 +188,7 @@ const ChatBox = ({
           <div className="flex flex-col leading-tight">
             <div className="flex items-center mt-1 text-2xl">
               <span className="mr-3 text-gray-700">
-                {conversation.members[0].name}
+                {conversationMetaData.name}
               </span>
             </div>
           </div>

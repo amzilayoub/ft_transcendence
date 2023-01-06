@@ -5,11 +5,11 @@ import { IConversationMetaData } from "global/types";
 import basicFetch from "@utils/basicFetch";
 
 export interface IChatContext {
-  activeBoxes: string[];
+  activeBoxes: any[];
   conversationsMetadata: IConversationMetaData[];
   error: string;
   setError: React.Dispatch<React.SetStateAction<string>>;
-  activateBox: (id: string) => void;
+  activateBox: (convMetaData: any) => void;
   deleteBox: (id: string) => void;
   loadConversations: () => Promise<void>;
   loadSingleConversation: (id: string) => Promise<any>;
@@ -30,7 +30,7 @@ const initialState: IChatContext = {
 export const ChatContext = createContext<IChatContext>(initialState);
 
 export const ChatProvider = ({ children }: { children: React.ReactNode }) => {
-  const [activeBoxes, setActiveBoxes] = React.useState<string[]>([]);
+  const [activeBoxes, setActiveBoxes] = React.useState<any[]>([]);
   const [conversationsMetadata, setConversationsMetadata] = React.useState(
     initialState.conversationsMetadata
   ); // these only contain the last message (meta data)
@@ -70,15 +70,16 @@ export const ChatProvider = ({ children }: { children: React.ReactNode }) => {
     }
   };
 
-  const activateBox = (id: string) => {
-    if (activeBoxes.includes(id)) return;
+  const activateBox = (convMetaData: any) => {
+    if (activeBoxes.find((item) => item.id == convMetaData.id)) return;
+    if (activeBoxes.includes(convMetaData)) return;
     if (activeBoxes.length === 3) {
-      setActiveBoxes([...activeBoxes.slice(1), id]);
-    } else setActiveBoxes([...activeBoxes, id]);
+      setActiveBoxes([...activeBoxes.slice(1), convMetaData]);
+    } else setActiveBoxes([...activeBoxes, convMetaData]);
   };
 
   const deleteBox = (id: string) => {
-    setActiveBoxes(activeBoxes.filter((box) => box !== id));
+    setActiveBoxes(activeBoxes.filter((box) => box["id"] !== id));
   };
 
   const value = useMemo(

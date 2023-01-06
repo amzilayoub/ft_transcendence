@@ -152,7 +152,7 @@ const ChatSidebar = ({
   onNewConversationClick,
 }: {
   conversationsMetadata: IConversationMetaData[];
-  onConversationClick: (convoId: string) => void;
+  onConversationClick: (convMetaData: any) => void;
   onNewConversationClick: () => void;
 }) => {
   const [showChatSidebar, setShowChatSidebar] = useState(true);
@@ -223,7 +223,7 @@ const ChatSidebar = ({
             <ConversationMetadata
               key={item.id}
               avatar={item.avatarUrl}
-              onConversationClick={() => onConversationClick(item.id)}
+              onConversationClick={() => onConversationClick(item)}
               name={item.name}
               lastMessage={item.lastMessage}
               lastMessageTime={item.lastMessageTime}
@@ -244,7 +244,7 @@ const ChatSidebar = ({
             <ConversationMetadata
               key={idx}
               avatar={item.avatarUrl}
-              onConversationClick={() => onConversationClick(item.id)}
+              onConversationClick={() => onConversationClick(item)}
               name={item.name}
               lastMessage={item.lastMessage}
               lastMessageTime={item.lastMessageTime}
