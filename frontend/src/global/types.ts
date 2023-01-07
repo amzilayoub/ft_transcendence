@@ -17,6 +17,7 @@ export interface IUser {
   // firstName: string;
   // middleName: string;
   // lastName: string;
+  twitterUsername?: string;
   intraUsername: string;
   email: string;
   bio: string;
@@ -45,7 +46,7 @@ export interface IConversationMetaData {
   name: string;
   avatarUrl: string;
   lastMessage: string;
-  lastMessageTime: string;
+  lastMessageTime: Date;
   unreadMessagesCount: number;
   created_at: Date;
   room_id: number;
@@ -61,14 +62,11 @@ export interface IMessage {
 }
 
 export interface IConversation {
-  members: string[];
+  members: string[]; // ids of the members. Current user is always first.
   messages: IMessage[];
 }
 
 // this holds only the data that is needed to display a friend in the friends list, chat list, etc.
-export interface IFriendMetaData {
-  id: string;
-  name: string;
-  avatarUrl: string;
+export interface IFriendMetaData extends IConversationMetaData {
   isOnline: boolean;
 }
