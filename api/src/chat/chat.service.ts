@@ -112,6 +112,15 @@ export class ChatService {
         });
     }
 
+    getRoomMembers(roomId: number) {
+        return this.prismaService.$queryRaw(Prisma.sql`
+				SELECT users.id, users.username AS name, users.avatar_url AS "avatarUrl"
+				FROM room_user_rel
+				INNER JOIN users ON users.id = room_user_rel.user_id
+				WHERE room_user_rel.room_id = ${roomId}
+		`);
+    }
+
     findAllMessages() {
         return [];
     }

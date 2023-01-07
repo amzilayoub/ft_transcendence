@@ -18,11 +18,11 @@ const ChatStuff = () => {
         />
       )}
       <ul className="absolute bottom-0 flex right-80 gap-x-3">
-        {activeBoxes?.map((i) => (
-          <li key={i} className="w-full">
+        {activeBoxes?.map((item) => (
+          <li key={item.id} className="w-full">
             <ChatBox
-              conversationMetadata={conversationsMetadata[i]}
-              onClose={() => deleteBox(i)}
+              conversationMetaData={item}
+              onClose={() => deleteBox(item["id"])}
             />
           </li>
         ))}

@@ -1,4 +1,4 @@
-import { Controller, Post, Headers, Body, Get } from '@nestjs/common';
+import { Controller, Post, Headers, Body, Get, Param } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import { user } from '@prisma/client';
 import { ChatService } from './chat.service';
@@ -61,6 +61,13 @@ export class ChatController {
     async userRooms(@Headers() headers) {
         const user = this.getUserInfo(headers);
         return await this.chatService.getUserRooms(user['id']);
+    }
+
+    @Get('room-members/:roomId')
+    async getRoomMembers(@Headers() headers, @Param('roomId') roomId: number) {
+        const user = this.getUserInfo(headers);
+
+        return await this.chatService.getRoomMembers(roomId);
     }
 
     getUserInfo(headers) {
