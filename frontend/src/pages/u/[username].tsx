@@ -10,7 +10,7 @@ import { IconType } from "react-icons/lib";
 
 import BaseModal from "@components/common/BaseModal";
 import { ExternalLink } from "@components/common/Links";
-import Redirecting from "@components/common/Redirecting";
+import LoadingPage from "@components/common/LoadingPage";
 import MainLayout from "@components/layout";
 import * as api from "@lib/api";
 import Button from "@ui/Button";

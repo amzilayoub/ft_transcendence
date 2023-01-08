@@ -1,13 +1,14 @@
 import React, { useEffect, useState } from "react";
 
 import cn from "classnames";
-import { IConversationMetaData, IFriendMetaData } from "global/types";
 import Image from "next/image";
 import { AiOutlineUserAdd } from "react-icons/ai";
 import { BsThreeDots, BsVolumeMute } from "react-icons/bs";
 import { MdBlockFlipped } from "react-icons/md";
 import { SlArrowDown } from "react-icons/sl";
+
 import { truncateString } from "@utils/format";
+import { IConversationMetaData, IFriendMetaData } from "global/types";
 
 const SeekNewConversation = ({
   searchQuery,
@@ -83,10 +84,10 @@ const ConversationMetadata = ({
       onClick={onConversationClick}
       className="flex items-center justify-between w-full px-3 pt-2 pb-1 border-b border-gray-200 cursor-pointer hover:bg-slate-200"
     >
-      <div className="w-full cursor-pointer group">
+      <div className="group w-full cursor-pointer">
         <div className="flex items-center">
           <Image
-            src={`${process.env.NEXT_PUBLIC_RESOURCE_URL}${avatar}`}
+            src={avatar}
             alt={`${name} avatar`}
             width={40}
             height={40}
@@ -100,7 +101,7 @@ const ConversationMetadata = ({
                   {new Date(lastMessageTime).toDateString()}
                 </h1>
                 {/* eslint-disable-next-line tailwindcss/no-custom-classname */}
-                <div className="relative items-center justify-center hidden text-xs duration-200 group/dots w-7 h-7 hover:bg-gray-300 group-hover:flex">
+                <div className="group/dots relative items-center justify-center hidden text-xs duration-200 w-7 h-7 hover:bg-gray-300 group-hover:flex">
                   <BsThreeDots />
                   <div className="absolute top-0 right-0 flex-col hidden w-full overflow-hidden bg-white rounded-l-lg min-w-min group-hover/dots:flex">
                     <button
