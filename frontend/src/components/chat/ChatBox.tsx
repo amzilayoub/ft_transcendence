@@ -1,11 +1,11 @@
-import React, { useEffect, useRef, useState } from "react";
+import React, { useCallback, useEffect, useRef, useState } from "react";
 
 import cn from "classnames";
 import Image from "next/image";
 import { RxCross2 } from "react-icons/rx";
 
-import { IConversationMetaData, IMessage } from "global/types";
 import basicFetch from "@utils/basicFetch";
+import { IConversation, IMessage } from "global/types";
 
 const Message = ({
   message,
@@ -48,35 +48,11 @@ const Message = ({
         alt="Sender Avatar"
         width={24}
         height={24}
-        className="rounded-full"
+        className="rounded-full bg-red-400"
       />
     </div>
   </li>
 );
-
-const sampleWholeConversation = {
-  id: "1",
-  members: [
-    {
-      id: "1",
-      name: "John Doe",
-      avatar_url: "https://martinfowler.com/mf.jpg",
-    },
-    {
-      id: "2",
-      name: "Mike Doe",
-      avatar_url: "https://martinfowler.com/mf.jpg",
-    },
-  ],
-  messages: [
-    {
-      id: "1",
-      senderId: "1",
-      text: "Lorem ipsum dolor sit amet consectetur adipisicing elit. Quisquam, quod. Lorem ipsum dolor sit amet consectetur adipisicing elit. Quisquam, quodZ.",
-      time: "12:00",
-    },
-  ],
-};
 
 const ChatBox = ({
   conversationMetaData,
@@ -85,7 +61,7 @@ const ChatBox = ({
   conversationMetaData: any;
   onClose: any;
 }) => {
-  const [conversation, setConversation] = useState(sampleWholeConversation);
+  const [conversation, setConversation] = useState<IConversation | null>(null);
   const [input, setInput] = useState("");
   const bottomDiv = useRef<HTMLDivElement>(null);
 
@@ -93,19 +69,10 @@ const ChatBox = ({
     (e: any) => {
       e.preventDefault();
       if (!input || input.length > 1000 || input.trim() === "") return;
-      const newMessage: IMessage = {
-        id: "123",
-        senderId: "123",
-        text: input,
-        time: "12:00",
-      };
-      setConversation({
-        ...conversation,
-        messages: [...conversation.messages, newMessage],
-      });
       setInput("");
+      // send message
     },
-    [input, conversation]
+    [input]
   );
   // scroll to bottom
   const scrollToBottom = () => {
@@ -129,7 +96,7 @@ const ChatBox = ({
     [handleSendMessage]
   );
 
-  const loadMembers = async () => {
+  const loadMembers = useCallback(async () => {
     const data = await basicFetch.get(
       `/chat/room-members/${conversationMetaData.room_id}`
     );
@@ -137,36 +104,47 @@ const ChatBox = ({
     if (data.status == 200) {
       return await data.json();
     } else return [];
-  };
+  }, [conversationMetaData.room_id]);
 
-  const prepareData = async (messages = []) => {
-    const members = await loadMembers();
-    const conversation = {
-      id: conversationMetaData.id,
-      members,
-      messages,
-    };
-    console.log(conversation);
-    setConversation(conversation);
-  };
+  const loadMembersRef = useRef(false);
 
-  const loadMessages = () => {
-    // const res = await basicFetch.get();
+  const loadMessages = useCallback(async () => {
+    const res = await basicFetch.get(
+      `/chat/messages/${conversationMetaData.room_id}`
+    );
+    if (res.status == 200) {
+      return await res.json();
+    }
     return [];
-  };
+  }, [conversationMetaData.room_id]);
 
   useEffect(() => {
     const textarea = document.getElementById("textarea");
     textarea?.addEventListener("keydown", handleKeyDown);
 
-    const messages = loadMessages();
-    prepareData(messages);
+    const prepareData = async () => {
+      try {
+        const messages = await loadMessages();
+        const members = await loadMembers();
+
+        setConversation({
+          id: conversationMetaData.room_id,
+          members,
+          messages,
+        });
+      } catch (error) {}
+      // console.log(conversation);
+    };
+
+    if (loadMembersRef.current) return;
+    loadMembersRef.current = true;
+
+    prepareData();
 
     return () => {
       textarea?.removeEventListener("keydown", handleKeyDown);
     };
-  }, [handleKeyDown]);
-
+  }, [handleKeyDown, conversationMetaData.room_id, loadMessages, loadMembers]);
   return (
     <section className="relative flex flex-col bg-white border border-gray-200 h-[500px] rounded-t-xl w-[340px]">
       <div className="flex justify-between p-3 border-b-2 border-gray-200 sm:items-center">
@@ -178,8 +156,8 @@ const ChatBox = ({
               </svg>
             </span>
             <Image
-              src={`${process.env.NEXT_PUBLIC_RESOURCE_URL}/${conversation.members[0].avatar_url}`}
-              alt={`${conversation.members[0].name || "User"}'s avatar`}
+              src={conversationMetaData?.avatar_url}
+              alt={`${conversationMetaData?.name || "User"}'s avatar`}
               width={40}
               height={40}
               className="rounded-full sm:w-16 sm:h-16"
@@ -203,17 +181,19 @@ const ChatBox = ({
       <div className="justify-items-stretch flex flex-col h-full overflow-hidden">
         <ul
           id="messages"
+          // eslint-disable-next-line tailwindcss/no-custom-classname
           className="scrolling-touch scrollbar-thumb scrollbar-thumb-rounded scrollbar-track scrollbar-w-2 flex flex-col h-full p-3 space-y-4 overflow-y-scroll"
         >
-          {conversation.messages.map((message: IMessage, index: number) => (
-            <>
-              <Message
-                key={`message-${message.id}-${index}`}
-                message={message.text}
-                senderAvatar={conversation.members[0].avatar_url}
-                isMe={index % 2 === 0}
-              />
-            </>
+          {conversation?.messages?.map((message: IMessage, index: number) => (
+            <Message
+              key={`message-${message.id}-${index}`}
+              message={message.message}
+              senderAvatar={
+                // conversation.members[0]?.avatar_url ||
+                message?.userLink?.avatar_url || "/images/default-avatar.png"
+              }
+              isMe={index % 2 === 0}
+            />
           ))}
           <div ref={bottomDiv}></div>
         </ul>
