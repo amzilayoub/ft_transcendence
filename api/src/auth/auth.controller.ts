@@ -16,8 +16,8 @@ export class AuthController {
     return this.authService.addNewUser(dto);
   }
 
-  @Get('')
   @UseGuards(JwtGuard)
+  @Get('')
   test(@Req() req: Request) {
     const user = req.user;
     return user;
@@ -32,5 +32,18 @@ export class AuthController {
   response.setHeader('Set-Cookie', cookie);
   delete user.password;
   return response.send(user);
-}
+  }
+
+
+  @UseGuards(JwtGuard)
+  @Post('log-out')
+  async logOut(@Req() request: RequestWithUser, @Res() response: Response) {
+    response.setHeader('Set-Cookie', this.authService.getCookieForLogOut());
+    return response.sendStatus(200);
+  }
+  // @Get('/login/42')
+  // async login42(@Req() request: RequestWithUser, @Res() response: Response) {
+  //   // const url = await this.authService.login42();
+  //   // return
+  // }
 }

@@ -68,4 +68,8 @@ export class AuthService {
     }
   }
   }
+
+  public getCookieForLogOut() {
+    return `Authentication=; HttpOnly; Path=/; Max-Age=0`;
+  }
 }
