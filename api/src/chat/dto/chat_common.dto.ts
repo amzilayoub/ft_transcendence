@@ -38,8 +38,5 @@ export class CreateMessageDto {
     roomId: number;
 
     @IsString()
-    token: string;
-
-    @IsString()
     message: string;
 }

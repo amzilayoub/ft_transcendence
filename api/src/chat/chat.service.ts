@@ -13,7 +13,7 @@ export class ChatService {
         await this.prismaService.$queryRaw(Prisma.sql`
 			UPDATE room
 			SET count_messages = count_messages + 1
-			WHERE room_id = ${room_id}`);
+			WHERE id = ${room_id}`);
 
         return this.prismaService.messages.create({
             data: {
@@ -118,6 +118,30 @@ export class ChatService {
 				FROM room_user_rel
 				INNER JOIN users ON users.id = room_user_rel.user_id
 				WHERE room_user_rel.room_id = ${roomId}
+		`);
+    }
+
+    getRoomMessages(roomId: number, userId: number = -1) {
+        return this.prismaService.$queryRaw(Prisma.sql`
+				SELECT id, user_id AS "senderId", message, created_at as time,
+					CASE
+						WHEN user_id = ${userId}
+							THEN true
+						ELSE
+							false
+					END AS "isMe"
+				FROM messages
+				WHERE room_id = ${roomId}
+				ORDER BY id DESC
+		`);
+    }
+
+    setMessagesAsRead(roomId: number, userId: number) {
+        return this.prismaService.$queryRaw(Prisma.sql`
+			UPDATE messages
+			SET is_read = true
+			WHERE room_id = ${roomId}
+			AND user_id = ${userId}
 		`);
     }
 

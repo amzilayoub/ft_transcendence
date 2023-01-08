@@ -63,11 +63,26 @@ export class ChatController {
         return await this.chatService.getUserRooms(user['id']);
     }
 
-    @Get('room-members/:roomId')
+    @Get('room/:roomId/members')
     async getRoomMembers(@Headers() headers, @Param('roomId') roomId: number) {
         const user = this.getUserInfo(headers);
 
         return await this.chatService.getRoomMembers(roomId);
+    }
+
+    @Get('room/:roomId/messages')
+    async getRoomMessages(@Headers() headers, @Param('roomId') roomId: number) {
+        const user = this.getUserInfo(headers);
+
+        /*
+         ** Set message as read for the user who requested them
+         */
+        await this.chatService.setMessagesAsRead(roomId, user['id']);
+        /*
+         ** then return the array of messages
+         ** NOTE: Needs to add pagination here later on
+         */
+        return await this.chatService.getRoomMessages(roomId, user['id']);
     }
 
     getUserInfo(headers) {
