@@ -10,7 +10,7 @@ const ChatStuff = () => {
     useChatContext();
 
   return (
-    <div className="absolute bottom-0 right-0  max-h-[calc(100vh-10rem)] px-6">
+    <div className="absolute bottom-0 right-0 max-h-[calc(100vh-10rem)] px-6">
       {true && (
         <ChatSidebar
           onConversationClick={activateBox}
