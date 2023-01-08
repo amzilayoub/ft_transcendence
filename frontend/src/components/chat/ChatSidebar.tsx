@@ -30,7 +30,7 @@ const SeekNewConversation = ({
       // setSearchResults([
       //   {
       //     id: "414111",
-      //     avatarUrl: "https://martinfowler.com/mf.jpg",
+      //     avatar_url: "https://martinfowler.com/mf.jpg",
       //     name: "Michael Scott",
       //   },
       // ]);
@@ -220,7 +220,7 @@ const ChatSidebar = ({
           searchResults.map((item) => (
             <ConversationMetadata
               key={item.id}
-              avatar={item.avatarUrl}
+              avatar={item.avatar_url}
               onConversationClick={() => onConversationClick(item)}
               name={item.name}
               lastMessage={item.lastMessage}
@@ -241,7 +241,7 @@ const ChatSidebar = ({
           conversationsMetadata.map((item, idx) => (
             <ConversationMetadata
               key={idx}
-              avatar={item.avatarUrl}
+              avatar={item.avatar_url}
               onConversationClick={() => onConversationClick(item)}
               name={item.name}
               lastMessage={item.lastMessage}

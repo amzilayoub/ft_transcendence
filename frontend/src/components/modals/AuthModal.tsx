@@ -32,7 +32,7 @@ const AuthModal = ({
 
   return (
     <BaseModal isOpen={isOpen} onClose={onClose}>
-      <div className="flex flex-col items-center justify-center p-14 gap-y-4">
+      <div className="flex flex-col items-center px-10 py-16 gap-y-4">
         <p className="text-2xl font-bold">
           {type === "login" ? "Login" : "Register"}
         </p>
@@ -42,6 +42,7 @@ const AuthModal = ({
           placeholder="Username"
           name="username"
           onChange={(e) => handleInputChange(e)}
+          inputClassName="minw-max"
         />
         <TextInput
           label="Password"
