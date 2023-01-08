@@ -1,9 +1,174 @@
-import React from "react";
+import React, { useEffect, useRef, useState } from "react";
 
+import cn from "classnames";
+import Image from "next/image";
 import { RxCross2 } from "react-icons/rx";
-const ChatBox = () => {
+
+import { IConversationMetaData, IMessage } from "global/types";
+import basicFetch from "@utils/basicFetch";
+
+const Message = ({
+  message,
+  isMe,
+  senderAvatar,
+}: {
+  message: string;
+  isMe: boolean;
+  senderAvatar: string;
+}) => (
+  <li className="">
+    <div
+      className={cn("flex items-end", {
+        "flex-row-reverse pl-6": isMe,
+        "pl-0 pr-6": !isMe,
+      })}
+    >
+      <div
+        className={cn(
+          "flex flex-col order-2 max-w-xs mx-2 space-y-2  text-xs  rounded-lg",
+          {
+            "items-end text-white bg-blue-600 rounded-br-none": isMe,
+            "items-start text-gray-600 bg-gray-300 rounded-bl-none": !isMe,
+          }
+        )}
+      >
+        <div>
+          <span className={cn("inline-block px-4 py-2", {})}>
+            {message.split("\n").map((item, key) => (
+              <span key={key}>
+                {item}
+                <br />
+              </span>
+            ))}
+          </span>
+        </div>
+      </div>
+      <Image
+        src={senderAvatar}
+        alt="Sender Avatar"
+        width={24}
+        height={24}
+        className="rounded-full"
+      />
+    </div>
+  </li>
+);
+
+const sampleWholeConversation = {
+  id: "1",
+  members: [
+    {
+      id: "1",
+      name: "John Doe",
+      avatar_url: "https://martinfowler.com/mf.jpg",
+    },
+    {
+      id: "2",
+      name: "Mike Doe",
+      avatar_url: "https://martinfowler.com/mf.jpg",
+    },
+  ],
+  messages: [
+    {
+      id: "1",
+      senderId: "1",
+      text: "Lorem ipsum dolor sit amet consectetur adipisicing elit. Quisquam, quod. Lorem ipsum dolor sit amet consectetur adipisicing elit. Quisquam, quodZ.",
+      time: "12:00",
+    },
+  ],
+};
+
+const ChatBox = ({
+  conversationMetaData,
+  onClose,
+}: {
+  conversationMetaData: any;
+  onClose: any;
+}) => {
+  const [conversation, setConversation] = useState(sampleWholeConversation);
+  const [input, setInput] = useState("");
+  const bottomDiv = useRef<HTMLDivElement>(null);
+
+  const handleSendMessage = React.useCallback(
+    (e: any) => {
+      e.preventDefault();
+      if (!input || input.length > 1000 || input.trim() === "") return;
+      const newMessage: IMessage = {
+        id: "123",
+        senderId: "123",
+        text: input,
+        time: "12:00",
+      };
+      setConversation({
+        ...conversation,
+        messages: [...conversation.messages, newMessage],
+      });
+      setInput("");
+    },
+    [input, conversation]
+  );
+  // scroll to bottom
+  const scrollToBottom = () => {
+    bottomDiv?.current?.scrollIntoView({ behavior: "smooth" });
+  };
+
+  useEffect(() => {
+    scrollToBottom();
+  }, [conversation]);
+
+  // on Enter keydown
+  // make it a callback to avoid infinite loop
+  const handleKeyDown = React.useCallback(
+    (event: any) => {
+      // if only enter key is pressed without shift key
+      if (event.keyCode === 13 && !event.shiftKey) {
+        event.preventDefault();
+        handleSendMessage(event);
+      }
+    },
+    [handleSendMessage]
+  );
+
+  const loadMembers = async () => {
+    const data = await basicFetch.get(
+      `/chat/room-members/${conversationMetaData.room_id}`
+    );
+
+    if (data.status == 200) {
+      return await data.json();
+    } else return [];
+  };
+
+  const prepareData = async (messages = []) => {
+    const members = await loadMembers();
+    const conversation = {
+      id: conversationMetaData.id,
+      members,
+      messages,
+    };
+    console.log(conversation);
+    setConversation(conversation);
+  };
+
+  const loadMessages = () => {
+    // const res = await basicFetch.get();
+    return [];
+  };
+
+  useEffect(() => {
+    const textarea = document.getElementById("textarea");
+    textarea?.addEventListener("keydown", handleKeyDown);
+
+    const messages = loadMessages();
+    prepareData(messages);
+
+    return () => {
+      textarea?.removeEventListener("keydown", handleKeyDown);
+    };
+  }, [handleKeyDown]);
+
   return (
-    <section className="relative flex flex-col h-full  bg-white border border-gray-200 max-h-[440px] rounded-t-xl w-[340px]">
+    <section className="relative flex flex-col bg-white border border-gray-200 h-[500px] rounded-t-xl w-[340px]">
       <div className="flex justify-between p-3 border-b-2 border-gray-200 sm:items-center">
         <div className="relative flex items-center space-x-4">
           <div className="relative">
@@ -12,122 +177,64 @@ const ChatBox = () => {
                 <circle cx="8" cy="8" r="8" fill="currentColor"></circle>
               </svg>
             </span>
-            <img
-              src="https://images.unsplash.com/photo-1549078642-b2ba4bda0cdb?ixlib=rb-1.2.1&amp;ixid=eyJhcHBfaWQiOjEyMDd9&amp;auto=format&amp;fit=facearea&amp;facepad=3&amp;w=144&amp;h=144"
-              alt=""
-              className="w-10 h-10 rounded-full sm:w-16 sm:h-16"
+            <Image
+              src={`${process.env.NEXT_PUBLIC_RESOURCE_URL}/${conversation.members[0].avatar_url}`}
+              alt={`${conversation.members[0].name || "User"}'s avatar`}
+              width={40}
+              height={40}
+              className="rounded-full sm:w-16 sm:h-16"
             />
           </div>
           <div className="flex flex-col leading-tight">
             <div className="flex items-center mt-1 text-2xl">
-              <span className="mr-3 text-gray-700">Anderson Vanhron</span>
+              <span className="mr-3 text-gray-700">
+                {conversationMetaData.name}
+              </span>
             </div>
           </div>
         </div>
-        <span className="absolute p-1 text-gray-400 duration-300 rounded-full cursor-pointer hover:text-slate-600 top-1 right-1 hover:bg-gray-200">
+        <span
+          onClick={onClose}
+          className="absolute p-1 text-gray-400 duration-300 rounded-full cursor-pointer hover:text-slate-600 top-3 right-3 hover:bg-gray-200"
+        >
           <RxCross2 className="w-5 h-5" />
         </span>
       </div>
-
-      <ul
-        id="messages"
-        className="scrolling-touch scrollbar-thumb scrollbar-thumb-rounded scrollbar-track scrollbar-w-2 flex flex-col h-full p-3 space-y-4 overflow-y-scroll mb-14"
-      >
-        <li className="chat-message">
-          <div className="flex items-end">
-            <div className="flex flex-col items-start order-2 max-w-xs mx-2 space-y-2 text-xs">
-              <div>
-                <span className="inline-block px-4 py-2 text-gray-600 bg-gray-300 rounded-lg rounded-bl-none">
-                  Can be verified on any platform using docker
-                </span>
-              </div>
-            </div>
-            <img
-              src="https://images.unsplash.com/photo-1549078642-b2ba4bda0cdb?ixlib=rb-1.2.1&amp;ixid=eyJhcHBfaWQiOjEyMDd9&amp;auto=format&amp;fit=facearea&amp;facepad=3&amp;w=144&amp;h=144"
-              alt="My profile"
-              className="order-1 w-6 h-6 rounded-full"
+      <div className="justify-items-stretch flex flex-col h-full overflow-hidden">
+        <ul
+          id="messages"
+          className="scrolling-touch scrollbar-thumb scrollbar-thumb-rounded scrollbar-track scrollbar-w-2 flex flex-col h-full p-3 space-y-4 overflow-y-scroll"
+        >
+          {conversation.messages.map((message: IMessage, index: number) => (
+            <>
+              <Message
+                key={`message-${message.id}-${index}`}
+                message={message.text}
+                senderAvatar={conversation.members[0].avatar_url}
+                isMe={index % 2 === 0}
+              />
+            </>
+          ))}
+          <div ref={bottomDiv}></div>
+        </ul>
+        {/* inputa */}
+        <div className="w-full p-3 border-gray-200 sm:mb-0">
+          <form className="relative flex" onSubmit={handleSendMessage}>
+            <textarea
+              id="textarea"
+              value={input}
+              onChange={(e) => {
+                setInput(e.target.value);
+              }}
+              placeholder="Write your message!"
+              className="w-full py-3 pl-3 text-gray-600 bg-gray-200 rounded-md placeholder:text-gray-600 focus:outline-none focus:placeholder:text-gray-400 resize-none"
             />
-          </div>
-        </li>
-        <li className="chat-message">
-          <div className="flex items-end justify-end">
-            <div className="flex flex-col items-end order-1 max-w-xs mx-2 space-y-2 text-xs">
-              <div>
-                <span className="inline-block px-4 py-2 text-white bg-blue-600 rounded-lg rounded-br-none ">
-                  Your error message says permission denied, npm global installs
-                  must be given root privileges.
-                </span>
-              </div>
-            </div>
-            <img
-              src="https://images.unsplash.com/photo-1590031905470-a1a1feacbb0b?ixlib=rb-1.2.1&amp;ixid=eyJhcHBfaWQiOjEyMDd9&amp;auto=format&amp;fit=facearea&amp;facepad=3&amp;w=144&amp;h=144"
-              alt="My profile"
-              className="order-2 w-6 h-6 rounded-full"
-            />
-          </div>
-        </li>
-        <li className="chat-message">
-          <div className="flex items-end">
-            <div className="flex flex-col items-start order-2 max-w-xs mx-2 space-y-2 text-xs">
-              <div>
-                <span className="inline-block px-4 py-2 text-gray-600 bg-gray-300 rounded-lg">
-                  Command was run with root privileges. I'm sure about that.
-                </span>
-              </div>
-              <div>
-                <span className="inline-block px-4 py-2 text-gray-600 bg-gray-300 rounded-lg">
-                  I've update the description so it's more obviously now
-                </span>
-              </div>
-              <div>
-                <span className="inline-block px-4 py-2 text-gray-600 bg-gray-300 rounded-lg">
-                  FYI https://askubuntu.com/a/700266/510172
-                </span>
-              </div>
-              <div>
-                <span className="inline-block px-4 py-2 text-gray-600 bg-gray-300 rounded-lg rounded-bl-none">
-                  Check the line above (it ends with a # so, I'm running it as
-                  root )<pre># npm install -g @vue/devtools</pre>
-                </span>
-              </div>
-            </div>
-            <img
-              src="https://images.unsplash.com/photo-1549078642-b2ba4bda0cdb?ixlib=rb-1.2.1&amp;ixid=eyJhcHBfaWQiOjEyMDd9&amp;auto=format&amp;fit=facearea&amp;facepad=3&amp;w=144&amp;h=144"
-              alt="My profile"
-              className="order-1 w-6 h-6 rounded-full"
-            />
-          </div>
-        </li>
-        <li className="chat-message">
-          <div className="flex items-end justify-end">
-            <div className="flex flex-col items-end order-1 max-w-xs mx-2 space-y-2 text-xs">
-              <div>
-                <span className="inline-block px-4 py-2 text-white bg-blue-600 rounded-lg rounded-br-none ">
-                  Any updates on this issue? I'm getting the same error when
-                  trying to install devtools. Thanks
-                </span>
-              </div>
-            </div>
-            <img
-              src="https://images.unsplash.com/photo-1590031905470-a1a1feacbb0b?ixlib=rb-1.2.1&amp;ixid=eyJhcHBfaWQiOjEyMDd9&amp;auto=format&amp;fit=facearea&amp;facepad=3&amp;w=144&amp;h=144"
-              alt="My profile"
-              className="order-2 w-6 h-6 rounded-full"
-            />
-          </div>
-        </li>
-      </ul>
-      {/* inputa */}
-      <div className="absolute bottom-0 w-full h-16 pt-4 mb-2 border-gray-200 sm:mb-0">
-        <div className="relative flex">
-          <input
-            type="text"
-            placeholder="Write your message!"
-            className="w-full py-3 pl-3 text-gray-600 bg-gray-200 rounded-md placeholder:text-gray-600 focus:outline-none focus:placeholder:text-gray-400"
-          />
-          <div className="absolute inset-y-0 right-0 items-center hidden sm:flex">
+          </form>
+          <div className="justify-end flex py-1">
             <button
+              onClick={handleSendMessage}
               type="button"
-              className="inline-flex items-center justify-center px-4 py-3 text-white transition duration-500 ease-in-out bg-blue-500 rounded-lg hover:bg-blue-400 focus:outline-none"
+              className="inline-flex items-center justify-center px-3 py-1 text-white transition duration-500 ease-in-out bg-blue-500 rounded-lg hover:bg-blue-400 focus:outline-none"
             >
               <svg
                 xmlns="http://www.w3.org/2000/svg"
@@ -142,28 +249,30 @@ const ChatBox = () => {
         </div>
       </div>
 
-      <style>{`
-.scrollbar-w-2::-webkit-scrollbar {
-  width: 0.25rem;
-  height: 0.25rem;
-}
+      <style>
+        {`
+          .scrollbar-w-2::-webkit-scrollbar {
+            width: 0.25rem;
+            height: 0.25rem;
+          }
 
-.scrollbar-track::-webkit-scrollbar-track {
-  --bg-opacity: 1;
-  background-color: #f7fafc;
-  background-color: rgba(247, 250, 252, var(--bg-opacity));
-}
+          .scrollbar-track::-webkit-scrollbar-track {
+            --bg-opacity: 1;
+            background-color: #f7fafc;
+            background-color: rgba(247, 250, 252, var(--bg-opacity));
+          }
 
-.scrollbar-thumb::-webkit-scrollbar-thumb {
-  --bg-opacity: 1;
-  background-color: #edf2f7;
-  background-color: rgba(237, 242, 247, var(--bg-opacity));
-}
+          .scrollbar-thumb::-webkit-scrollbar-thumb {
+            --bg-opacity: 1;
+            background-color: #edf2f7;
+            background-color: rgba(237, 242, 247, var(--bg-opacity));
+          }
 
-.scrollbar-thumb-rounded::-webkit-scrollbar-thumb {
-  border-radius: 0.25rem;
-}
-`}</style>
+          .scrollbar-thumb-rounded::-webkit-scrollbar-thumb {
+            border-radius: 0.25rem;
+          }
+      `}
+      </style>
     </section>
   );
 };

@@ -1,53 +1,124 @@
-import React, { createContext } from "react";
+import React, { createContext, useEffect, useMemo } from "react";
 
-const getUserData = () => {
-  var data: ContextProps = {
-    username: "mbifenzi",
-    firstName: "mohamed",
-    lastName: "bifenzi",
-    email: "mbifenzi@1337.student.ma",
-    avatar: "",
-    friends: [],
-    rooms: [],
-    id: 1,
-  };
-  // axios.get("http://localhost:3000/api/user").then((res) => {
-  // data = res.data;
-  // }).catch((err) => {
-  // o the error
-  return data;
-};
+import { getToken } from "@utils/auth-token";
+import basicFetch from "@utils/basicFetch";
+import { IConversationMetaData } from "global/types";
 
-interface ContextProps {
-  username: string;
-  firstName: string;
-  lastName: string;
-  email: string;
-  friends: string[];
-  avatar: string;
-  rooms: string[];
-  id: number;
+export interface IChatContext {
+  activeBoxes: any[];
+  conversationsMetadata: IConversationMetaData[];
+  error: string;
+  setError: React.Dispatch<React.SetStateAction<string>>;
+  activateBox: (convMetaData: any) => void;
+  deleteBox: (id: string) => void;
+  loadConversations: () => Promise<void>;
+  loadSingleConversation: (id: string) => Promise<any>;
 }
 
-export const Context = createContext(getUserData());
+const initialState: IChatContext = {
+  activeBoxes: [],
+  conversationsMetadata: [],
 
-// export const userContext = () => useContext(Context);
+  error: "",
+  setError: () => {},
+  activateBox: () => {},
+  deleteBox: () => {},
+  loadConversations: () => Promise.resolve(),
+  loadSingleConversation: () => Promise.resolve(),
+};
 
-export const ContextProvider = ({
-  children,
-}: {
-  children: React.ReactNode;
-}) => {
-  const userContext = {
-    username: "",
-    firstName: "",
-    lastName: "",
-    email: "",
-    friends: [""],
-    avatar: "",
-    rooms: [""],
-    id: 1,
+export const ChatContext = createContext<IChatContext>(initialState);
+
+export const ChatProvider = ({ children }: { children: React.ReactNode }) => {
+  const [activeBoxes, setActiveBoxes] = React.useState<any[]>([]);
+  const [conversationsMetadata, setConversationsMetadata] = React.useState(
+    initialState.conversationsMetadata
+  ); // these only contain the last message (meta data)
+  const [error, setError] = React.useState("");
+
+  const loadConversationsMetadata = async () => {
+    try {
+      const resp = await basicFetch.get("/chat/rooms");
+
+      if (resp.status === 200) {
+        const data: IConversationMetaData = await resp.json();
+        // console.log(data);
+        setConversationsMetadata(data);
+      }
+    } catch (error) {
+      setError(error.message);
+    }
   };
 
-  return <Context.Provider value={userContext}></Context.Provider>;
+  const loadSingleConversation = async (id: string) => {
+    try {
+      const resp = await fetch(
+        `${process.env.NEXT_PUBLIC_API_URL}/conversations/${id}`,
+        {
+          headers: {
+            Authorization: "Bearer " + getToken(),
+          },
+        }
+      );
+
+      if (resp.status === 200) {
+        const data = await resp.json();
+        return data;
+      }
+    } catch (error) {
+      setError(error.message);
+    }
+  };
+
+  const activateBox = (convMetaData: any) => {
+    if (activeBoxes.find((item) => item.id == convMetaData.id)) return;
+    if (activeBoxes.includes(convMetaData)) return;
+    if (activeBoxes.length === 3) {
+      setActiveBoxes([...activeBoxes.slice(1), convMetaData]);
+    } else setActiveBoxes([...activeBoxes, convMetaData]);
+  };
+
+  const deleteBox = (id: string) => {
+    setActiveBoxes(activeBoxes.filter((box) => box["id"] !== id));
+  };
+
+  const value = useMemo(
+    () => ({
+      activeBoxes,
+      deleteBox,
+      conversationsMetadata: conversationsMetadata,
+      error,
+      setError,
+      activateBox,
+      loadConversationsMetadata,
+      loadSingleConversation,
+    }),
+    [
+      activeBoxes,
+      conversationsMetadata,
+      error,
+      setError,
+      // activateBox,
+      // loadConversations,
+      // loadSingleConversation,
+    ]
+  );
+
+  useEffect(() => {
+    // const params = new Proxy(new URLSearchParams(window.location.search), {
+    //   get: (searchParams, prop) => searchParams.get(prop),
+    // });
+    // setToken(params.token);
+    loadConversationsMetadata();
+  }, []);
+
+  return <ChatContext.Provider value={value}>{children}</ChatContext.Provider>;
+};
+
+export const useChatContext = () => {
+  const context = React.useContext(ChatContext);
+  if (context === undefined) {
+    throw new Error("useChatContext must be used within a ChatProvider");
+  }
+  return context;
 };

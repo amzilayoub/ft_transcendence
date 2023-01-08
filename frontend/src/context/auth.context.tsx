@@ -3,9 +3,27 @@ import { createContext, useContext, useEffect, useMemo, useState } from "react";
 import router from "next/router";
 
 import { getToken, removeToken, setToken } from "@utils/auth-token";
+import isBrowser from "@utils/isBrowser";
 import { ICurrentUser } from "global/types";
 
-export const AuthContext = createContext(null);
+export interface IRegisterPayload {
+  email: string;
+  password: string;
+  username: string;
+}
+
+export interface AuthState {
+  user: ICurrentUser | null;
+  isAuthenticated: boolean;
+  loadingUser: boolean;
+  loading: boolean;
+  error: string | null;
+  login: (emailOrUsername: string, password: string) => Promise<void>;
+  register: (payload: IRegisterPayload) => Promise<void>;
+  logout: () => Promise<void>;
+}
+
+export const AuthContext = createContext<AuthState | undefined>(undefined);
 
 const loadUserData = async () => {
   try {
@@ -54,30 +72,26 @@ const AuthContextProvider = ({ children }: { children: React.ReactNode }) => {
       );
 
       if (resp.status === 200) {
+        setIsAuthenticated(true);
         const data = await resp.json();
-        setToken(data.accessToken);
+        setToken(data.access_token);
         setLoadingUser(true);
         const userData = await loadUserData();
         setUser(userData);
         setLoadingUser(false);
       } else {
-        console.log("resp", resp);
         const data = await resp.json();
         setError(data.message);
       }
     } catch (error) {
-      // console.log("EEError", error);
       setError(error.message);
     }
     setLoading(false);
   };
 
-  const register = async (payload: {
-    email: string;
-    password: string;
-    username: string;
-  }) => {
+  const register = async (payload: IRegisterPayload) => {
     try {
+      setLoading(true);
       const resp = await fetch(
         `${process.env.NEXT_PUBLIC_API_URL}/auth/signup`,
         {
@@ -89,9 +103,10 @@ const AuthContextProvider = ({ children }: { children: React.ReactNode }) => {
         }
       );
 
-      if (resp.status === 200) {
+      if (resp.status === 201) {
+        setIsAuthenticated(true);
         const data = await resp.json();
-        setToken(data.accessToken);
+        setToken(data.access_token);
         setLoadingUser(true);
         const userData = await loadUserData();
         setUser(userData);
@@ -103,12 +118,13 @@ const AuthContextProvider = ({ children }: { children: React.ReactNode }) => {
     } catch (error) {
       setError(error.message);
     }
+    setLoading(false);
   };
 
   const logout = async () => {
     setLoading(true);
     removeToken();
-    router.push("/");
+    window.location.href = "/";
 
     // try {
     //   const resp = await fetch(
@@ -144,12 +160,11 @@ const AuthContextProvider = ({ children }: { children: React.ReactNode }) => {
     [user, loadingUser, loading, error, isAuthenticated]
   );
 
-  // console.log("value", value);
   useEffect(() => {
+    if (!isBrowser) return;
     if (getToken()) {
       setIsAuthenticated(true); // tmp
       (async () => {
-        console.log("loadUserData()");
         const data = await loadUserData();
         setUser(data);
         setLoadingUser(false);

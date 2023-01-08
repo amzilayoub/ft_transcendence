@@ -1,10 +1,11 @@
-import { ForbiddenException, Injectable } from '@nestjs/common';
+import { ForbiddenException, HttpException, HttpStatus, Injectable } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { JwtService } from '@nestjs/jwt';
 import { PrismaClientKnownRequestError } from '@prisma/client/runtime';
 import * as argon from 'argon2';
 import { PrismaService } from 'src/prisma/prisma.service';
 import { AuthDto } from './dto/auth.dto';
+
 
 @Injectable()
 export class AuthService {
@@ -14,68 +15,57 @@ export class AuthService {
     private config: ConfigService,
   ) {}
 
-  async signup(dto: AuthDto) {
-    // console.log({ dto });
-    //generate password hash
-    const hash = await argon.hash(dto.password);
-    //create user
-    try {
-      const user = await this.prisma.user.create({
-        data: {
-          username: dto.username,
-          email: dto.email,
-          hash,
-          created_at: new Date(),
-          updated_at: new Date(),
-          first_name: null,
-          last_name: null,
-        },
-      });
-      // delete user.hash;
-      // return user;
-      return this.signToken(user.id, user.email);
-    } catch (error) {
-      if (error instanceof PrismaClientKnownRequestError) {
-        if (error.code === 'P2002') {
-          throw new ForbiddenException('Email already in use');
-        }
-        throw error;
-      }
-    }
-    // return user;
+
+  public getCookieWithJwtToken(_user: any) {
+    const payload = {user :{ id : _user.id, email: _user.email, username: _user.username }};
+    const token = this.jwt.sign(payload);
+    return `Authentication=${token}; HttpOnly; Path=/; Max-Age=${process.env.JWT_EXPIRATION_TIME}`;
   }
 
-  async signin(dto: AuthDto) {
-    //find user by email
+
+
+  async getByEmail(dto: AuthDto) {
     const user = await this.prisma.user.findUnique({
       where: {
         email: dto.email,
       },
     });
-    //if user not found throw error
     if (!user) {
-      throw new ForbiddenException('Invalid credentials');
+      throw new ForbiddenException('User with this email does not exist');
     }
-    //compare password
-    const valid = await argon.verify(user.hash, dto.password);
-    //if password is not correct throw error
-    if (!valid) {
-      throw new ForbiddenException('password is not correct');
-    }
-    // delete user.hash;
-    // return user;
-    return this.signToken(user.id, user.email);
+    await this.verifyPassword(dto.password, user.hash);
+    delete user.hash;
+    return user;
   }
 
-  //promise<string> is the return type
-  signToken(userId: number, email: string): Promise< string > {
-    const playload = {
-      sub: userId,
-      email,
-    };
-    const secret = this.config.get('SECRET_KEY');
-    const token = this.jwt.signAsync(playload, { secret });
-    return token;
-    // return this.jwt.signAsync(playload, { secret });
+  async verifyPassword(password: string, hash: string) {
+    const isPasswordValid = await argon.verify(hash, password);
+    if (!isPasswordValid) {
+      throw new ForbiddenException('Invalid password');
+    }
+  }
+
+  async addNewUser(dto: AuthDto) {
+    try
+    {
+      const hash = await argon.hash(dto.password);
+        const user = await this.prisma.user.create({
+          data: {
+            username: dto.username,
+            email: dto.email,
+            hash,
+            first_name: dto.first_name || null,
+            last_name: dto.last_name || null,
+          },
+        });
+        return user;
+    } catch (error) {
+    if (error instanceof PrismaClientKnownRequestError) {
+      if (error.code === 'P2002') {
+        throw new ForbiddenException('Email already in use');
+      }
+      throw error;
+    }
+  }
   }
 }

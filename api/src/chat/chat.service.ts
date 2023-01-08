@@ -9,7 +9,12 @@ import { time } from 'console';
 export class ChatService {
     constructor(private prismaService: PrismaService) {}
 
-    createMessage(room_id: number, user_id: number, message: string) {
+    async createMessage(room_id: number, user_id: number, message: string) {
+        await this.prismaService.$queryRaw(Prisma.sql`
+			UPDATE room
+			SET count_messages = count_messages + 1
+			WHERE room_id = ${room_id}`);
+
         return this.prismaService.messages.create({
             data: {
                 room_id,
@@ -42,23 +47,42 @@ export class ChatService {
      */
     getUserRooms(userId: number, offset: number = 0): Promise<Array<any>> {
         return this.prismaService.$queryRaw(Prisma.sql`
-			SELECT u2.*, room_type.type,
-				CASE
-					WHEN room_type.type = 'dm'
-						THEN users.username
-					ELSE
-					--Here I should return the name of the room
-						'shared room'
-					END AS room_name
-			FROM room_user_rel as u1, room_user_rel as u2, room, room_type, users
+			SELECT receiver.*, room_type.type,
+			users.avatar_url AS "avatarUrl",
+			(
+				SELECT message
+				FROM messages
+				WHERE room_id = receiver.room_id
+				ORDER BY id DESC
+				LIMIT 1
+			) AS "lastMessage",
+			
+			(
+				SELECT COUNT(messages.*)
+				FROM messages
+				WHERE messages.room_id = receiver.room_id
+				AND messages.user_id != receiver.user_id
+				AND is_read = false
+			)::INTEGER AS "unreadMessagesCount",
+			
+			room.updated_at AS "lastMessageTime",
+			CASE
+				WHEN room_type.type = 'dm'
+					THEN users.username
+				ELSE
+				--Here I should return the name of the room
+					'shared room'
+			END AS name
+			FROM room_user_rel as sender, room_user_rel as receiver, room, room_type, users
 			-- here is inner join
-			WHERE u1.room_id = room.id
+			WHERE sender.room_id = room.id
 			AND room.room_type_id = room_type.id
-			AND users.id = u2.user_id
+			AND users.id = receiver.user_id
 			-- Here is a self join
-			AND u1.room_id = u2.room_id
-			AND u1.user_id != u2.user_id
-			AND u1.user_id = ${userId}
+			AND sender.room_id = receiver.room_id
+			AND sender.user_id != receiver.user_id
+			AND sender.user_id = ${userId}
+			ORDER BY room.updated_at DESC
 		`);
     }
 
@@ -86,6 +110,15 @@ export class ChatService {
                 type: name,
             },
         });
+    }
+
+    getRoomMembers(roomId: number) {
+        return this.prismaService.$queryRaw(Prisma.sql`
+				SELECT users.id, users.username AS name, users.avatar_url AS "avatarUrl"
+				FROM room_user_rel
+				INNER JOIN users ON users.id = room_user_rel.user_id
+				WHERE room_user_rel.room_id = ${roomId}
+		`);
     }
 
     findAllMessages() {

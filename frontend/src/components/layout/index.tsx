@@ -3,8 +3,7 @@ import React from "react";
 import cn from "classnames";
 import Head from "next/head";
 
-import ChatBox from "@components/chat/ChatBox";
-import ChatSidebar from "@components/chat/ChatSidebar";
+import ChatStuff from "@components/chat/ChatStuff";
 import Navbar from "@components/navbar";
 
 interface MainLayoutProps {
@@ -43,16 +42,7 @@ const MainLayout: React.FC<MainLayoutProps> = ({
         >
           {children}
         </div>
-        <div className="absolute bottom-0 right-0  max-h-[calc(100vh-10rem)] px-6">
-          {true && <ChatSidebar />}
-          <ul className="absolute bottom-0 flex right-80 gap-x-3">
-            {[1, 2, 4].map((i) => (
-              <li key={i} className="w-full">
-                <ChatBox />
-              </li>
-            ))}
-          </ul>
-        </div>
+        <ChatStuff />
       </main>
     </>
   );

@@ -1,3 +1,4 @@
+"use client";
 import { ReactElement, useEffect, useState } from "react";
 
 import cn from "classnames";
@@ -9,10 +10,11 @@ import { IconType } from "react-icons/lib";
 
 import BaseModal from "@components/common/BaseModal";
 import { ExternalLink } from "@components/common/Links";
-import LoadingPage from "@components/common/LoadingPage";
+import Redirecting from "@components/common/Redirecting";
 import MainLayout from "@components/layout";
 import * as api from "@lib/api";
 import Button from "@ui/Button";
+import { APP_NAME } from "@utils/constants";
 import { useAuthContext } from "context/auth.context";
 import { IUser, SetStateFunc } from "global/types";
 
@@ -73,8 +75,8 @@ const UserInfo = ({
   username: string;
   bio: string;
   links: {
-    twitter: string;
-    intra: string;
+    twitter: string | null;
+    intra: string | null;
   };
 }) => {
   return (
@@ -98,13 +100,15 @@ const UserInfo = ({
               }
             />
           )}
-          <SocialLink
-            href={`https://intra.42.fr/users/${links.intra}`}
-            title={`@${links.intra}`}
-            icon={
-              <FaGlobe className="w-6 h-6 mr-3 text-gray-700 group-hover:text-gray-500" />
-            }
-          />
+          {links?.intra && (
+            <SocialLink
+              href={`https://intra.42.fr/users/${links.intra}`}
+              title={`@${links.intra}`}
+              icon={
+                <FaGlobe className="w-6 h-6 mr-3 text-gray-700 group-hover:text-gray-500" />
+              }
+            />
+          )}
         </ul>
       </article>
     </div>
@@ -133,7 +137,7 @@ const UserInfoHeader = ({
   setIsCoverModalOpen,
   setIsAvatarModalOpen,
 }: {
-  user: IUser;
+  user: IUser | null;
   username: string;
   isMyProfile: boolean;
   setIsCoverModalOpen: SetStateFunc<boolean>;
@@ -145,17 +149,23 @@ const UserInfoHeader = ({
       <div className="w-full">
         <figure className="relative w-full h-[220px]">
           {user ? (
-            <Image
-              src={user?.coverUrl || "/images/cover-placeholder.png"}
-              alt={
-                user?.coverUrl
-                  ? `cover for ${user?.username}`
-                  : "cover placeholder"
-              }
-              onClick={() => setIsCoverModalOpen(true)}
-              fill
-              className="object-fill cursor-pointer rounded-t-xl"
-            />
+            !user.cover_url ? (
+              <div className="w-full h-full bg-gray-300 rounded-t-xl " />
+            ) : (
+              <Image
+                src={user?.cover_url || "/images/cover-placeholder.png"}
+                alt={
+                  user?.cover_url
+                    ? `cover for ${user?.username}`
+                    : "cover placeholder"
+                }
+                onClick={() => user?.cover_url && setIsCoverModalOpen(true)}
+                fill
+                className={cn("object-cover rounded-t-xl", {
+                  "cursor-pointer": user?.cover_url,
+                })}
+              />
+            )
           ) : (
             <div className="w-full h-full bg-gray-300 rounded-t-xl " />
           )}
@@ -165,9 +175,9 @@ const UserInfoHeader = ({
           >
             {user ? (
               <Image
-                src={user?.avatarUrl || "/images/avatar-placeholder.png"}
+                src={user?.avatar_url || "/images/avatar-placeholder.png"}
                 alt={
-                  user?.avatarUrl
+                  user?.avatar_url
                     ? `avatar for ${user?.username}`
                     : "avatar placeholder"
                 }
@@ -206,11 +216,11 @@ const UserInfoHeader = ({
 
             {/* User info */}
             <UserInfo
-              fullName={user?.fullName}
+              fullName={user?.first_name}
               username={user?.username as string}
               bio={user?.bio}
               links={{
-                twitter: user?.twitterUsername,
+                twitter: user?.twitterUsername!,
                 intra: user?.intraUsername,
               }}
             />
@@ -236,6 +246,7 @@ const ProfilePage = () => {
   const [isCoverModalOpen, setIsCoverModalOpen] = useState(false);
   const [user, setUser] = useState<IUser | null>(null);
 
+  // console.log('C', ctx)
   useEffect(() => {
     if (router.isReady && ctx.isAuthenticated === false) {
       router.push("/");
@@ -263,7 +274,10 @@ const ProfilePage = () => {
   }
 
   return (
-    <MainLayout title={username as string} backgroundColor="bg-gray-100">
+    <MainLayout
+      title={user ? (username as string) : APP_NAME}
+      backgroundColor="bg-gray-100"
+    >
       <div className="w-full max-w-7xl">
         <UserInfoHeader
           user={user}
@@ -281,7 +295,7 @@ const ProfilePage = () => {
         >
           <div className="w-[600px] h-[600px] flex flex-col items-center justify-center ">
             <Image
-              src={user?.avatarUrl || "/images/avatar-placeholder.png"}
+              src={user?.avatar_url || "/images/avatar-placeholder.png"}
               alt={`avatar for ${username}`}
               fill
               className="object-cover rounded-full"
@@ -296,7 +310,7 @@ const ProfilePage = () => {
         >
           <div className="w-[900px] h-[220px] flex flex-col items-center justify-center">
             <Image
-              src={user?.coverUrl || "/images/cover-placeholder.png"}
+              src={user?.cover_url || "/images/cover-placeholder.png"}
               alt={`cover for ${username}`}
               fill
               className="object-cover"
