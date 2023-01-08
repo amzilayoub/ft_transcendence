@@ -1,4 +1,10 @@
-import { getToken, removeToken, setToken } from "@utils/auth-token";
+import { getToken } from "@utils/auth-token";
+
+interface IData {
+  method: string;
+  headers: any;
+  body?: any;
+}
 
 const defaultFetch = (
   uri: string,
@@ -6,7 +12,7 @@ const defaultFetch = (
   additionalHeaders: any = {},
   body: any = {}
 ) => {
-  const data = {
+  const data: IData = {
     method,
     headers: {
       "Content-Type": "application/json",

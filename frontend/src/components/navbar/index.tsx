@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 
 import Link from "next/link";
 import { AiOutlineCode as TmpLogo } from "react-icons/ai";
@@ -7,36 +7,23 @@ import ProfileNavMenu from "@components/menus/dropdowns/ProfileNavMenu";
 import AuthModal from "@components/modals/AuthModal";
 import Searchbar, { SearchbarPopover } from "@components/navbar/SearchBar";
 import Button from "@ui/Button";
+import { FALLBACK_AVATAR } from "@utils/constants";
 import { useAuthContext } from "context/auth.context";
 
 export interface IUserData {
   id: string;
   username: string;
-  firstName: string;
-  middleName: string;
-  lastName: string;
+  first_name: string;
+  last_name: string;
   email: string;
-  avatarUrl: string;
-  createdAt: string;
-  updatedAt: string;
+  avatar_url: string;
+  created_at: string;
+  updated_at: string;
 }
-
-// const sampleUser: IUserData = {
-//   username: "joe",
-//   firstName: "Joe",
-//   lastName: "Doe",
-//   avatarUrl:
-//     "https://images.unsplash.com/photo-1603415526960-f7e0328c63b1?ixlib=rb-1.2.1&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8",
-//   id: "3142kjn2k",
-//   middleName: "lorem",
-//   email: "joe@gmail.com",
-//   createdAt: "",
-//   updatedAt: "",
-// };
 
 // temporary
 const Logo = ({ ...props }) => (
-  <TmpLogo className="text-secondary h-full w-full" {...props} />
+  <TmpLogo className="w-full h-full text-secondary" {...props} />
 );
 
 const Navbar = () => {
@@ -45,20 +32,26 @@ const Navbar = () => {
   const [authModalType, setAuthModalType] = useState<"login" | "register">(
     "login"
   );
+  // rerender when user changes
+  useEffect(() => {
+    if (ctx?.user) {
+      setShowAuthModal(false);
+    }
+  }, [ctx?.user]);
 
   return (
     <>
-      <nav className="fixed z-20 flex h-16 w-full items-center justify-center bg-white py-2 shadow-sm">
+      <nav className="fixed z-20 flex items-center justify-center w-full h-16 py-2 bg-white shadow-sm">
         {/* Normal Screen Width */}
-        <ul className="hidden w-full grid-cols-12 items-center justify-between px-3 md:grid xl:max-w-7xl xl:px-0">
+        <ul className="items-center justify-between hidden w-full grid-cols-12 px-3 md:grid xl:max-w-7xl xl:px-0">
           <li className="col-span-2 list-none md:col-span-3">
             <Link href="/">
-              <div className="h-16 w-14 cursor-pointer">
+              <div className="h-16 cursor-pointer w-14">
                 <Logo src={""} />
               </div>
             </Link>
           </li>
-          <li className="col-span-3 w-full list-none justify-center md:col-span-6 md:flex">
+          <li className="justify-center w-full col-span-3 list-none md:col-span-6 md:flex">
             <Searchbar
               onChange={() => {}}
               onSubmit={() => {}}
@@ -66,14 +59,14 @@ const Navbar = () => {
             />
           </li>
 
-          <li className="col-span-7 flex list-none justify-end gap-x-2 md:col-span-3">
+          <li className="flex justify-end col-span-7 list-none gap-x-2 md:col-span-3">
             {ctx?.user || ctx?.loadingUser ? (
               <ProfileNavMenu
                 isLoading={ctx?.loadingUser}
-                username={ctx?.user?.username}
-                firstName={ctx?.user?.firstName}
-                lastName={ctx?.user?.lastName}
-                avatarUrl={ctx?.user?.avatarUrl}
+                username={ctx?.user?.username || ""}
+                first_name={ctx?.user?.first_name || ""}
+                last_name={ctx?.user?.last_name || ""}
+                avatar_url={ctx?.user?.avatar_url || FALLBACK_AVATAR}
                 onLogout={() => ctx?.logout()}
               />
             ) : (
@@ -100,10 +93,10 @@ const Navbar = () => {
           </li>
         </ul>
         {/* Mobile Screen Width */}
-        <ul className="flex h-full w-full items-center justify-between px-2 md:hidden">
+        <ul className="flex items-center justify-between w-full h-full px-2 md:hidden">
           <li className="list-none">
             <Link href="/">
-              <div className="h-16 w-14 cursor-pointer">
+              <div className="h-16 cursor-pointer w-14">
                 <Logo src={""} />
               </div>
             </Link>
@@ -119,10 +112,11 @@ const Navbar = () => {
             {ctx?.user ? (
               <ProfileNavMenu
                 username={ctx?.user?.username}
-                firstName={ctx?.user?.firstName}
-                lastName={ctx?.user?.lastName}
-                avatarUrl={ctx?.user?.avatarUrl}
+                first_name={ctx?.user?.first_name}
+                last_name={ctx?.user?.last_name}
+                avatar_url={ctx?.user?.avatar_url}
                 onLogout={() => ctx?.logout()}
+                isLoading={ctx?.loadingUser}
               />
             ) : (
               <>

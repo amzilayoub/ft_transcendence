@@ -1,6 +1,5 @@
 import React, { useEffect, useState } from "react";
 
-import { truncateString } from "@utils/format";
 import cn from "classnames";
 import { IConversationMetaData, IFriendMetaData } from "global/types";
 import Image from "next/image";
@@ -8,6 +7,7 @@ import { AiOutlineUserAdd } from "react-icons/ai";
 import { BsThreeDots, BsVolumeMute } from "react-icons/bs";
 import { MdBlockFlipped } from "react-icons/md";
 import { SlArrowDown } from "react-icons/sl";
+import { truncateString } from "@utils/format";
 
 const SeekNewConversation = ({
   searchQuery,
@@ -30,7 +30,7 @@ const SeekNewConversation = ({
       // setSearchResults([
       //   {
       //     id: "414111",
-      //     avatarUrl: "https://martinfowler.com/mf.jpg",
+      //     avatar_url: "https://martinfowler.com/mf.jpg",
       //     name: "Michael Scott",
       //   },
       // ]);
@@ -220,7 +220,7 @@ const ChatSidebar = ({
           searchResults.map((item) => (
             <ConversationMetadata
               key={item.id}
-              avatar={item.avatarUrl}
+              avatar={item.avatar_url}
               onConversationClick={() => onConversationClick(item)}
               name={item.name}
               lastMessage={item.lastMessage}
@@ -241,7 +241,7 @@ const ChatSidebar = ({
           conversationsMetadata.map((item, idx) => (
             <ConversationMetadata
               key={idx}
-              avatar={item.avatarUrl}
+              avatar={item.avatar_url}
               onConversationClick={() => onConversationClick(item)}
               name={item.name}
               lastMessage={item.lastMessage}
