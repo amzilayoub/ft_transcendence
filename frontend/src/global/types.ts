@@ -54,14 +54,25 @@ export interface IConversationMetaData {
   user_id: number;
 }
 
-export interface IMessage {
+export interface IMessageSender {
   id: string;
-  senderId: string;
-  text: string;
-  time: string;
+  avatar_url: string;
+  username: string;
+}
+
+export interface IMessage {
+  id: number;
+  is_read: boolean;
+  message: string;
+  room_id: number;
+  updated_at: Date;
+  userLink: { id: number; username: string; avatar_url: string };
+  user_id: number; // duplicate of userLink.id
+  created_at: Date;
 }
 
 export interface IConversation {
+  id: string;
   members: string[]; // ids of the members. Current user is always first.
   messages: IMessage[];
 }

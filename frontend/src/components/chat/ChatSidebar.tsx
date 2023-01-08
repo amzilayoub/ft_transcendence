@@ -87,7 +87,7 @@ const ConversationMetadata = ({
       <div className="group w-full cursor-pointer">
         <div className="flex items-center">
           <Image
-            src={`${process.env.NEXT_PUBLIC_RESOURCE_URL}${avatar}`}
+            src={avatar}
             alt={`${name} avatar`}
             width={40}
             height={40}
@@ -146,15 +146,18 @@ const ConversationMetadata = ({
 };
 
 const ChatSidebar = ({
+  showChatSidebar,
   conversationsMetadata,
   onConversationClick,
   onNewConversationClick,
+  setShowChatSidebar,
 }: {
+  showChatSidebar: boolean;
   conversationsMetadata: IConversationMetaData[];
   onConversationClick: (convMetaData: any) => void;
   onNewConversationClick: () => void;
+  setShowChatSidebar: (showChatSidebar: boolean) => void;
 }) => {
-  const [showChatSidebar, setShowChatSidebar] = useState(true);
   const [searchQuery, setsearchQuery] = useState("");
   const [searchResults, setSearchResults] = useState<
     IConversationMetaData[] | IFriendMetaData[]

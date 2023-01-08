@@ -1,13 +1,15 @@
-import React, { createContext, useEffect, useMemo } from "react";
+import React, { createContext, useCallback, useEffect, useMemo } from "react";
 
 import { getToken } from "@utils/auth-token";
 import basicFetch from "@utils/basicFetch";
 import { IConversationMetaData } from "global/types";
 
 export interface IChatContext {
+  showChatSidebar: boolean;
   activeBoxes: any[];
   conversationsMetadata: IConversationMetaData[];
   error: string;
+  setShowChatSidebar: React.Dispatch<React.SetStateAction<boolean>>;
   setError: React.Dispatch<React.SetStateAction<string>>;
   activateBox: (convMetaData: any) => void;
   deleteBox: (id: string) => void;
@@ -16,10 +18,11 @@ export interface IChatContext {
 }
 
 const initialState: IChatContext = {
+  showChatSidebar: true,
   activeBoxes: [],
   conversationsMetadata: [],
-
   error: "",
+  setShowChatSidebar: () => {},
   setError: () => {},
   activateBox: () => {},
   deleteBox: () => {},
@@ -30,6 +33,7 @@ const initialState: IChatContext = {
 export const ChatContext = createContext<IChatContext>(initialState);
 
 export const ChatProvider = ({ children }: { children: React.ReactNode }) => {
+  const [showChatSidebar, setShowChatSidebar] = React.useState(true);
   const [activeBoxes, setActiveBoxes] = React.useState<any[]>([]);
   const [conversationsMetadata, setConversationsMetadata] = React.useState(
     initialState.conversationsMetadata
@@ -50,7 +54,7 @@ export const ChatProvider = ({ children }: { children: React.ReactNode }) => {
     }
   };
 
-  const loadSingleConversation = async (id: string) => {
+  const loadSingleConversation = useCallback(async (id: string) => {
     try {
       const resp = await fetch(
         `${process.env.NEXT_PUBLIC_API_URL}/conversations/${id}`,
@@ -68,39 +72,46 @@ export const ChatProvider = ({ children }: { children: React.ReactNode }) => {
     } catch (error) {
       setError(error.message);
     }
-  };
+  }, []);
 
-  const activateBox = (convMetaData: any) => {
+  const activateBox = useCallback((convMetaData: any) => {
     if (activeBoxes.find((item) => item.id == convMetaData.id)) return;
     if (activeBoxes.includes(convMetaData)) return;
     if (activeBoxes.length === 3) {
       setActiveBoxes([...activeBoxes.slice(1), convMetaData]);
     } else setActiveBoxes([...activeBoxes, convMetaData]);
-  };
+  }, []);
 
-  const deleteBox = (id: string) => {
-    setActiveBoxes(activeBoxes.filter((box) => box["id"] !== id));
-  };
+  const deleteBox = useCallback(
+    (id: string) => {
+      setActiveBoxes(activeBoxes.filter((box) => box["id"] !== id));
+    },
+    [activeBoxes]
+  );
 
   const value = useMemo(
     () => ({
+      showChatSidebar,
       activeBoxes,
       deleteBox,
       conversationsMetadata: conversationsMetadata,
       error,
+      setShowChatSidebar,
       setError,
       activateBox,
       loadConversationsMetadata,
       loadSingleConversation,
     }),
     [
+      showChatSidebar,
       activeBoxes,
       conversationsMetadata,
       error,
+      setShowChatSidebar,
       setError,
-      // activateBox,
-      // loadConversations,
-      // loadSingleConversation,
+      activateBox,
+      deleteBox,
+      loadSingleConversation,
     ]
   );
 
