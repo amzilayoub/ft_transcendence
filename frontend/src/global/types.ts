@@ -1,5 +1,10 @@
 import { Dispatch } from "react";
 
+export type AtLeastOne<T, U = { [K in keyof T]: Pick<T, K> }> = Partial<T> &
+  U[keyof U];
+
+export type PartialWithRequired<T, K extends keyof T> = Partial<T> & Pick<T, K>;
+
 type SetStateAction<S> = S | ((prevState: S) => S);
 export type SetStateFunc<S> = Dispatch<SetStateAction<S>>; // y not?
 
@@ -23,10 +28,10 @@ export interface IUser {
   bio: string;
   avatar_url: string;
   cover_url: string;
-  isFollowing: boolean;
-  isFollower: boolean;
-  followersCount: number;
-  followingCount: number;
+  is_following: boolean;
+  is_follower: boolean;
+  followers_count: number;
+  following_count: number;
 }
 
 export interface IUserAnalytics {

@@ -175,7 +175,7 @@ const UserInfoHeader = ({
           >
             {user ? (
               <Image
-                src={user?.avatar_url || "/images/avatar-placeholder.png"}
+                src={user?.avatar_url || "/images/default-avatar.jpg"}
                 alt={
                   user?.avatar_url
                     ? `avatar for ${user?.username}`
@@ -295,7 +295,7 @@ const ProfilePage = () => {
         >
           <div className="w-[600px] h-[600px] flex flex-col items-center justify-center ">
             <Image
-              src={user?.avatar_url || "/images/avatar-placeholder.png"}
+              src={user?.avatar_url || "/images/default-avatar.jpg"}
               alt={`avatar for ${username}`}
               fill
               className="object-cover rounded-full"
