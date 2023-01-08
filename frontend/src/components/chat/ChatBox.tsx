@@ -4,8 +4,8 @@ import cn from "classnames";
 import Image from "next/image";
 import { RxCross2 } from "react-icons/rx";
 
-import { IConversationMetaData, IMessage } from "global/types";
 import basicFetch from "@utils/basicFetch";
+import { IMessage } from "global/types";
 
 const Message = ({
   message,
