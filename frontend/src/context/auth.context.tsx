@@ -74,18 +74,16 @@ const AuthContextProvider = ({ children }: { children: React.ReactNode }) => {
       if (resp.status === 200) {
         setIsAuthenticated(true);
         const data = await resp.json();
-        setToken(data.accessToken);
+        setToken(data.access_token);
         setLoadingUser(true);
         const userData = await loadUserData();
         setUser(userData);
         setLoadingUser(false);
       } else {
-        console.log("resp", resp);
         const data = await resp.json();
         setError(data.message);
       }
     } catch (error) {
-      // console.log("EEError", error);
       setError(error.message);
     }
     setLoading(false);
@@ -108,7 +106,7 @@ const AuthContextProvider = ({ children }: { children: React.ReactNode }) => {
       if (resp.status === 201) {
         setIsAuthenticated(true);
         const data = await resp.json();
-        setToken(data.accessToken);
+        setToken(data.access_token);
         setLoadingUser(true);
         const userData = await loadUserData();
         setUser(userData);
@@ -162,13 +160,11 @@ const AuthContextProvider = ({ children }: { children: React.ReactNode }) => {
     [user, loadingUser, loading, error, isAuthenticated]
   );
 
-  // console.log("value", value);
   useEffect(() => {
     if (!isBrowser) return;
     if (getToken()) {
       setIsAuthenticated(true); // tmp
       (async () => {
-        console.log("loadUserData()");
         const data = await loadUserData();
         setUser(data);
         setLoadingUser(false);

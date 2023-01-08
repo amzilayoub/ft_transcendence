@@ -60,12 +60,12 @@ const sampleWholeConversation = {
     {
       id: "1",
       name: "John Doe",
-      avatarUrl: "https://martinfowler.com/mf.jpg",
+      avatar_url: "https://martinfowler.com/mf.jpg",
     },
     {
       id: "2",
       name: "Mike Doe",
-      avatarUrl: "https://martinfowler.com/mf.jpg",
+      avatar_url: "https://martinfowler.com/mf.jpg",
     },
   ],
   messages: [
@@ -178,7 +178,7 @@ const ChatBox = ({
               </svg>
             </span>
             <Image
-              src={`${process.env.NEXT_PUBLIC_RESOURCE_URL}/${conversation.members[0].avatarUrl}`}
+              src={`${process.env.NEXT_PUBLIC_RESOURCE_URL}/${conversation.members[0].avatar_url}`}
               alt={`${conversation.members[0].name || "User"}'s avatar`}
               width={40}
               height={40}
@@ -210,7 +210,7 @@ const ChatBox = ({
               <Message
                 key={`message-${message.id}-${index}`}
                 message={message.text}
-                senderAvatar={conversation.members[0].avatarUrl}
+                senderAvatar={conversation.members[0].avatar_url}
                 isMe={index % 2 === 0}
               />
             </>

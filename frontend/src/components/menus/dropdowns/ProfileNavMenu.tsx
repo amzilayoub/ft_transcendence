@@ -13,9 +13,9 @@ import DropDown from "@ui/DropDown";
 
 interface Props {
   username: string;
-  firstName: string;
-  lastName: string;
-  avatarUrl: string;
+  first_name: string;
+  last_name: string;
+  avatar_url: string;
   isLoading: boolean;
   onLogout: () => void;
 }
@@ -23,15 +23,36 @@ interface Props {
 const ProfileNavMenu: React.FC<Props> = (props) => {
   if (props.isLoading) {
     return (
-      <div className="hover:ring-secondary relative h-11 w-11 overflow-hidden flex justify-center rounded-full p-1 outline-none hover:bg-gray-100 hover:ring-1" />
+      <div className="flex items-center justify-center overflow-hidden rounded-full outline-none cursor-wait hover:ring-secondary h-11 w-11 hover:ring-1">
+        <svg
+          className="animate-spin text-secondary/70"
+          xmlns="http://www.w3.org/2000/svg"
+          fill="none"
+          viewBox="0 0 24 24"
+        >
+          <circle
+            className="opacity-25"
+            cx="12"
+            cy="12"
+            r="10"
+            stroke="currentColor"
+            strokeWidth="4"
+          ></circle>
+          <path
+            className="opacity-75"
+            fill="currentColor"
+            d="M4 12a8 8 0 018-8v8H4z"
+          ></path>
+        </svg>
+      </div>
     );
   }
   return (
     <DropDown
       menuButton={
-        <div className="hover:ring-secondary relative h-11 w-11 overflow-hidden flex justify-center rounded-full p-1 outline-none hover:bg-gray-100 hover:ring-1">
+        <div className="relative flex justify-center p-1 overflow-hidden rounded-full outline-none hover:ring-secondary h-11 w-11 hover:bg-gray-100 hover:ring-1">
           <Image
-            src={props.avatarUrl || "/images/default-avatar.png"}
+            src={props.avatar_url || "/images/default-avatar.png"}
             alt={props.username}
             fill
             className="cursor-pointer"
@@ -41,16 +62,16 @@ const ProfileNavMenu: React.FC<Props> = (props) => {
     >
       <Link
         href={`/u/${props.username}`}
-        className="group hover:bg-secondary hover:text-white text-gray-700 flex w-full items-center rounded-md p-2 text-sm cursor-pointer"
+        className="group flex items-center w-full p-2 text-sm text-gray-700 rounded-md cursor-pointer hover:bg-secondary hover:text-white"
       >
         <CgProfile
           aria-hidden="true"
-          className="text-secondary mr-3 h-5 w-5 group-hover:text-white"
+          className="w-5 h-5 mr-3 text-secondary group-hover:text-white"
         />
         <div className="flex flex-col">
           <p className="flex items-center font-semibold ">
-            <span className="text-sm">{props.firstName}</span>
-            <span className="ml-1 text-sm">{props.lastName}</span>
+            <span className="text-sm">{props.first_name}</span>
+            <span className="ml-1 text-sm">{props.last_name}</span>
           </p>
           <p className="flex items-center text-gray-500 hover:text-white group-hover:text-gray-300">
             @{props.username}
@@ -59,21 +80,21 @@ const ProfileNavMenu: React.FC<Props> = (props) => {
       </Link>
       <Link
         href="/settings"
-        className="group hover:bg-secondary hover:text-white text-gray-900 flex w-full items-center rounded-md p-2 text-sm"
+        className="group flex items-center w-full p-2 text-sm text-gray-900 rounded-md hover:bg-secondary hover:text-white"
       >
         <IoSettingsOutline
           aria-hidden="true"
-          className="text-secondary mr-3 h-5  w-5 group-hover:text-white"
+          className="w-5 h-5 mr-3 text-secondary group-hover:text-white"
         />
         Settings
       </Link>
       <li
         onClick={props.onLogout}
-        className="group hover:bg-red-500 text-red-500 hover:text-white flex w-full items-center rounded-md p-2 text-sm cursor-pointer"
+        className="group flex items-center w-full p-2 text-sm text-red-500 rounded-md cursor-pointer hover:bg-red-500 hover:text-white"
       >
         <IoLogOutOutline
           aria-hidden="true"
-          className="text-red-500 mr-3 h-5  w-5 group-hover:text-white"
+          className="w-5 h-5 mr-3 text-red-500 group-hover:text-white"
         />
         Logout
       </li>

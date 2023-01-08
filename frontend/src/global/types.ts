@@ -13,16 +13,16 @@ export interface IFetchError {
 
 export interface IUser {
   username: string;
-  fullName: string;
-  // firstName: string;
+  first_name: string;
+  last_name: string;
+  // first_name: string;
   // middleName: string;
-  // lastName: string;
   twitterUsername?: string;
   intraUsername: string;
   email: string;
   bio: string;
-  avatarUrl: string;
-  coverUrl: string;
+  avatar_url: string;
+  cover_url: string;
   isFollowing: boolean;
   isFollower: boolean;
   followersCount: number;
@@ -44,7 +44,7 @@ export interface ICurrentUser extends IUser {}
 export interface IConversationMetaData {
   id: string;
   name: string;
-  avatarUrl: string;
+  avatar_url: string;
   lastMessage: string;
   lastMessageTime: Date;
   unreadMessagesCount: number;
