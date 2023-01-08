@@ -190,7 +190,7 @@ const ChatBox = ({
               message={message.message}
               senderAvatar={
                 // conversation.members[0]?.avatar_url ||
-                message?.userLink?.avatar_url || "/images/default-avatar.png"
+                message?.userLink?.avatar_url || "/images/default-avatar.jpg"
               }
               isMe={index % 2 === 0}
             />
