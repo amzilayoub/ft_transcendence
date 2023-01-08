@@ -146,15 +146,18 @@ const ConversationMetadata = ({
 };
 
 const ChatSidebar = ({
+  showChatSidebar,
   conversationsMetadata,
   onConversationClick,
   onNewConversationClick,
+  setShowChatSidebar,
 }: {
+  showChatSidebar: boolean;
   conversationsMetadata: IConversationMetaData[];
   onConversationClick: (convMetaData: any) => void;
   onNewConversationClick: () => void;
+  setShowChatSidebar: (showChatSidebar: boolean) => void;
 }) => {
-  const [showChatSidebar, setShowChatSidebar] = useState(true);
   const [searchQuery, setsearchQuery] = useState("");
   const [searchResults, setSearchResults] = useState<
     IConversationMetaData[] | IFriendMetaData[]
