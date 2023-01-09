@@ -87,7 +87,7 @@ const ConversationMetadata = ({
       <div className="group w-full cursor-pointer">
         <div className="flex items-center">
           <Image
-            src={avatar}
+            src={`${process.env.NEXT_PUBLIC_RESOURCE_URL}/${avatar}`}
             alt={`${name} avatar`}
             width={40}
             height={40}
@@ -225,7 +225,7 @@ const ChatSidebar = ({
           searchResults.map((item) => (
             <ConversationMetadata
               key={item.id}
-              avatar={item.avatar_url}
+              avatar={item.avatarUrl}
               onConversationClick={() => onConversationClick(item)}
               name={item.name}
               lastMessage={item.lastMessage}
@@ -246,7 +246,7 @@ const ChatSidebar = ({
           conversationsMetadata.map((item, idx) => (
             <ConversationMetadata
               key={idx}
-              avatar={item.avatar_url}
+              avatar={item.avatarUrl}
               onConversationClick={() => onConversationClick(item)}
               name={item.name}
               lastMessage={item.lastMessage}
