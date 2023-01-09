@@ -21,6 +21,8 @@
     "react": "18.2.0",
     "react-dom": "18.2.0",
     "react-icons": "^4.7.1",
+    "socket.io": "^4.5.4",
+    "socket.io-client": "^4.5.4",
     "swiper": "^8.4.5",
     "typescript": "4.8.4"
   },

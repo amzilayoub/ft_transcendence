@@ -7,6 +7,7 @@ import ProfileNavMenu from "@components/menus/dropdowns/ProfileNavMenu";
 import AuthModal from "@components/modals/AuthModal";
 import Searchbar, { SearchbarPopover } from "@components/navbar/SearchBar";
 import Button from "@ui/Button";
+import basicFetch from "@utils/basicFetch";
 import { FALLBACK_AVATAR } from "@utils/constants";
 import { useAuthContext } from "context/auth.context";
 
@@ -32,12 +33,34 @@ const Navbar = () => {
   const [authModalType, setAuthModalType] = useState<"login" | "register">(
     "login"
   );
+  const [searchQuery, setSearchQuery] = useState("");
+  const [searchResults, setSearchResults] = useState<IUserData[]>([]);
   // rerender when user changes
   useEffect(() => {
     if (ctx?.user) {
       setShowAuthModal(false);
     }
   }, [ctx?.user]);
+
+  const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setSearchQuery(e.target.value);
+  };
+
+  const handleSearchSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+    console.log(searchQuery);
+    try {
+      const res = await basicFetch.get(`/users/search/${searchQuery}`);
+      if (!res.ok) {
+        throw new Error("Error fetching search results");
+      }
+      const data = await res.json();
+      console.log({ data });
+      setSearchResults(data);
+    } catch (error) {
+      console.log(error);
+    }
+  };
 
   return (
     <>
@@ -52,11 +75,14 @@ const Navbar = () => {
             </Link>
           </li>
           <li className="justify-center w-full col-span-3 list-none md:col-span-6 md:flex">
-            <Searchbar
-              onChange={() => {}}
-              onSubmit={() => {}}
-              placeholder="Search..."
-            />
+            {(ctx?.user || ctx?.loadingUser) && (
+              <Searchbar
+                searchResults={searchResults}
+                onChange={handleSearchChange}
+                onSubmit={handleSearchSubmit}
+                placeholder="Search..."
+              />
+            )}
           </li>
 
           <li className="flex justify-end col-span-7 list-none gap-x-2 md:col-span-3">

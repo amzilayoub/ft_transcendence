@@ -6,6 +6,7 @@ export class AuthDto {
   email: string;
   @IsString()
   @IsNotEmpty()
+  @MinLength(7)
   password: string;
   @IsString()
   @IsOptional()

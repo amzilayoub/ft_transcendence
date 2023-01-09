@@ -53,14 +53,24 @@ export class ChatGateway {
         @MessageBody() createMessage: CreateMessageDto,
         @ConnectedSocket() client: any,
     ) {
-        const user = this.getUserInfo(createMessage.token);
+        const user = this.getUserInfo(client.handshake.auth.token);
+        console.log(user);
+        console.log(createMessage);
+        return 'ello';
         const message = await this.chatService.createMessage(
             createMessage.roomId,
             user['id'],
             createMessage.message,
         );
-        client.to(createMessage.roomId).emit('createMessage', message);
-        return message;
+        const msgObject = {
+            id: message.id,
+            senderId: message.user_id,
+            message: message.message,
+            time: message.created_at,
+            isMe: false,
+        };
+        client.to(createMessage.roomId).emit('createMessage', msgObject);
+        return msgObject;
     }
 
     @SubscribeMessage('joinRoom')

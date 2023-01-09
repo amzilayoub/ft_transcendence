@@ -1,11 +1,14 @@
 import React, { useCallback, useEffect, useRef, useState } from "react";
-
+import io from "socket.io-client";
 import cn from "classnames";
 import Image from "next/image";
 import { RxCross2 } from "react-icons/rx";
 
 import basicFetch from "@utils/basicFetch";
 import { IConversation, IMessage } from "global/types";
+import { getToken } from "@utils/auth-token";
+
+let socket;
 
 const Message = ({
   message,
@@ -54,6 +57,33 @@ const Message = ({
   </li>
 );
 
+/*
+** Example of the message object
+const sampleWholeConversation = {
+  id: "1",
+  members: [
+    {
+      id: "1",
+      name: "John Doe",
+      avatarUrl: "https://martinfowler.com/mf.jpg",
+    },
+    {
+      id: "2",
+      name: "Mike Doe",
+      avatarUrl: "https://martinfowler.com/mf.jpg",
+    },
+  ],
+  messages: [
+    {
+      id: "1",
+      senderId: "1",
+      text: "Lorem ipsum dolor sit amet consectetur adipisicing elit. Quisquam, quod. Lorem ipsum dolor sit amet consectetur adipisicing elit. Quisquam, quodZ.",
+      time: "12:00",
+    },
+  ],
+};
+*/
+
 const ChatBox = ({
   conversationMetaData,
   onClose,
@@ -65,12 +95,32 @@ const ChatBox = ({
   const [input, setInput] = useState("");
   const bottomDiv = useRef<HTMLDivElement>(null);
 
+  console.log(conversationMetaData);
   const handleSendMessage = React.useCallback(
     (e: any) => {
       e.preventDefault();
       if (!input || input.length > 1000 || input.trim() === "") return;
+      socket.emit(
+        "createMessage",
+        { roomId: conversationMetaData.roomId, message: input },
+        (response) => {
+          console.log(response);
+        }
+      );
       setInput("");
       // send message
+      setConversation({
+        ...conversation,
+        messages: [
+          {
+            id: "1",
+            senderId: "1",
+            message:
+              "Lorem ipsum dolor sit amet consectetur adipisicing elit. Quisquam, quod. Lorem ipsum dolor sit amet consectetur adipisicing elit. Quisquam, quodZ.",
+            time: "12:00",
+          },
+        ],
+      });
     },
     [input]
   );
@@ -98,7 +148,7 @@ const ChatBox = ({
 
   const loadMembers = useCallback(async () => {
     const data = await basicFetch.get(
-      `/chat/room-members/${conversationMetaData.room_id}`
+      `/chat/room/${conversationMetaData.room_id}/members`
     );
 
     if (data.status == 200) {
@@ -110,7 +160,7 @@ const ChatBox = ({
 
   const loadMessages = useCallback(async () => {
     const res = await basicFetch.get(
-      `/chat/messages/${conversationMetaData.room_id}`
+      `/chat/room/${conversationMetaData.room_id}/messages`
     );
     if (res.status == 200) {
       return await res.json();
@@ -141,8 +191,20 @@ const ChatBox = ({
 
     prepareData();
 
+    socket = io("ws://localhost:3000/chat", {
+      auth: {
+        token: getToken(),
+      },
+    });
+    // setSocket(socketio);
+
+    socket.on("createMessage", (msg) => {
+      console.log(msg);
+    });
+
     return () => {
       textarea?.removeEventListener("keydown", handleKeyDown);
+      socket.off("createMessage");
     };
   }, [handleKeyDown, conversationMetaData.room_id, loadMessages, loadMembers]);
   return (
@@ -156,7 +218,7 @@ const ChatBox = ({
               </svg>
             </span>
             <Image
-              src={conversationMetaData?.avatar_url}
+              src={`${process.env.NEXT_PUBLIC_RESOURCE_URL}${conversationMetaData?.avatarUrl}`}
               alt={`${conversationMetaData?.name || "User"}'s avatar`}
               width={40}
               height={40}
@@ -190,9 +252,9 @@ const ChatBox = ({
               message={message.message}
               senderAvatar={
                 // conversation.members[0]?.avatar_url ||
-                message?.userLink?.avatar_url || "/images/default-avatar.png"
+                message?.userLink?.avatar_url || "/images/default-avatar.jpg"
               }
-              isMe={index % 2 === 0}
+              isMe={message.isMe}
             />
           ))}
           <div ref={bottomDiv}></div>

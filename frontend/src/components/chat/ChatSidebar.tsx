@@ -87,7 +87,7 @@ const ConversationMetadata = ({
       <div className="group w-full cursor-pointer">
         <div className="flex items-center">
           <Image
-            src={avatar}
+            src={`${process.env.NEXT_PUBLIC_RESOURCE_URL}/${avatar}`}
             alt={`${name} avatar`}
             width={40}
             height={40}
@@ -175,9 +175,10 @@ const ChatSidebar = ({
   return (
     <div
       className={cn(
-        "flex flex-col w-72 items-center bg-white border border-gray-300 overflow-hidden shadow-lg rounded-t-2xl",
+        "transition-height ease-in-out delay-150 flex flex-col w-72 items-center bg-white border border-gray-300 overflow-hidden shadow-lg rounded-t-2xl",
         {
           "h-[calc(100vh-32vh)]": showChatSidebar,
+          "h-14": !showChatSidebar,
         }
       )}
     >
@@ -201,30 +202,30 @@ const ChatSidebar = ({
           </div>
         </div>
       </div>
-      <div className="flex items-center justify-between w-full p-2">
-        <input
-          type="text"
-          placeholder="Search conversations"
-          value={searchQuery}
-          onChange={(e) => setsearchQuery(e.target.value)}
-          className="w-full p-2 border border-gray-300 rounded-md focus:outline-none"
-        />
-        <AiOutlineUserAdd
-          className="h-8 p-1 ml-2 duration-300 rounded-full cursor-pointer bg-slate-300 hover:bg-slate-400 w-9"
-          onClick={onNewConversationClick}
-        />
-      </div>
       <ul
         className={cn("w-full overflow-y-scroll no-scrollbar", {
           block: showChatSidebar,
           hidden: !showChatSidebar,
         })}
       >
+        <div className="flex items-center justify-between w-full p-2">
+          <input
+            type="text"
+            placeholder="Search conversations"
+            value={searchQuery}
+            onChange={(e) => setsearchQuery(e.target.value)}
+            className="w-full p-2 border border-gray-300 rounded-md focus:outline-none"
+          />
+          <AiOutlineUserAdd
+            className="h-8 p-1 ml-2 duration-300 rounded-full cursor-pointer bg-slate-300 hover:bg-slate-400 w-9"
+            onClick={onNewConversationClick}
+          />
+        </div>
         {searchResults && searchResults.length > 0 && searchQuery.length > 0 ? (
           searchResults.map((item) => (
             <ConversationMetadata
               key={item.id}
-              avatar={item.avatar_url}
+              avatar={item.avatarUrl}
               onConversationClick={() => onConversationClick(item)}
               name={item.name}
               lastMessage={item.lastMessage}
@@ -245,7 +246,7 @@ const ChatSidebar = ({
           conversationsMetadata.map((item, idx) => (
             <ConversationMetadata
               key={idx}
-              avatar={item.avatar_url}
+              avatar={item.avatarUrl}
               onConversationClick={() => onConversationClick(item)}
               name={item.name}
               lastMessage={item.lastMessage}
