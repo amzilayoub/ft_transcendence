@@ -9,17 +9,16 @@ datasource db {
     provider = "postgresql"
     url      = env("DATABASE_URL")
 }
-
 model user {
     id Int @id @default(autoincrement())
+    intra_id Int?
 
     username String? @unique
     email    String  @unique
-    hash     String
-
+    intra_url String?
     first_name         String?
     last_name          String?
-    avatar_url         String?  @default("/uploadedFiles/avatars/default.png")
+    avatar_url         String?
     isTwoFactorEnabled Boolean? @default(false)
     TwoFactorSecret    String?
 
