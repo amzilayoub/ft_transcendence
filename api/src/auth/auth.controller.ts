@@ -38,22 +38,24 @@ export class AuthController {
         const cookie = this.authService.getCookieWithJwtToken(userData);
         response.setHeader('Set-Cookie', cookie);
         response.redirect('/?q=HAD KHONA YALAH TZAD');
+        return;
       }
       else
-      {;
+      {
         if (alreadyExist.isTwoFactorEnabled) {
           const cookie = this.authService.getCookieWithJwtToken(alreadyExist);
           response.setHeader('Set-Cookie', cookie);
           response.redirect('/?q=2FA A OSTAD');
+          return;
         }
         else {
           const cookie = this.authService.getCookieWithJwtToken(alreadyExist);
           response.setHeader('Set-Cookie', cookie);
-          response.redirect('/?q=9SED MAKAYN WALO'); 
+          response.redirect('/?q=9SED MAKAYN WALO');
+          return; 
         }
 
       }
-      response.send(JSON.stringify(alreadyExist));
     }
 
 
