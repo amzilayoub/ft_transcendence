@@ -1,10 +1,12 @@
-import React from "react";
+import React, { useEffect } from "react";
 
 import cn from "classnames";
 import Head from "next/head";
 
 import ChatStuff from "@components/chat/ChatStuff";
 import Navbar from "@components/navbar";
+import { getToken } from "@utils/auth-token";
+import { io } from "socket.io-client";
 
 interface MainLayoutProps {
   children: React.ReactNode;
@@ -26,6 +28,7 @@ const MainLayout: React.FC<MainLayoutProps> = ({
   //     router.replace("/");
   //   }
   // }, []);
+  
 
   return (
     <>

@@ -61,7 +61,7 @@ export class ChatService {
 				SELECT COUNT(messages.*)
 				FROM messages
 				WHERE messages.room_id = receiver.room_id
-				AND messages.user_id != receiver.user_id
+				AND messages.user_id = receiver.user_id
 				AND is_read = false
 			)::INTEGER AS "unreadMessagesCount",
 			

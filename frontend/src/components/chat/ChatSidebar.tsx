@@ -69,6 +69,7 @@ const ConversationMetadata = ({
   onConversationClick,
   onMuteClick,
   onBlockClick,
+  socket,
 }: {
   avatar: string;
   name: string;
@@ -78,6 +79,7 @@ const ConversationMetadata = ({
   onConversationClick: () => void;
   onMuteClick: () => void;
   onBlockClick: () => void;
+  socket: any;
 }) => {
   return (
     <div
@@ -87,7 +89,7 @@ const ConversationMetadata = ({
       <div className="group w-full cursor-pointer">
         <div className="flex items-center">
           <Image
-            src={`${process.env.NEXT_PUBLIC_RESOURCE_URL}/${avatar}`}
+            src={`${process.env.NEXT_PUBLIC_RESOURCE_URL}${avatar}`}
             alt={`${name} avatar`}
             width={40}
             height={40}
@@ -151,12 +153,14 @@ const ChatSidebar = ({
   onConversationClick,
   onNewConversationClick,
   setShowChatSidebar,
+  socket,
 }: {
   showChatSidebar: boolean;
   conversationsMetadata: IConversationMetaData[];
   onConversationClick: (convMetaData: any) => void;
   onNewConversationClick: () => void;
   setShowChatSidebar: (showChatSidebar: boolean) => void;
+  socket: any;
 }) => {
   const [searchQuery, setsearchQuery] = useState("");
   const [searchResults, setSearchResults] = useState<
@@ -233,6 +237,7 @@ const ChatSidebar = ({
               unreadMessages={item.unreadMessagesCount}
               onMuteClick={() => {}}
               onBlockClick={() => {}}
+              socket={socket}
             />
           ))
         ) : searchQuery.length > 0 ? (
