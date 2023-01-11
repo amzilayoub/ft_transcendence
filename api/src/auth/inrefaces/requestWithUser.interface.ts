@@ -1,8 +1,6 @@
-
 import { Request } from 'express';
-import { UserDto } from '../dto/auth.dto';
+import { FortyTwoUserDto } from '../dto/auth.dto';
 interface RequestWithUser extends Request {
-  user: UserDto;
+    user: FortyTwoUserDto;
 }
- 
 export default RequestWithUser;
