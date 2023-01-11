@@ -9,6 +9,7 @@ const nextConfig = {
       "localhost",
       "variety.com",
       "cdn.intra.42.fr",
+      "https://img.freepik.com/"
     ],
   },
 };
