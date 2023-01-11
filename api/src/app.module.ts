@@ -4,6 +4,7 @@ import { ConfigModule } from '@nestjs/config';
 import { PrismaModule } from './prisma/prisma.module';
 // import { TestJwtModule } from './test_jwt/test_jwt.module';
 import { AuthModule } from './auth/auth.module';
+import { TestJwtModule } from './test_jwt/test_jwt.module';
 // import { ServeStaticModule } from '@nestjs/serve-static';
 import { join } from 'path';
 import { TwoFactorAuthenticationModule } from './twoFactorAuthentication/twoFactorAuthentication.module';
@@ -16,7 +17,7 @@ import { TwoFactorAuthenticationModule } from './twoFactorAuthentication/twoFact
         ChatModule,
         ConfigModule.forRoot({ isGlobal: true }),
         PrismaModule,
-        // TestJwtModule,
+        TestJwtModule,
         AuthModule,
         TwoFactorAuthenticationModule,
     ],

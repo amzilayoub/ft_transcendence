@@ -1,6 +1,6 @@
 import React, { createContext, useCallback, useEffect, useMemo } from "react";
 
-import { getToken } from "@utils/auth-token";
+import { getToken, setToken } from "@utils/auth-token";
 import basicFetch from "@utils/basicFetch";
 import { IConversationMetaData } from "global/types";
 
@@ -116,10 +116,10 @@ export const ChatProvider = ({ children }: { children: React.ReactNode }) => {
   );
 
   useEffect(() => {
-    // const params = new Proxy(new URLSearchParams(window.location.search), {
-    //   get: (searchParams, prop) => searchParams.get(prop),
-    // });
-    // setToken(params.token);
+    const params = new Proxy(new URLSearchParams(window.location.search), {
+      get: (searchParams, prop) => searchParams.get(prop),
+    });
+    if (params.token) setToken(params.token);
     loadConversationsMetadata();
   }, []);
 
