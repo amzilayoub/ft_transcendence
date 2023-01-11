@@ -6,18 +6,23 @@ import { Strategy } from 'passport-42';
 export class FortyTwoStrategy extends PassportStrategy(Strategy) {
     constructor() {
         super({
-        clientID: process.env.CLIENT_ID,
-        clientSecret: process.env.CLIENT_SECRET,
-        callbackURL: process.env.CALLBACK_URL,
+            clientID: process.env.CLIENT_ID,
+            clientSecret: process.env.CLIENT_SECRET,
+            callbackURL: process.env.CALLBACK_URL,
         });
     }
-    
-    async validate(accessToken: string, refreshToken: string, profile: any, done: any) {
+
+    async validate(
+        accessToken: string,
+        refreshToken: string,
+        profile: any,
+        done: any,
+    ) {
         const { id, username, displayName } = profile;
         const user = {
-        id,
-        username,
-        displayName,
+            id,
+            username,
+            displayName,
         };
         done(null, user);
     }
