@@ -1,6 +1,4 @@
 import { Module } from '@nestjs/common';
-import { AppController } from './app.controller';
-import { AppService } from './app.service';
 import { ChatModule } from './chat/chat.module';
 import { ConfigModule } from '@nestjs/config';
 import { PrismaModule } from './prisma/prisma.module';
@@ -9,6 +7,7 @@ import { AuthModule } from './auth/auth.module';
 import { TestJwtModule } from './test_jwt/test_jwt.module';
 // import { ServeStaticModule } from '@nestjs/serve-static';
 import { join } from 'path';
+import { TwoFactorAuthenticationModule } from './twoFactorAuthentication/twoFactorAuthentication.module';
 
 @Module({
     imports: [
@@ -20,8 +19,9 @@ import { join } from 'path';
         PrismaModule,
         TestJwtModule,
         AuthModule,
+        TwoFactorAuthenticationModule,
     ],
-    controllers: [AppController],
-    providers: [AppService],
+    controllers: [],
+    providers: [],
 })
 export class AppModule {}
