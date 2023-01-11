@@ -8,6 +8,7 @@ import { io } from "socket.io-client";
 import { getToken } from "@utils/auth-token";
 
 const ChatStuff = () => {
+  let [socketIO, setSocketIO] = useState(null);
   const {
     deleteBox,
     activeBoxes,
@@ -15,11 +16,7 @@ const ChatStuff = () => {
     conversationsMetadata,
     showChatSidebar,
     setShowChatSidebar,
-  } = useChatContext();
-
-  //   let socket = useRef(null);
-  let [newMessage, setNewMessage] = useState("");
-  let [socketIO, setSocketIO] = useState(null);
+  } = useChatContext(socketIO);
 
   useEffect(() => {
     let socket = io(`${process.env.NEXT_PUBLIC_SOCKET_URL}/chat`, {
@@ -32,7 +29,7 @@ const ChatStuff = () => {
     return () => {
       socket.close();
     };
-  }, [setSocketIO]);
+  }, [setSocketIO]); // a hack to stop infinite rendering
 
   return (
     <div className="absolute bottom-0 right-0  max-h-[calc(100vh-10rem)] px-6">
@@ -44,7 +41,6 @@ const ChatStuff = () => {
         onNewConversationClick={() => console.log("new conversation")}
         socket={socketIO}
       />
-      ch
       <ul className="absolute bottom-0 flex right-80 gap-x-3">
         {activeBoxes?.map((item) => (
           <li key={item.id} className="w-full">

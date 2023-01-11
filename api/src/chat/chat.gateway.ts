@@ -64,10 +64,31 @@ export class ChatGateway {
             senderId: message.user_id,
             message: message.message,
             time: message.created_at,
-            isMe: message.user_id == user['id'],
+            roomId: message.room_id,
+            isMe: false,
         };
-        client.to(createMessage.roomId).emit('createMessage', msgObject);
-        // this.server.emit('createMessage', msgObject);
+        // client.to(createMessage.roomId).emit('createMessage', msgObject);
+        /*
+         ** This one to update the chatbox
+         */
+        client
+            .to(NAMESPACE + createMessage.roomId)
+            .emit('createMessage', msgObject);
+
+        /*
+         ** and this one to update the list of conversations
+         */
+        this.server
+            .to(NAMESPACE + createMessage.roomId)
+            .emit('updateListConversations', {
+                room: (
+                    await this.chatService.getUserRooms(
+                        user['id'],
+                        message.room_id,
+                    )
+                )[0],
+                clientId: client.id,
+            });
         return msgObject;
     }
 
