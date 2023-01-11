@@ -7,8 +7,7 @@ import { RxCross2 } from "react-icons/rx";
 import basicFetch from "@utils/basicFetch";
 import { IConversation, IMessage } from "global/types";
 import { getToken } from "@utils/auth-token";
-
-let socket;
+import { stat } from "fs";
 
 const Message = ({
   message,
@@ -87,40 +86,27 @@ const sampleWholeConversation = {
 const ChatBox = ({
   conversationMetaData,
   onClose,
+  socket,
 }: {
   conversationMetaData: any;
   onClose: any;
+  socket: any;
 }) => {
   const [conversation, setConversation] = useState<IConversation | null>(null);
   const [input, setInput] = useState("");
   const bottomDiv = useRef<HTMLDivElement>(null);
 
-  console.log(conversationMetaData);
   const handleSendMessage = React.useCallback(
     (e: any) => {
       e.preventDefault();
       if (!input || input.length > 1000 || input.trim() === "") return;
       socket.emit(
         "createMessage",
-        { roomId: conversationMetaData.roomId, message: input },
-        (response) => {
-          console.log(response);
-        }
+        { roomId: conversationMetaData.room_id, message: input },
+        (response) => {}
       );
       setInput("");
       // send message
-      setConversation({
-        ...conversation,
-        messages: [
-          {
-            id: "1",
-            senderId: "1",
-            message:
-              "Lorem ipsum dolor sit amet consectetur adipisicing elit. Quisquam, quod. Lorem ipsum dolor sit amet consectetur adipisicing elit. Quisquam, quodZ.",
-            time: "12:00",
-          },
-        ],
-      });
     },
     [input]
   );
@@ -168,6 +154,13 @@ const ChatBox = ({
     return [];
   }, [conversationMetaData.room_id]);
 
+  const setSocketEvents = () => {
+    socket.on("createMessage", (msg) => {
+      setConversation((state) => {
+        return { ...state, messages: [...state?.messages, msg] };
+      });
+    });
+  };
   useEffect(() => {
     const textarea = document.getElementById("textarea");
     textarea?.addEventListener("keydown", handleKeyDown);
@@ -190,21 +183,11 @@ const ChatBox = ({
     loadMembersRef.current = true;
 
     prepareData();
-
-    socket = io("ws://localhost:3000/chat", {
-      auth: {
-        token: getToken(),
-      },
-    });
-    // setSocket(socketio);
-
-    socket.on("createMessage", (msg) => {
-      console.log(msg);
-    });
+    setSocketEvents();
 
     return () => {
       textarea?.removeEventListener("keydown", handleKeyDown);
-      socket.off("createMessage");
+      //   socket.off("createMessage");
     };
   }, [handleKeyDown, conversationMetaData.room_id, loadMessages, loadMembers]);
   return (

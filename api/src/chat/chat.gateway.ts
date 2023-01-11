@@ -54,9 +54,6 @@ export class ChatGateway {
         @ConnectedSocket() client: any,
     ) {
         const user = this.getUserInfo(client.handshake.auth.token);
-        console.log(user);
-        console.log(createMessage);
-        return 'ello';
         const message = await this.chatService.createMessage(
             createMessage.roomId,
             user['id'],
@@ -67,9 +64,10 @@ export class ChatGateway {
             senderId: message.user_id,
             message: message.message,
             time: message.created_at,
-            isMe: false,
+            isMe: message.user_id == user['id'],
         };
         client.to(createMessage.roomId).emit('createMessage', msgObject);
+        // this.server.emit('createMessage', msgObject);
         return msgObject;
     }
 
