@@ -30,6 +30,7 @@
     "@nestjs/platform-express": "^9.0.0",
     "@nestjs/platform-socket.io": "^9.2.1",
     "@nestjs/serve-static": "^3.0.0",
+    "@nestjs/swagger": "^6.1.4",
     "@nestjs/websockets": "^9.2.1",
     "@prisma/client": "4.7.1",
     "@types/cookie-parser": "^1.4.3",

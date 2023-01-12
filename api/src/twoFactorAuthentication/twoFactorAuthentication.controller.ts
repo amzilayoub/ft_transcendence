@@ -11,6 +11,7 @@ import {
     HttpCode,
     UnauthorizedException,
 } from '@nestjs/common';
+import { ApiTags } from '@nestjs/swagger';
 import { Response } from 'express';
 import { AuthService } from 'src/auth/auth.service';
 import { FortyTwoUserDto } from 'src/auth/dto';
@@ -18,6 +19,7 @@ import RequestWithUser from 'src/auth/inrefaces/requestWithUser.interface';
 import JwtGuard from 'src/common/guards/jwt_guard';
 import { TwoFactorAuthenticationService } from './twoFactorAuthentication.service';
 
+@ApiTags('2FA')
 @Controller('2fa')
 @UseInterceptors(ClassSerializerInterceptor)
 export class TwoFactorAuthenticationController {

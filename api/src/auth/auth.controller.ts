@@ -12,7 +12,9 @@ import RequestWithUser from './inrefaces/requestWithUser.interface';
 import { Response } from 'express';
 import JwtGuard from 'src/common/guards/jwt_guard';
 import { AuthGuard } from '@nestjs/passport';
+import { ApiTags } from '@nestjs/swagger';
 
+@ApiTags('Auth')
 @Controller('auth')
 export class AuthController {
     constructor(private authService: AuthService) {}

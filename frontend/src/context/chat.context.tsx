@@ -147,16 +147,16 @@ export const useChatContext = (socket) => {
           let targetedRoom = null;
           const newState = state.filter((item) => {
             if (item.room_id != obj.room.room_id) {
-              targetedRoom = item;
               return true;
             }
+            targetedRoom = item;
             return false;
           });
           if (obj.clientId != socket.id)
             obj.room.unreadMessagesCount +=
               targetedRoom.unreadMessagesCount + 1;
           if (newState.length !== state.length) {
-			socket.emit('')
+            socket.emit("");
           }
           return [obj.room, ...newState];
         });

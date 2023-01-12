@@ -1,9 +1,11 @@
 import { Controller, Post, Headers, Body, Get, Param } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
+import { ApiTags } from '@nestjs/swagger';
 import { user } from '@prisma/client';
 import { ChatService } from './chat.service';
 import { CreateRoomDto, JoinRoomDto } from './dto/chat_common.dto';
 
+@ApiTags('Chat')
 @Controller('chat')
 export class ChatController {
     constructor(private jwt: JwtService, private chatService: ChatService) {}
