@@ -103,7 +103,12 @@ const ChatBox = ({
       socket.emit(
         "createMessage",
         { roomId: conversationMetaData.room_id, message: input },
-        (response) => {}
+        (msg) => {
+          msg.isMe = true;
+          setConversation((state) => {
+            return { ...state, messages: [...state?.messages, msg] };
+          });
+        }
       );
       setInput("");
       // send message
@@ -156,9 +161,10 @@ const ChatBox = ({
 
   const setSocketEvents = () => {
     socket.on("createMessage", (msg) => {
-      setConversation((state) => {
-        return { ...state, messages: [...state?.messages, msg] };
-      });
+      if (conversationMetaData.room_id == msg.roomId)
+        setConversation((state) => {
+          return { ...state, messages: [...state?.messages, msg] };
+        });
     });
   };
   useEffect(() => {

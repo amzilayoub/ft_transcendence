@@ -4,6 +4,7 @@ import { PrismaService } from 'src/prisma/prisma.service';
 import { Prisma, room_type, user } from '@prisma/client';
 import { use } from 'passport';
 import { time } from 'console';
+import { query } from 'express';
 
 @Injectable()
 export class ChatService {
@@ -12,7 +13,8 @@ export class ChatService {
     async createMessage(room_id: number, user_id: number, message: string) {
         await this.prismaService.$queryRaw(Prisma.sql`
 			UPDATE room
-			SET count_messages = count_messages + 1
+			SET count_messages = count_messages + 1,
+			updated_at = NOW()
 			WHERE id = ${room_id}`);
 
         return this.prismaService.messages.create({
@@ -45,8 +47,10 @@ export class ChatService {
     /*
      ** Get all rooms that the current user has been joined
      */
-    getUserRooms(userId: number, offset: number = 0): Promise<Array<any>> {
-        return this.prismaService.$queryRaw(Prisma.sql`
+    getUserRooms(userId: number, roomId: number = -1): Promise<Array<any>> {
+        let specificRoom: string =
+            roomId == -1 ? '' : `AND receiver.room_id = ${roomId}`;
+        let query = `
 			SELECT receiver.*, room_type.type,
 			users.avatar_url AS "avatarUrl",
 			(
@@ -82,8 +86,10 @@ export class ChatService {
 			AND sender.room_id = receiver.room_id
 			AND sender.user_id != receiver.user_id
 			AND sender.user_id = ${userId}
+			${specificRoom}
 			ORDER BY room.updated_at DESC
-		`);
+		`;
+        return this.prismaService.$queryRaw(Prisma.raw(query));
     }
 
     findRoomBetweenUsers(currentUserId: number, targetUserId: number) {
@@ -132,7 +138,7 @@ export class ChatService {
 					END AS "isMe"
 				FROM messages
 				WHERE room_id = ${roomId}
-				ORDER BY id DESC
+				ORDER BY id ASC
 		`);
     }
 
@@ -141,7 +147,7 @@ export class ChatService {
 			UPDATE messages
 			SET is_read = true
 			WHERE room_id = ${roomId}
-			AND user_id = ${userId}
+			AND user_id != ${userId}
 		`);
     }
 

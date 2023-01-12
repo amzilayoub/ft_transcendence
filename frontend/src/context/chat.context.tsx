@@ -8,6 +8,7 @@ export interface IChatContext {
   showChatSidebar: boolean;
   activeBoxes: any[];
   conversationsMetadata: IConversationMetaData[];
+  setConversationsMetadata: any;
   error: string;
   setShowChatSidebar: React.Dispatch<React.SetStateAction<boolean>>;
   setError: React.Dispatch<React.SetStateAction<string>>;
@@ -21,6 +22,7 @@ const initialState: IChatContext = {
   showChatSidebar: true,
   activeBoxes: [],
   conversationsMetadata: [],
+  setConversationsMetadata: () => {},
   error: "",
   setShowChatSidebar: () => {},
   setError: () => {},
@@ -80,6 +82,13 @@ export const ChatProvider = ({ children }: { children: React.ReactNode }) => {
     if (activeBoxes.length === 3) {
       setActiveBoxes([...activeBoxes.slice(1), convMetaData]);
     } else setActiveBoxes([...activeBoxes, convMetaData]);
+    setConversationsMetadata((state) => {
+      const tmp = [...state];
+      tmp.forEach((item) => {
+        if (item.id === convMetaData.id) item.unreadMessagesCount = 0;
+      });
+      return tmp;
+    });
   }, []);
 
   const deleteBox = useCallback(
@@ -95,6 +104,7 @@ export const ChatProvider = ({ children }: { children: React.ReactNode }) => {
       activeBoxes,
       deleteBox,
       conversationsMetadata: conversationsMetadata,
+      setConversationsMetadata: setConversationsMetadata,
       error,
       setShowChatSidebar,
       setError,
@@ -107,6 +117,7 @@ export const ChatProvider = ({ children }: { children: React.ReactNode }) => {
       activeBoxes,
       conversationsMetadata,
       error,
+      setConversationsMetadata,
       setShowChatSidebar,
       setError,
       activateBox,
@@ -126,8 +137,32 @@ export const ChatProvider = ({ children }: { children: React.ReactNode }) => {
   return <ChatContext.Provider value={value}>{children}</ChatContext.Provider>;
 };
 
-export const useChatContext = () => {
+export const useChatContext = (socket) => {
   const context = React.useContext(ChatContext);
+
+  useEffect(() => {
+    if (socket) {
+      socket.on("updateListConversations", (obj) => {
+        context.setConversationsMetadata((state) => {
+          let targetedRoom = null;
+          const newState = state.filter((item) => {
+            if (item.room_id != obj.room.room_id) {
+              targetedRoom = item;
+              return true;
+            }
+            return false;
+          });
+          if (obj.clientId != socket.id)
+            obj.room.unreadMessagesCount +=
+              targetedRoom.unreadMessagesCount + 1;
+          if (newState.length !== state.length) {
+			socket.emit('')
+          }
+          return [obj.room, ...newState];
+        });
+      });
+    }
+  }, [context.setConversationsMetadata, socket]);
   if (context === undefined) {
     throw new Error("useChatContext must be used within a ChatProvider");
   }
