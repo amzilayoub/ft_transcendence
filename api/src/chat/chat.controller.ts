@@ -59,10 +59,17 @@ export class ChatController {
         return await this.chatService.joinRoom(joinRoomDto.roomId, userId);
     }
 
-    @Get('rooms')
+    @Get('room/all')
     async userRooms(@Headers() headers) {
         const user = this.getUserInfo(headers);
         return await this.chatService.getUserRooms(user['id']);
+    }
+
+    @Get('room/search/:roomName')
+    async searchRoom(@Headers() headers, @Param('roomName') roomName: string) {
+        const user = this.getUserInfo(headers);
+
+        return this.chatService.getUserRooms(user['id'], -1, roomName);
     }
 
     @Get('room/:roomId/members')

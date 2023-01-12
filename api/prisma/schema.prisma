@@ -32,6 +32,8 @@ model user {
     messages      messages[]
     blacklist     blacklist[]     @relation("userLink")
     userLink2     blacklist[]     @relation("userLink2")
+    friends       friends[]       @relation("userLink")
+    friends2      friends[]       @relation("userLink2")
 
     @@map("users")
 }
@@ -101,6 +103,19 @@ model blacklist {
 
     userLink2       user @relation("userLink2", fields: [blocked_user_id], references: [id])
     blocked_user_id Int
+
+    created_at DateTime @default(now())
+    updated_at DateTime @updatedAt
+}
+
+model friends {
+    id Int @id @default(autoincrement())
+
+    userLink  user @relation("userLink", fields: [user_id_1], references: [id])
+    user_id_1 Int
+
+    userLink2 user @relation("userLink2", fields: [user_id_2], references: [id])
+    user_id_2 Int
 
     created_at DateTime @default(now())
     updated_at DateTime @updatedAt

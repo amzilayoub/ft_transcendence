@@ -9,6 +9,7 @@ import { SlArrowDown } from "react-icons/sl";
 
 import { truncateString } from "@utils/format";
 import { IConversationMetaData, IFriendMetaData } from "global/types";
+import basicFetch from "@utils/basicFetch";
 
 const SeekNewConversation = ({
   searchQuery,
@@ -167,15 +168,25 @@ const ChatSidebar = ({
     IConversationMetaData[] | IFriendMetaData[]
   >([]);
 
+  const loadSearch = async () => {
+    if (searchQuery == "") return;
+    let res = await basicFetch.get(`/chat/room/search/${searchQuery}`);
+
+    if (res.status == 200) {
+      return await res.json();
+    }
+    throw new Error("Error In loadSearch");
+  };
+
   useEffect(() => {
-    setSearchResults(
-      conversationsMetadata.filter((item) =>
-        item.name.toLowerCase().includes(searchQuery.toLowerCase())
-      )
-    );
+    const setSearchData = async () => {
+      const data = await loadSearch();
+      setSearchResults(await loadSearch());
+    };
+    setSearchData();
   }, [searchQuery, conversationsMetadata]);
 
-  const allUnreadMessages = 5;
+  const allUnreadMessages = 0;
   return (
     <div
       className={cn(

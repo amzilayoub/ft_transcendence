@@ -44,7 +44,7 @@ export const ChatProvider = ({ children }: { children: React.ReactNode }) => {
 
   const loadConversationsMetadata = async () => {
     try {
-      const resp = await basicFetch.get("/chat/rooms");
+      const resp = await basicFetch.get("/chat/room/all");
 
       if (resp.status === 200) {
         const data: IConversationMetaData = await resp.json();
