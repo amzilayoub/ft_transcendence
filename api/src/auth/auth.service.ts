@@ -12,6 +12,24 @@ export class AuthService {
     public getCookieWithJwtToken(_user: any) {
         const payload = {
             user: {
+                id: _user.id,
+                username: _user.username,
+                email: _user.email,
+                intra_url: _user.intra_url,
+                avatar_url: _user.avatar_url,
+                isTwoFactorEnabled: _user.isTwoFactorEnabled,
+            },
+        };
+
+        const token = this.jwt.sign(payload);
+        return `Authentication=${token}; HttpOnly; Path=/; Max-Age=${
+            60 * 60 * 24 * 7
+        }`;
+    }
+
+    public getJwtToken(_user: any) {
+        const payload = {
+            user: {
                 username: _user.username,
                 email: _user.email,
                 first_name: _user.first_name,
@@ -23,8 +41,7 @@ export class AuthService {
                 id: _user.id,
             },
         };
-        const token = this.jwt.sign(payload);
-        return `Authentication=${token}; HttpOnly; Path=/; Max-Age=${process.env.JWT_EXPIRATION_TIME}`;
+        return this.jwt.sign(payload);
     }
 
     async add42User(dto: FortyTwoUserDto) {

@@ -1,7 +1,6 @@
-import { getToken } from "@utils/auth-token";
-
 interface IData {
   method: string;
+  credentials: RequestCredentials;
   headers: any;
   body?: any;
 }
@@ -14,14 +13,20 @@ const defaultFetch = (
 ) => {
   const data: IData = {
     method,
+    credentials: "include",
     headers: {
       "Content-Type": "application/json",
-      Authorization: "Bearer " + getToken(),
+      // Authorization: "Bearer " + getToken(), // not needed for now, using cookies.
       ...additionalHeaders,
     },
   };
+  const url = `${process.env.NEXT_PUBLIC_API_URL}${uri}`.replace(
+    /(?<!:)\/+/gm,
+    "/"
+  );
+
   if (method.toLocaleLowerCase() != "get") data["body"] = JSON.stringify(body);
-  return fetch(`${process.env.NEXT_PUBLIC_API_URL}${uri}`, data);
+  return fetch(url, data);
 };
 
 const basicFetch = {

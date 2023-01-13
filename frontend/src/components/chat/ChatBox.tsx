@@ -1,13 +1,11 @@
 import React, { useCallback, useEffect, useRef, useState } from "react";
-import io from "socket.io-client";
+
 import cn from "classnames";
 import Image from "next/image";
 import { RxCross2 } from "react-icons/rx";
 
 import basicFetch from "@utils/basicFetch";
 import { IConversation, IMessage } from "global/types";
-import { getToken } from "@utils/auth-token";
-import { stat } from "fs";
 
 const Message = ({
   message,
@@ -196,6 +194,7 @@ const ChatBox = ({
       //   socket.off("createMessage");
     };
   }, [handleKeyDown, conversationMetaData.room_id, loadMessages, loadMembers]);
+
   return (
     <section className="relative flex flex-col bg-white border border-gray-200 h-[500px] rounded-t-xl w-[340px]">
       <div className="flex justify-between p-3 border-b-2 border-gray-200 sm:items-center">

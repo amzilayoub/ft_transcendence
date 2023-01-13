@@ -1,5 +1,6 @@
 import { useState } from "react";
 
+import { NextPageContext } from "next";
 import Image from "next/image";
 import { BiHide, BiShowAlt } from "react-icons/bi";
 
@@ -40,20 +41,20 @@ const SiginFields = () => {
           Sign In
         </Button>
       </div>
-      <p className="group-hover:block hidden text-gray-600 text-3xl font-semibold text-center w-full cursor-wait absolute">
+      <p className="group-hover:block hidden text-gray-800 text-3xl font-semibold text-center w-full cursor-wait absolute font-mono">
         Soon...?
       </p>
     </section>
   );
 };
 
-export default function Home() {
+export default function LandingPage() {
   const handle42Login = async () => {
-    window.location.href = process.env.NEXT_PUBLIC_API_URL + "/auth/login42"; 
+    window.location.href = process.env.NEXT_PUBLIC_API_URL + "/auth/login42";
   };
 
   return (
-    <MainLayout noLayout>
+    <MainLayout pageIsProtected={false} noLayout>
       <div className="grid grid-cols-5 divide-x-2 min-h-screen">
         <div className="grid xl:col-span-2 items-center justify-center col-span-5">
           <section className="flex flex-col items-center px-14 py-24 gap-y-8 shadow-lg max-w-md border rounded-xl">
@@ -84,8 +85,8 @@ export default function Home() {
                 height={36}
                 alt="42 logo"
               />
-              <p className="pb-1 font-semibold text-white text-lg">
-                Sign In with 42
+              <p className="pb-0.5 font-semibold text-black text-lg">
+                Sign in with 42
               </p>
             </button>
           </section>
@@ -102,3 +103,25 @@ export default function Home() {
     </MainLayout>
   );
 }
+
+/*
+ * Note:
+ * For the initial page load, this will run on the server only.
+ * And will then run on the client when navigating to a different
+ * route via the next/link component or by using next/router
+ * */
+LandingPage.getInitialProps = async (ctx: NextPageContext) => {
+  /*
+   * We are assuming that if the user has the Authentication cookie,
+   * he is already logged in and we redirect him to the home page.
+   * And in case the cookie is not valid, it will be handled by the
+   * server and the user will be redirected to the login page.
+   * */
+
+  if (ctx?.req?.headers?.cookie?.includes("Authentication")) {
+    ctx.res.writeHead(303, { Location: "/home" });
+    ctx.res.end();
+  }
+
+  return {};
+};

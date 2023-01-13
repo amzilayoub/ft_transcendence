@@ -10,7 +10,6 @@ import { IconType } from "react-icons/lib";
 
 import BaseModal from "@components/common/BaseModal";
 import { ExternalLink } from "@components/common/Links";
-import LoadingPage from "@components/common/LoadingPage";
 import MainLayout from "@components/layout";
 import * as api from "@lib/api";
 import Button from "@ui/Button";
@@ -130,16 +129,28 @@ const UserNotFoundHeader = ({ username }: { username: string }) => (
   </section>
 );
 
+const UserLoadingHeader = () => (
+  <section className="w-full py-2 bg-white shadow-md rounded-b-xl">
+    <div className="flex items-start justify-between p-10">
+      <p className="text-lg font-semibold text-gray-800">
+        <span className="animate-pulse">Loading...</span>
+      </p>
+    </div>
+  </section>
+);
+
 const UserInfoHeader = ({
   user,
   username, // this is the username in the url. used to show a 404 page if the user doesn't exist
   isMyProfile,
+  isLoading,
   setIsCoverModalOpen,
   setIsAvatarModalOpen,
 }: {
   user: IUser | null;
   username: string;
   isMyProfile: boolean;
+  isLoading: boolean;
   setIsCoverModalOpen: SetStateFunc<boolean>;
   setIsAvatarModalOpen: SetStateFunc<boolean>;
 }) => (
@@ -225,15 +236,17 @@ const UserInfoHeader = ({
               }}
             />
           </section>
-        ) : (
+        ) : !isLoading ? (
           <UserNotFoundHeader username={username} />
+        ) : (
+          <UserLoadingHeader />
         )}
       </div>
     </div>
   </div>
 );
 
-const ProfilePage = () => {
+export default function ProfilePage() {
   const router = useRouter();
 
   const ctx = useAuthContext();
@@ -245,41 +258,49 @@ const ProfilePage = () => {
   const [isAvatarModalOpen, setIsAvatarModalOpen] = useState(false);
   const [isCoverModalOpen, setIsCoverModalOpen] = useState(false);
   const [user, setUser] = useState<IUser | null>(null);
+  const [loadingUser, setLoadingUser] = useState(false); // for the other user, not the logged in user
 
-  // console.log('C', ctx)
   useEffect(() => {
-    if (router.isReady && ctx.isAuthenticated === false) {
+    if (
+      router.isReady &&
+      ctx.loadingUser === false &&
+      ctx.isAuthenticated === false
+    ) {
+      removeUser();
       router.push("/");
     }
-  }, [router, ctx.isAuthenticated]);
+  }, [router, ctx.isAuthenticated, ctx.loadingUser]);
 
   useEffect(() => {
     if (!router.isReady) return;
     if (isMyProfile) {
       setUser(ctx.user);
     } else {
-      api.getUserByUsername(username).then((user) => {
-        setUser(user);
-      });
+      setLoadingUser(true);
+      api
+        .getUserByUsername(username)
+        .then((user) => {
+          setUser(user);
+        })
+        .catch((err) => {
+          if (err.response?.status === 401) {
+            router.push("/");
+          }
+        })
+        .finally(() => {
+          setLoadingUser(false);
+        });
     }
   }, [username, isMyProfile, ctx.user, router.isReady]);
 
-  if (ctx.isAuthenticated === false) {
-    return (
-      <LoadingPage
-        message="You are not logged in. Redirecting to home page..."
-        loadingMessage="Redirecting to home page..."
-      />
-    );
-  }
-
   return (
     <MainLayout
-      title={user ? (username as string) : APP_NAME}
+      title={user ? (username as string) + " | " + APP_NAME : APP_NAME}
       backgroundColor="bg-gray-100"
     >
       <div className="w-full max-w-7xl">
         <UserInfoHeader
+          isLoading={ctx.loadingUser || loadingUser}
           user={user}
           username={username}
           isMyProfile={isMyProfile}
@@ -320,6 +341,4 @@ const ProfilePage = () => {
       )}
     </MainLayout>
   );
-};
-
-export default ProfilePage;
+}

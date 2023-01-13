@@ -5,6 +5,7 @@ import Head from "next/head";
 import { useRouter } from "next/router";
 
 import ChatStuff from "@components/chat/ChatStuff";
+import LoadingPage from "@components/common/LoadingPage";
 import Navbar from "@components/navbar";
 import { useAuthContext } from "context/auth.context";
 
@@ -27,13 +28,25 @@ const MainLayout: React.FC<MainLayoutProps> = ({
   const router = useRouter();
 
   useEffect(() => {
+    // console.log(
+    //   pageIsProtected,
+    //   ctx.loadingUser,
+    //   ctx?.isAuthenticated,
+    //   window.location.pathname !== "/"
+    // );
+    
     if (
-      ctx?.isAuthenticated === false &&
       pageIsProtected &&
+      !ctx.loadingUser &&
+      !ctx?.isAuthenticated &&
       window.location.pathname !== "/"
-    )
+    ) {
+      console.log("redirecting to login page");
       router.replace("/");
-  }, []);
+    }
+  }, [ctx.loadingUser]);
+
+  // console.log(pageIsProtected, ctx?.isAuthenticated, ctx?.loadingUser);
 
   return (
     <>
@@ -42,7 +55,7 @@ const MainLayout: React.FC<MainLayoutProps> = ({
       </Head>
       {noLayout ? (
         <>{children}</>
-      ) : (
+      ) : (pageIsProtected && ctx?.isAuthenticated) || ctx.loadingUser ? (
         <>
           <Navbar />
           <main className="flex w-full h-full min-h-screen">
@@ -57,6 +70,8 @@ const MainLayout: React.FC<MainLayoutProps> = ({
             {ctx?.isAuthenticated && <ChatStuff />}
           </main>
         </>
+      ) : (
+        <LoadingPage message="Not authenticated, redirecting to login page..." />
       )}
     </>
   );

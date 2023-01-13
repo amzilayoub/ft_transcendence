@@ -1,11 +1,11 @@
-import React, { useEffect, useRef, useState } from "react";
+import React, { useEffect, useState } from "react";
+
+import { io } from "socket.io-client";
 
 import { useChatContext } from "context/chat.context";
 
 import ChatBox from "./ChatBox";
 import ChatSidebar from "./ChatSidebar";
-import { io } from "socket.io-client";
-import { getToken } from "@utils/auth-token";
 
 const ChatStuff = () => {
   let [socketIO, setSocketIO] = useState(null);
@@ -20,10 +20,9 @@ const ChatStuff = () => {
 
   useEffect(() => {
     let socket = io(`${process.env.NEXT_PUBLIC_SOCKET_URL}/chat`, {
-      auth: {
-        token: getToken(),
-      },
+      withCredentials: true, // this is needed to send cookies
     });
+
     setSocketIO(socket);
 
     return () => {

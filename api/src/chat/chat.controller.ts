@@ -1,9 +1,18 @@
-import { Controller, Post, Headers, Body, Get, Param } from '@nestjs/common';
+import {
+    Controller,
+    Post,
+    Headers,
+    Body,
+    Get,
+    Param,
+    UseGuards,
+} from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
-import { user } from '@prisma/client';
 import { ChatService } from './chat.service';
 import { CreateRoomDto, JoinRoomDto } from './dto/chat_common.dto';
+import JwtGuard from 'src/common/guards/jwt_guard';
 
+@UseGuards(JwtGuard)
 @Controller('chat')
 export class ChatController {
     constructor(private jwt: JwtService, private chatService: ChatService) {}
