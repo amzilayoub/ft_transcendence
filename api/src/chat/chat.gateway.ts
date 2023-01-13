@@ -1,4 +1,3 @@
-import { JwtService } from '@nestjs/jwt';
 import {
     WebSocketGateway,
     SubscribeMessage,
@@ -6,11 +5,9 @@ import {
     WebSocketServer,
     ConnectedSocket,
 } from '@nestjs/websockets';
-import { user } from '@prisma/client';
-import { Socket } from 'dgram';
-import { Server } from 'http';
 import { ChatService } from './chat.service';
 import { CreateMessageDto, JoinRoomDto } from './dto/chat_common.dto';
+import { AuthService } from 'src/auth/auth.service';
 
 const NAMESPACE = '/chat';
 
@@ -27,13 +24,12 @@ export class ChatGateway {
 
     constructor(
         private readonly chatService: ChatService,
-        private readonly jwt: JwtService,
+        private readonly authService: AuthService,
     ) {}
 
     async handleConnection(@ConnectedSocket() client: any) {
         const user = this.getUserInfo(client.handshake.auth.token);
         if (user === null) return;
-
         const userRooms = await this.chatService.getUserRooms(user['id']);
         this.connectedClient[user['id']] = client.id;
         userRooms.forEach((element) => {
@@ -105,9 +101,12 @@ export class ChatGateway {
          ** its either a private/protected room
          */
         if (joinRoomDto.userId) {
-            const socketId = this.connectedClient[user['id']];
-            this.server.sockets[socketId].join(NAMESPACE + joinRoomDto.roomId);
+            const socketId = this.connectedClient[joinRoomDto.userId];
+            this.server.sockets
+                .get(socketId)
+                ?.join(NAMESPACE + joinRoomDto.roomId);
         }
+        return true;
     }
 
     @SubscribeMessage('findAllMessage')
@@ -116,6 +115,6 @@ export class ChatGateway {
     }
 
     getUserInfo(token: string) {
-        return this.jwt.decode(token);
+        return this.authService.getJwtToken(token);
     }
 }

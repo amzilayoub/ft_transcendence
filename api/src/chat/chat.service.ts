@@ -1,10 +1,7 @@
 import { Injectable } from '@nestjs/common';
-import { CreateMessageDto } from './dto/chat_common.dto';
+
 import { PrismaService } from 'src/prisma/prisma.service';
-import { Prisma, room_type, user } from '@prisma/client';
-import { use } from 'passport';
-import { time } from 'console';
-import { query } from 'express';
+import { Prisma } from '@prisma/client';
 
 @Injectable()
 export class ChatService {
@@ -47,11 +44,24 @@ export class ChatService {
     /*
      ** Get all rooms that the current user has been joined
      */
-    getUserRooms(userId: number, roomId: number = -1): Promise<Array<any>> {
+    getUserRooms(
+        userId: number,
+        roomId = -1,
+        roomName = '',
+    ): Promise<Array<any>> {
         let specificRoom: string =
             roomId == -1 ? '' : `AND receiver.room_id = ${roomId}`;
-        let query = `
+        if (roomName != '')
+            specificRoom = `AND (CASE
+								WHEN room_type.type = 'dm'
+									THEN users.username
+								ELSE
+								--Here I should return the name of the room
+									'shared room'
+							END) LIKE '%${roomName}%'`;
+        const query = `
 			SELECT receiver.*, room_type.type,
+			users.id as user_id,
 			users.avatar_url AS "avatarUrl",
 			(
 				SELECT message
@@ -60,7 +70,26 @@ export class ChatService {
 				ORDER BY id DESC
 				LIMIT 1
 			) AS "lastMessage",
-			
+			CASE
+				WHEN
+				(SELECT COUNT(*)
+				FROM blacklist
+				WHERE sender.user_id = blacklist.user_id
+				AND receiver.user_id = blacklist.blocked_user_id) > 0
+					THEN true
+				ELSE
+					false
+			END AS "isBlocked",
+			CASE
+				WHEN
+				(SELECT COUNT(*)
+				FROM blacklist
+				WHERE sender.user_id = blacklist.blocked_user_id
+				AND receiver.user_id = blacklist.user_id ) > 0
+					THEN true
+				ELSE
+					false
+			END AS "amIBlocked",
 			(
 				SELECT COUNT(messages.*)
 				FROM messages
@@ -76,7 +105,13 @@ export class ChatService {
 				ELSE
 				--Here I should return the name of the room
 					'shared room'
-			END AS name
+			END AS name,
+			CASE 
+				WHEN room_type.type = 'dm'
+					THEN users.id
+				ELSE
+					 -1
+			END AS user_id
 			FROM room_user_rel as sender, room_user_rel as receiver, room, room_type, users
 			-- here is inner join
 			WHERE sender.room_id = room.id
@@ -127,7 +162,7 @@ export class ChatService {
 		`);
     }
 
-    getRoomMessages(roomId: number, userId: number = -1) {
+    getRoomMessages(roomId: number, userId = -1) {
         return this.prismaService.$queryRaw(Prisma.sql`
 				SELECT id, user_id AS "senderId", message, created_at as time,
 					CASE

@@ -12,10 +12,16 @@ import RequestWithUser from './inrefaces/requestWithUser.interface';
 import { Response } from 'express';
 import JwtGuard from 'src/common/guards/jwt_guard';
 import { AuthGuard } from '@nestjs/passport';
+import { ConfigService } from '@nestjs/config';
+import { ApiTags } from '@nestjs/swagger';
 
+@ApiTags('Auth')
 @Controller('auth')
 export class AuthController {
-    constructor(private authService: AuthService) {}
+    constructor(
+        private authService: AuthService,
+        private configService: ConfigService,
+    ) {}
 
     @UseGuards(JwtGuard)
     @Get('')
@@ -36,8 +42,8 @@ export class AuthController {
         const { code } = request.query;
         const token = await this.authService.getAccessToken(code + '');
         if (!token) {
-            return response.redirect(
-                'http://www.google.com/?q=mal+din+mok+m3e9ed',
+            response.redirect(
+                this.configService.get('FRONTEND_URL') + '/?error=user-denied',
             );
         }
         const user = await this.authService.lesInformationsDeLutilisateur(
@@ -48,8 +54,9 @@ export class AuthController {
             const userData = await this.authService.add42User(user);
             const cookie = this.authService.getCookieWithJwtToken(userData);
             response.setHeader('Set-Cookie', cookie);
-            response.redirect('/?q=HAD KHONA YALAH TZAD');
-            return;
+            response.redirect(
+                this.configService.get('FRONTEND_URL') + '/home?new-user=true',
+            );
         } else {
             if (alreadyExist.isTwoFactorEnabled) {
                 const cookie = this.authService.getCookieWithJwtToken(
@@ -63,17 +70,19 @@ export class AuthController {
                 const cookie =
                     this.authService.getCookieWithJwtToken(alreadyExist);
                 response.setHeader('Set-Cookie', cookie);
-                response.redirect('/?q=9SED MAKAYN WALO');
-                return;
+                response.redirect(
+                    this.configService.get('FRONTEND_URL') + '/home?2fa=true',
+                );
             }
         }
     }
 
     @UseGuards(JwtGuard)
-    @Get('logout42')
-    async logOut(@Res() response: Response) {
+    @Get('logout')
+    async logout(@Req() request: RequestWithUser, @Res() response: Response) {
+        console.log('LOGOUT');
         response.setHeader('Set-Cookie', this.authService.getCookieForLogOut());
-        return response.sendStatus(200);
+        response.send(200);
     }
 
     @UseGuards(JwtGuard)
@@ -84,6 +93,15 @@ export class AuthController {
     ) {
         await this.authService.enableTwoFactor(request.user);
         response.send('2FA ON');
+    }
+
+    // temporary endpoint, should be in 'user' resource.
+    @UseGuards(JwtGuard)
+    @Get('me')
+    async getMe(@Req() request: RequestWithUser, @Res() response: Response) {
+        const user = await this.authService.getMe(request.user.id);
+        // console.log("INSIDE", user);
+        response.send(user);
     }
 
     // @UseGuards(JwtGuard)

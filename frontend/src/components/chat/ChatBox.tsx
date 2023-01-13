@@ -1,13 +1,11 @@
 import React, { useCallback, useEffect, useRef, useState } from "react";
-import io from "socket.io-client";
+
 import cn from "classnames";
 import Image from "next/image";
 import { RxCross2 } from "react-icons/rx";
 
 import basicFetch from "@utils/basicFetch";
 import { IConversation, IMessage } from "global/types";
-import { getToken } from "@utils/auth-token";
-import { stat } from "fs";
 
 const Message = ({
   message,
@@ -166,6 +164,18 @@ const ChatBox = ({
           return { ...state, messages: [...state?.messages, msg] };
         });
     });
+
+    if (conversationMetaData.user_id != -1)
+      socket.emit(
+        "joinRoom",
+        {
+          roomId: conversationMetaData.room_id,
+          userId: conversationMetaData.user_id,
+        },
+        (res) => {
+          console.log(res);
+        }
+      );
   };
   useEffect(() => {
     const textarea = document.getElementById("textarea");
@@ -196,6 +206,7 @@ const ChatBox = ({
       //   socket.off("createMessage");
     };
   }, [handleKeyDown, conversationMetaData.room_id, loadMessages, loadMembers]);
+
   return (
     <section className="relative flex flex-col bg-white border border-gray-200 h-[500px] rounded-t-xl w-[340px]">
       <div className="flex justify-between p-3 border-b-2 border-gray-200 sm:items-center">
@@ -251,31 +262,47 @@ const ChatBox = ({
         {/* inputa */}
         <div className="w-full p-3 border-gray-200 sm:mb-0">
           <form className="relative flex" onSubmit={handleSendMessage}>
-            <textarea
-              id="textarea"
-              value={input}
-              onChange={(e) => {
-                setInput(e.target.value);
-              }}
-              placeholder="Write your message!"
-              className="w-full py-3 pl-3 text-gray-600 bg-gray-200 rounded-md placeholder:text-gray-600 focus:outline-none focus:placeholder:text-gray-400 resize-none"
-            />
+            {conversationMetaData.isBlocked ||
+            conversationMetaData.amIBlocked ? (
+              ""
+            ) : (
+              <textarea
+                id="textarea"
+                value={input}
+                onChange={(e) => {
+                  setInput(e.target.value);
+                }}
+                placeholder="Write your message!"
+                className="w-full py-3 pl-3 text-gray-600 bg-gray-200 rounded-md placeholder:text-gray-600 focus:outline-none focus:placeholder:text-gray-400 resize-none"
+              />
+            )}
+            <div>
+              {conversationMetaData.amIBlocked
+                ? "You are blocked by this user"
+                : ""}
+              {conversationMetaData.isBlocked ? "You blocked this user" : ""}
+            </div>
           </form>
           <div className="justify-end flex py-1">
-            <button
-              onClick={handleSendMessage}
-              type="button"
-              className="inline-flex items-center justify-center px-3 py-1 text-white transition duration-500 ease-in-out bg-blue-500 rounded-lg hover:bg-blue-400 focus:outline-none"
-            >
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                viewBox="0 0 20 20"
-                fill="currentColor"
-                className="w-6 h-6 ml-2 rotate-90"
+            {conversationMetaData.isBlocked ||
+            conversationMetaData.amIBlocked ? (
+              ""
+            ) : (
+              <button
+                onClick={handleSendMessage}
+                type="button"
+                className="inline-flex items-center justify-center px-3 py-1 text-white transition duration-500 ease-in-out bg-blue-500 rounded-lg hover:bg-blue-400 focus:outline-none"
               >
-                <path d="M10.894 2.553a1 1 0 00-1.788 0l-7 14a1 1 0 001.169 1.409l5-1.429A1 1 0 009 15.571V11a1 1 0 112 0v4.571a1 1 0 00.725.962l5 1.428a1 1 0 001.17-1.408l-7-14z"></path>
-              </svg>
-            </button>
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  viewBox="0 0 20 20"
+                  fill="currentColor"
+                  className="w-6 h-6 ml-2 rotate-90"
+                >
+                  <path d="M10.894 2.553a1 1 0 00-1.788 0l-7 14a1 1 0 001.169 1.409l5-1.429A1 1 0 009 15.571V11a1 1 0 112 0v4.571a1 1 0 00.725.962l5 1.428a1 1 0 001.17-1.408l-7-14z"></path>
+                </svg>
+              </button>
+            )}
           </div>
         </div>
       </div>

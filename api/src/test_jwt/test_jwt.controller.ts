@@ -1,8 +1,10 @@
 import { Body, Controller, Get, Param, Post } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { JwtService } from '@nestjs/jwt';
+import { ApiTags } from '@nestjs/swagger';
 import { TestJwtService } from './test_jwt.service';
 
+@ApiTags('GARBAGE: WILL BE REMOVED LATER ON')
 @Controller('test-jwt')
 export class TestJwtController {
     constructor(

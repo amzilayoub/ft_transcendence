@@ -1,12 +1,28 @@
-import { Controller, Post, Headers, Body, Get, Param } from '@nestjs/common';
-import { JwtService } from '@nestjs/jwt';
-import { user } from '@prisma/client';
+import {
+    Controller,
+    Post,
+    Body,
+    Get,
+    Param,
+    UseGuards,
+    Req,
+} from '@nestjs/common';
+
+import { ApiTags } from '@nestjs/swagger';
 import { ChatService } from './chat.service';
 import { CreateRoomDto, JoinRoomDto } from './dto/chat_common.dto';
+import JwtGuard from 'src/common/guards/jwt_guard';
+import { AuthService } from 'src/auth/auth.service';
+import RequestWithUser from 'src/auth/inrefaces/requestWithUser.interface';
 
+@UseGuards(JwtGuard)
+@ApiTags('Chat')
 @Controller('chat')
 export class ChatController {
-    constructor(private jwt: JwtService, private chatService: ChatService) {}
+    constructor(
+        private authService: AuthService,
+        private chatService: ChatService,
+    ) {}
 
     /*
      ** if there's a userId in the coming request
@@ -16,8 +32,12 @@ export class ChatController {
      ** otherwise, we create a new room
      */
     @Post('create-room')
-    async createRoom(@Headers() headers, @Body() body: CreateRoomDto) {
-        const user = this.getUserInfo(headers);
+    async createRoom(
+        @Req() request: RequestWithUser,
+        @Body() body: CreateRoomDto,
+    ) {
+        const user = await this.authService.getMe(request.user.id);
+
         const defaultRoom = await this.chatService.getRoomType('dm');
         const roomTypeId = body.roomTypeId || defaultRoom.id;
 
@@ -50,29 +70,49 @@ export class ChatController {
     }
 
     @Post('join-room')
-    async JoinRoom(@Headers() headers, @Body() joinRoomDto: JoinRoomDto) {
-        const user = this.getUserInfo(headers);
+    async JoinRoom(
+        @Req() request: RequestWithUser,
+        @Body() joinRoomDto: JoinRoomDto,
+    ) {
+        const user = await this.authService.getMe(request.user.id);
         const userId = joinRoomDto.userId || user['id'];
 
         return await this.chatService.joinRoom(joinRoomDto.roomId, userId);
     }
 
-    @Get('rooms')
-    async userRooms(@Headers() headers) {
-        const user = this.getUserInfo(headers);
+    @Get('room/all')
+    async userRooms(@Req() request: RequestWithUser) {
+        const user = await this.authService.getMe(request.user.id);
+        console.log({user});
         return await this.chatService.getUserRooms(user['id']);
     }
 
+    @Get('room/search/:roomName')
+    async searchRoom(
+        @Req() request: RequestWithUser,
+        @Param('roomName') roomName: string,
+    ) {
+        const user = await this.authService.getMe(request.user.id);
+
+        return this.chatService.getUserRooms(user['id'], -1, roomName);
+    }
+
     @Get('room/:roomId/members')
-    async getRoomMembers(@Headers() headers, @Param('roomId') roomId: number) {
-        const user = this.getUserInfo(headers);
+    async getRoomMembers(
+        @Req() request: RequestWithUser,
+        @Param('roomId') roomId: number,
+    ) {
+        const user = await this.authService.getMe(request.user.id);
 
         return await this.chatService.getRoomMembers(roomId);
     }
 
     @Get('room/:roomId/messages')
-    async getRoomMessages(@Headers() headers, @Param('roomId') roomId: number) {
-        const user = this.getUserInfo(headers);
+    async getRoomMessages(
+        @Req() request: RequestWithUser,
+        @Param('roomId') roomId: number,
+    ) {
+        const user = await this.authService.getMe(request.user.id);
 
         /*
          ** Set message as read for the user who requested them
@@ -83,10 +123,5 @@ export class ChatController {
          ** NOTE: Needs to add pagination here later on
          */
         return await this.chatService.getRoomMessages(roomId, user['id']);
-    }
-
-    getUserInfo(headers) {
-        const token = headers.authorization.split(' ')[1];
-        return this.jwt.decode(token);
     }
 }
