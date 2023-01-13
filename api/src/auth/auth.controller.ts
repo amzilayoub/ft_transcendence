@@ -52,10 +52,11 @@ export class AuthController {
             return;
         } else {
             if (alreadyExist.isTwoFactorEnabled) {
-                const cookie =
-                    this.authService.getCookieWithJwtToken(alreadyExist);
+                const cookie = this.authService.getCookieWithJwtToken(
+                    alreadyExist,
+                    // true,
+                );
                 response.setHeader('Set-Cookie', cookie);
-                // response.redirect('/?q=2FA A OSTAD');
                 response.redirect('/api/2fa/generate');
                 return;
             } else {

@@ -76,4 +76,31 @@ export class TwoFactorAuthenticationController {
         }
         await this.authService.disableTwoFactor(request.user);
     }
+
+    // Logging in with two-factor authentication
+    // the user logs in using the email and the password, and we respond with a JWT token,
+    // if the 2FA is turned off, we give full access to the user,
+    // if the 2FA is turned on, we provide the access just to the /2fa/authenticate endpoint,
+    // the user looks up the Authenticator application code and sends it to the /2fa/authenticate endpoint; we respond with a new JWT token with full access.
+    @Post('authenticate')
+    @HttpCode(200)
+    async authenticate(
+        @Req() request: RequestWithUser,
+        @Body() { twoFactorSecret }: FortyTwoUserDto,
+    ) {
+        const isCodeValid =
+            this.twoFactorAuthenticationService.isTwoFactorAuthenticationCodeValid(
+                request.user,
+                twoFactorSecret,
+            );
+        if (!isCodeValid) {
+            throw new UnauthorizedException('Wrong authentication code');
+        }
+        const accessTokenCookie = this.authService.getCookieWithJwtToken(
+            request.user.id,
+            true,
+        );
+        request.res.setHeader('Set-Cookie', [accessTokenCookie]);
+        return request.user;
+    }
 }

@@ -4,12 +4,14 @@ import { PassportStrategy } from '@nestjs/passport';
 import { Request } from 'express';
 import { ExtractJwt, Strategy } from 'passport-jwt';
 import { AuthService } from '../auth.service';
+import { FortyTwoUserDto } from '../dto';
 
+// create a strategy and a guard that check if the two-factor authentication was successful.
 @Injectable()
-export class JwtStrategy extends PassportStrategy(Strategy) {
+export class JwtStrategy extends PassportStrategy(Strategy, 'jwt-two-factor') {
     constructor(
         private readonly configService: ConfigService,
-        private readonly userService: AuthService,
+        private readonly authService: AuthService,
     ) {
         super({
             secretOrKey: process.env.SECRET_KEY,
@@ -23,9 +25,14 @@ export class JwtStrategy extends PassportStrategy(Strategy) {
     }
 
     async validate(payload: any) {
-        if (payload === null) return false;
-        else {
-            return payload.user;
+        // console.log('payload', payload);
+        console.log('payload', payload.isSecondFactorAuthenticated);
+        const user = await this.authService.getMe(payload.user.id);
+        if (!user.isTwoFactorEnabled) {
+            return user;
+        }
+        if (payload.isSecondFactorAuthenticated) {
+            return user;
         }
     }
 }
