@@ -8,11 +8,13 @@ import {
     UseGuards,
 } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
+import { ApiTags } from '@nestjs/swagger';
 import { ChatService } from './chat.service';
 import { CreateRoomDto, JoinRoomDto } from './dto/chat_common.dto';
 import JwtGuard from 'src/common/guards/jwt_guard';
 
 @UseGuards(JwtGuard)
+@ApiTags('Chat')
 @Controller('chat')
 export class ChatController {
     constructor(private jwt: JwtService, private chatService: ChatService) {}
@@ -66,10 +68,17 @@ export class ChatController {
         return await this.chatService.joinRoom(joinRoomDto.roomId, userId);
     }
 
-    @Get('rooms')
+    @Get('room/all')
     async userRooms(@Headers() headers) {
         const user = this.getUserInfo(headers);
         return await this.chatService.getUserRooms(user['id']);
+    }
+
+    @Get('room/search/:roomName')
+    async searchRoom(@Headers() headers, @Param('roomName') roomName: string) {
+        const user = this.getUserInfo(headers);
+
+        return this.chatService.getUserRooms(user['id'], -1, roomName);
     }
 
     @Get('room/:roomId/members')

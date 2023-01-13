@@ -33,7 +33,6 @@ export class ChatGateway {
     async handleConnection(@ConnectedSocket() client: any) {
         const user = this.getUserInfo(client.handshake.auth.token);
         if (user === null) return;
-
         const userRooms = await this.chatService.getUserRooms(user['id']);
         this.connectedClient[user['id']] = client.id;
         userRooms.forEach((element) => {
@@ -105,9 +104,12 @@ export class ChatGateway {
          ** its either a private/protected room
          */
         if (joinRoomDto.userId) {
-            const socketId = this.connectedClient[user['id']];
-            this.server.sockets[socketId].join(NAMESPACE + joinRoomDto.roomId);
+            const socketId = this.connectedClient[joinRoomDto.userId];
+            this.server.sockets
+                .get(socketId)
+                ?.join(NAMESPACE + joinRoomDto.roomId);
         }
+        return true;
     }
 
     @SubscribeMessage('findAllMessage')

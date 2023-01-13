@@ -13,7 +13,9 @@ import { Response } from 'express';
 import JwtGuard from 'src/common/guards/jwt_guard';
 import { AuthGuard } from '@nestjs/passport';
 import { ConfigService } from '@nestjs/config';
+import { ApiTags } from '@nestjs/swagger';
 
+@ApiTags('Auth')
 @Controller('auth')
 export class AuthController {
     constructor(

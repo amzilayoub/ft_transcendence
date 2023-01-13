@@ -47,7 +47,8 @@ export const ChatProvider = ({ children }: { children: React.ReactNode }) => {
   const loadConversationsMetadata = async () => {
     if (!authCtx.user) return;
     try {
-      const resp = await basicFetch.get("/chat/rooms");
+      const resp = await basicFetch.get("/chat/room/all");
+
       if (resp.status === 200) {
         const data: IConversationMetaData = await resp.json();
         // console.log(data);
@@ -145,9 +146,9 @@ export const useChatContext = (socket) => {
           let targetedRoom = null;
           const newState = state.filter((item) => {
             if (item.room_id != obj.room.room_id) {
-              targetedRoom = item;
               return true;
             }
+            targetedRoom = item;
             return false;
           });
           if (obj.clientId != socket.id)
