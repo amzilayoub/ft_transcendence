@@ -1,8 +1,9 @@
 import React, { createContext, useCallback, useEffect, useMemo } from "react";
 
-import { getToken, setToken } from "@utils/auth-token";
 import basicFetch from "@utils/basicFetch";
 import { IConversationMetaData } from "global/types";
+
+import { useAuthContext } from "./auth.context";
 
 export interface IChatContext {
   showChatSidebar: boolean;
@@ -35,6 +36,7 @@ const initialState: IChatContext = {
 export const ChatContext = createContext<IChatContext>(initialState);
 
 export const ChatProvider = ({ children }: { children: React.ReactNode }) => {
+  const authCtx = useAuthContext();
   const [showChatSidebar, setShowChatSidebar] = React.useState(true);
   const [activeBoxes, setActiveBoxes] = React.useState<any[]>([]);
   const [conversationsMetadata, setConversationsMetadata] = React.useState(
@@ -59,12 +61,7 @@ export const ChatProvider = ({ children }: { children: React.ReactNode }) => {
   const loadSingleConversation = useCallback(async (id: string) => {
     try {
       const resp = await fetch(
-        `${process.env.NEXT_PUBLIC_API_URL}/conversations/${id}`,
-        {
-          headers: {
-            Authorization: "Bearer " + getToken(),
-          },
-        }
+        `${process.env.NEXT_PUBLIC_API_URL}/conversations/${id}`
       );
 
       if (resp.status === 200) {
@@ -127,12 +124,13 @@ export const ChatProvider = ({ children }: { children: React.ReactNode }) => {
   );
 
   useEffect(() => {
-    const params = new Proxy(new URLSearchParams(window.location.search), {
-      get: (searchParams, prop) => searchParams.get(prop),
-    });
-    if (params.token) setToken(params.token);
+    // const params = new Proxy(new URLSearchParams(window.location.search), {
+    //   get: (searchParams, prop) => searchParams.get(prop),
+    // });
+    // if (params.token) setToken(params.token);
+    if (!authCtx.isAuthenticated) return;
     loadConversationsMetadata();
-  }, []);
+  }, [authCtx.isAuthenticated]);
 
   return <ChatContext.Provider value={value}>{children}</ChatContext.Provider>;
 };

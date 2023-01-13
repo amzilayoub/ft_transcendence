@@ -1,17 +1,11 @@
-import { getToken } from "@utils/auth-token";
+import basicFetch from "@utils/basicFetch";
 import { IUser } from "global/types";
-
-const API_URL = process.env.NEXT_PUBLIC_API_URL;
 
 export async function getUserByUsername(
   username: string
 ): Promise<IUser | null> {
   try {
-    const res = await fetch(`${API_URL}/users/${username}`, {
-      headers: {
-        Authorization: `Bearer ${getToken()}`,
-      },
-    });
+    const res = await basicFetch.get(`/users/${username}`);
     if (res.status === 200) {
       return res.json();
     }

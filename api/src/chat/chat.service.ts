@@ -1,10 +1,7 @@
 import { Injectable } from '@nestjs/common';
-import { CreateMessageDto } from './dto/chat_common.dto';
+
 import { PrismaService } from 'src/prisma/prisma.service';
-import { Prisma, room_type, user } from '@prisma/client';
-import { use } from 'passport';
-import { time } from 'console';
-import { query } from 'express';
+import { Prisma } from '@prisma/client';
 
 @Injectable()
 export class ChatService {
@@ -49,8 +46,8 @@ export class ChatService {
      */
     getUserRooms(
         userId: number,
-        roomId: number = -1,
-        roomName: string = '',
+        roomId = -1,
+        roomName = '',
     ): Promise<Array<any>> {
         let specificRoom: string =
             roomId == -1 ? '' : `AND receiver.room_id = ${roomId}`;
@@ -62,7 +59,7 @@ export class ChatService {
 								--Here I should return the name of the room
 									'shared room'
 							END) LIKE '%${roomName}%'`;
-        let query = `
+        const query = `
 			SELECT receiver.*, room_type.type,
 			users.id as user_id,
 			users.avatar_url AS "avatarUrl",
@@ -165,7 +162,7 @@ export class ChatService {
 		`);
     }
 
-    getRoomMessages(roomId: number, userId: number = -1) {
+    getRoomMessages(roomId: number, userId = -1) {
         return this.prismaService.$queryRaw(Prisma.sql`
 				SELECT id, user_id AS "senderId", message, created_at as time,
 					CASE

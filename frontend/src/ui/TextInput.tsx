@@ -6,6 +6,7 @@ export interface TextInputProps {
   label: string;
   placeholder: string;
   name: string;
+  type?: string;
   onChange: (event: React.ChangeEvent<HTMLInputElement>) => void;
   error?: string;
   required?: boolean;
@@ -16,6 +17,7 @@ const TextInput: React.FC<TextInputProps> = ({
   label,
   placeholder,
   name,
+  type = "text",
   onChange,
   error,
   required = false,
@@ -34,6 +36,7 @@ const TextInput: React.FC<TextInputProps> = ({
       placeholder={placeholder}
       required={required}
       name={name}
+      type={type}
       onChange={onChange}
       {...props}
     />

@@ -3,7 +3,6 @@ import { AuthController } from './auth.controller';
 import { AuthService } from './auth.service';
 import { PrismaModule } from '../prisma/prisma.module';
 import { JwtModule } from '@nestjs/jwt';
-// import { localStrategy } from './strategy/local.strategy';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { PassportModule } from '@nestjs/passport';
 import { JwtStrategy } from './strategy/jwt.strategy';
@@ -18,7 +17,7 @@ import { FortyTwoStrategy } from './strategy/ft.strategy';
             useFactory: async (configService: ConfigService) => ({
                 secret: process.env.SECRET_KEY,
                 signOptions: {
-                    expiresIn: process.env.JWT_EXPIRATION_TIME,
+                    expiresIn: configService.get('JWT_EXPIRATION_TIME'),
                 },
             }),
         }),
