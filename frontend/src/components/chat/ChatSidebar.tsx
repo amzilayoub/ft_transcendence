@@ -7,9 +7,10 @@ import { BsThreeDots, BsVolumeMute } from "react-icons/bs";
 import { MdBlockFlipped } from "react-icons/md";
 import { SlArrowDown } from "react-icons/sl";
 
+import basicFetch from "@utils/basicFetch";
 import { truncateString } from "@utils/format";
 import { IConversationMetaData, IFriendMetaData } from "global/types";
-import basicFetch from "@utils/basicFetch";
+import ChatActionsModal from "@components/modals/ChatActionsModal";
 
 const SeekNewConversation = ({
   searchQuery,
@@ -167,6 +168,7 @@ const ChatSidebar = ({
   const [searchResults, setSearchResults] = useState<
     IConversationMetaData[] | IFriendMetaData[]
   >([]);
+  const [showChatActionsModal, setShowChatActionsModal] = useState(false);
 
   const loadSearch = async () => {
     if (searchQuery == "") return;
@@ -180,7 +182,7 @@ const ChatSidebar = ({
 
   useEffect(() => {
     const setSearchData = async () => {
-      const data = await loadSearch();
+      // const data = await loadSearch();
       setSearchResults(await loadSearch());
     };
     setSearchData();
@@ -188,94 +190,106 @@ const ChatSidebar = ({
 
   const allUnreadMessages = 0;
   return (
-    <div
-      className={cn(
-        "transition-height ease-in-out delay-150 flex flex-col w-72 items-center bg-white border border-gray-300 overflow-hidden shadow-lg rounded-t-2xl",
-        {
-          "h-[calc(100vh-32vh)]": showChatSidebar,
-          "h-14": !showChatSidebar,
-        }
-      )}
-    >
+    <>
       <div
-        onClick={() => setShowChatSidebar(!showChatSidebar)}
-        className="flex items-center justify-between w-full p-3 border-b cursor-pointer "
-      >
-        <p className="font-semibold ">Messages</p>
-        <div className="flex items-center justify-between gap-x-2">
-          <div className="flex justify-end">
-            {allUnreadMessages > 0 && (
-              <div className="flex items-center justify-center w-4 h-4 bg-red-500 rounded-full cursor-default">
-                <p className="text-xs text-white">{allUnreadMessages}</p>
-              </div>
-            )}
-          </div>
-          <div className="flex items-center justify-center text-xs duration-100 rounded-full cursor-pointer w-7 h-7 hover:bg-gray-200 ">
-            <SlArrowDown
-              className={cn({ "transform rotate-180": !showChatSidebar })}
-            />
-          </div>
-        </div>
-      </div>
-      <ul
-        className={cn("w-full overflow-y-scroll no-scrollbar", {
-          block: showChatSidebar,
-          hidden: !showChatSidebar,
-        })}
-      >
-        <div className="flex items-center justify-between w-full p-2">
-          <input
-            type="text"
-            placeholder="Search conversations"
-            value={searchQuery}
-            onChange={(e) => setsearchQuery(e.target.value)}
-            className="w-full p-2 border border-gray-300 rounded-md focus:outline-none"
-          />
-          <AiOutlineUserAdd
-            className="h-8 p-1 ml-2 duration-300 rounded-full cursor-pointer bg-slate-300 hover:bg-slate-400 w-9"
-            onClick={onNewConversationClick}
-          />
-        </div>
-        {searchResults && searchResults.length > 0 && searchQuery.length > 0 ? (
-          searchResults.map((item) => (
-            <ConversationMetadata
-              key={item.id}
-              avatar={item.avatarUrl}
-              onConversationClick={() => onConversationClick(item)}
-              name={item.name}
-              lastMessage={item.lastMessage}
-              lastMessageTime={item.lastMessageTime}
-              unreadMessages={item.unreadMessagesCount}
-              onMuteClick={() => {}}
-              onBlockClick={() => {}}
-              socket={socket}
-            />
-          ))
-        ) : searchQuery.length > 0 ? (
-          <SeekNewConversation
-            searchQuery={searchQuery}
-            searchResults={searchResults}
-            setSearchResults={setSearchResults}
-            onNewConversationClick={onNewConversationClick}
-          />
-        ) : (
-          conversationsMetadata.map((item, idx) => (
-            <ConversationMetadata
-              key={idx}
-              avatar={item.avatarUrl}
-              onConversationClick={() => onConversationClick(item)}
-              name={item.name}
-              lastMessage={item.lastMessage}
-              lastMessageTime={item.lastMessageTime}
-              unreadMessages={item.unreadMessagesCount}
-              onMuteClick={() => {}}
-              onBlockClick={() => {}}
-            />
-          ))
+        className={cn(
+          "transition-height ease-in-out delay-150 flex flex-col w-72 items-center bg-white border border-gray-300 overflow-hidden shadow-lg rounded-t-2xl",
+          {
+            "h-[calc(100vh-32vh)]": showChatSidebar,
+            "h-14": !showChatSidebar,
+          }
         )}
-        <div className="h-52" />
-      </ul>
-    </div>
+      >
+        <div
+          onClick={() => setShowChatSidebar(!showChatSidebar)}
+          className="flex items-center justify-between w-full p-3 border-b cursor-pointer "
+        >
+          <p className="font-semibold ">Messages</p>
+          <div className="flex items-center justify-between gap-x-2">
+            <div className="flex justify-end">
+              {allUnreadMessages > 0 && (
+                <div className="flex items-center justify-center w-4 h-4 bg-red-500 rounded-full cursor-default">
+                  <p className="text-xs text-white">{allUnreadMessages}</p>
+                </div>
+              )}
+            </div>
+            <div className="flex items-center justify-center text-xs duration-100 rounded-full cursor-pointer w-7 h-7 hover:bg-gray-200 ">
+              <SlArrowDown
+                className={cn({ "transform rotate-180": !showChatSidebar })}
+              />
+            </div>
+          </div>
+        </div>
+        <ul
+          className={cn("w-full overflow-y-scroll no-scrollbar", {
+            block: showChatSidebar,
+            hidden: !showChatSidebar,
+          })}
+        >
+          <div className="flex items-center justify-between w-full p-2">
+            <input
+              type="text"
+              placeholder="Search conversations"
+              value={searchQuery}
+              onChange={(e) => setsearchQuery(e.target.value)}
+              className="w-full p-2 border border-gray-300 rounded-md focus:outline-none"
+            />
+            <AiOutlineUserAdd
+              className="h-8 p-1 ml-2 duration-300 rounded-full cursor-pointer bg-slate-300 hover:bg-slate-400 w-9"
+              onClick={() => setShowChatActionsModal(true)}
+            />
+          </div>
+          {searchResults &&
+          searchResults.length > 0 &&
+          searchQuery.length > 0 ? (
+            searchResults.map((item) => (
+              <ConversationMetadata
+                key={item.id}
+                avatar={item.avatar_url}
+                onConversationClick={() => onConversationClick(item)}
+                name={item.name}
+                lastMessage={item.lastMessage}
+                lastMessageTime={item.lastMessageTime}
+                unreadMessages={item.unreadMessagesCount}
+                onMuteClick={() => {}}
+                onBlockClick={() => {}}
+                socket={socket}
+              />
+            ))
+          ) : searchQuery.length > 0 ? (
+            <SeekNewConversation
+              searchQuery={searchQuery}
+              searchResults={searchResults}
+              setSearchResults={setSearchResults}
+              onNewConversationClick={onNewConversationClick}
+            />
+          ) : (
+            conversationsMetadata.map((item, idx) => (
+              <ConversationMetadata
+                key={idx}
+                avatar={item.avatar_url}
+                onConversationClick={() => onConversationClick(item)}
+                name={item.name}
+                lastMessage={item.lastMessage}
+                lastMessageTime={item.lastMessageTime}
+                unreadMessages={item.unreadMessagesCount}
+                onMuteClick={() => {}}
+                onBlockClick={() => {}}
+              />
+            ))
+          )}
+          <div className="h-52" />
+        </ul>
+      </div>
+      {showChatActionsModal && (
+        <ChatActionsModal
+          isOpen={showChatActionsModal}
+          onClose={() => setShowChatActionsModal(false)}
+          // onMuteClick={onMuteClick}
+          // onBlockClick={onBlockClick}
+        />
+      )}
+    </>
   );
 };
 
