@@ -45,7 +45,6 @@ export const ChatProvider = ({ children }: { children: React.ReactNode }) => {
   const [error, setError] = React.useState("");
 
   const loadConversationsMetadata = async () => {
-    if (!authCtx.user) return;
     try {
       const resp = await basicFetch.get("/chat/room/all");
 
@@ -60,7 +59,6 @@ export const ChatProvider = ({ children }: { children: React.ReactNode }) => {
   };
 
   const loadSingleConversation = useCallback(async (id: string) => {
-    if (!authCtx.user) return;
     try {
       const resp = await fetch(
         `${process.env.NEXT_PUBLIC_API_URL}/conversations/${id}`
@@ -130,8 +128,9 @@ export const ChatProvider = ({ children }: { children: React.ReactNode }) => {
     //   get: (searchParams, prop) => searchParams.get(prop),
     // });
     // if (params.token) setToken(params.token);
+    if (!authCtx.isAuthenticated) return;
     loadConversationsMetadata();
-  }, []);
+  }, [authCtx.isAuthenticated]);
 
   return <ChatContext.Provider value={value}>{children}</ChatContext.Provider>;
 };

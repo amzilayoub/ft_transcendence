@@ -1,4 +1,3 @@
-import { JwtService } from '@nestjs/jwt';
 import {
     WebSocketGateway,
     SubscribeMessage,
@@ -6,11 +5,9 @@ import {
     WebSocketServer,
     ConnectedSocket,
 } from '@nestjs/websockets';
-import { user } from '@prisma/client';
-import { Socket } from 'dgram';
-import { Server } from 'http';
 import { ChatService } from './chat.service';
 import { CreateMessageDto, JoinRoomDto } from './dto/chat_common.dto';
+import { AuthService } from 'src/auth/auth.service';
 
 const NAMESPACE = '/chat';
 
@@ -27,7 +24,7 @@ export class ChatGateway {
 
     constructor(
         private readonly chatService: ChatService,
-        private readonly jwt: JwtService,
+        private readonly authService: AuthService,
     ) {}
 
     async handleConnection(@ConnectedSocket() client: any) {
@@ -118,6 +115,6 @@ export class ChatGateway {
     }
 
     getUserInfo(token: string) {
-        return this.jwt.decode(token);
+        return this.authService.getJwtToken(token);
     }
 }
