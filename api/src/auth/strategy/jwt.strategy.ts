@@ -15,7 +15,11 @@ export class JwtStrategy extends PassportStrategy(Strategy) {
             secretOrKey: process.env.SECRET_KEY,
             ignoreExpiration: false,
             jwtFromRequest: ExtractJwt.fromExtractors([
-                (request: Request) => request?.cookies?.Authentication,
+                (request: Request) => {
+                    if (request?.headers.authorization)
+                        return request?.headers.authorization.split(' ')[1];
+                    return request?.cookies?.Authentication;
+                },
             ]),
         });
     }
@@ -23,7 +27,7 @@ export class JwtStrategy extends PassportStrategy(Strategy) {
     async validate(payload: any) {
         if (payload === null) return false;
         else {
-            return payload.user;
+            return payload.user || payload;
         }
     }
 

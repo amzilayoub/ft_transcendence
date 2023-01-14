@@ -20,7 +20,7 @@ export class TestJwtController {
             body.username,
         );
         this.testJwtService.findAll();
-        const token = await this.jwt.signAsync(user, {
+        const token = this.jwt.sign(user, {
             expiresIn: '5d',
             secret: this.configService.get<string>('SECRET_KEY'),
         });
@@ -31,7 +31,7 @@ export class TestJwtController {
     async getUserToken(@Param('email') email: string) {
         const user = await this.testJwtService.find(email);
 
-        const token = await this.jwt.signAsync(user, {
+        const token = this.jwt.sign(user, {
             expiresIn: '5d',
             secret: this.configService.get<string>('SECRET_KEY'),
         });
