@@ -14,10 +14,10 @@ import { IUser, PartialWithRequired } from "global/types";
 
 interface SearchbarProps {
   searchResults: any[];
+  searchLoading: boolean;
   placeholder?: string;
   onChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
   onSubmit: (e: React.FormEvent<HTMLFormElement>) => void;
-  setSearchResults: (results: any[]) => void;
 }
 
 const UserListItem = ({
@@ -140,10 +140,13 @@ const Searchbar = (props: SearchbarProps) => {
       <input
         type="search"
         className={cn(
-          "h-full w-full rounded-xl border py-2 pl-12 text-gray-500 list-none duration-150 focus-within:border-secondary hover:border-secondary outline-none",
+          "border focus:border-none h-full w-full rounded-xl py-2 pl-12 text-gray-500 list-none duration-150 outline-none focus-within:outline-primary/60",
           {
             "pr-3": hasInput,
             "rounded-b-none": showResults && props.searchResults.length > 0,
+            "focus-within:outline-primary/60": !(
+              showResults && props.searchResults.length > 0
+            ),
           }
         )}
         placeholder={props.placeholder}
@@ -153,8 +156,26 @@ const Searchbar = (props: SearchbarProps) => {
           props.onChange(e);
         }}
       />
-      {showResults && (
-        <ul className=" bg-white rounded-b-xl shadow-xl border-secondary">
+      {props.searchLoading && (
+        <div className="bg-white rounded-b-xl hover:rounded-b-xl shadow-xl border-secondary">
+          <div className="flex items-center justify-center h-10">
+            <p>
+              Loading <span className="animate-ping">...</span>
+            </p>
+          </div>
+        </div>
+      )}
+
+      {!props.searchLoading && showResults && (
+        <ul
+          className={cn(
+            "bg-white rounded-b-xl hover:rounded-b-xl shadow-xl border-secondary",
+            {
+              "focus-within:outline-primary/60":
+                showResults && props.searchResults.length > 0,
+            }
+          )}
+        >
           {props.searchResults.map((result) => (
             <UserListItem key={result.id} user={result} />
           ))}

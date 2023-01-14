@@ -57,6 +57,7 @@ export interface IConversationMetaData {
   room_id: number;
   type: string;
   user_id: number;
+  isActiveBox?: boolean;
 }
 
 export interface IMessageSender {

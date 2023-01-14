@@ -24,6 +24,7 @@
     "socket.io": "^4.5.4",
     "socket.io-client": "^4.5.4",
     "swiper": "^8.4.5",
+    "swr": "^2.0.0",
     "typescript": "4.8.4"
   },
   "devDependencies": {
