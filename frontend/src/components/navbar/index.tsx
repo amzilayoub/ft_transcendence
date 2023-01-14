@@ -2,11 +2,12 @@ import React, { useState } from "react";
 
 import Link from "next/link";
 import { AiOutlineCode as TmpLogo } from "react-icons/ai";
+import useSWR from "swr";
 
 import ProfileNavMenu from "@components/menus/dropdowns/ProfileNavMenu";
 import Searchbar, { SearchbarPopover } from "@components/navbar/SearchBar";
-import basicFetch from "@utils/basicFetch";
 import { FALLBACK_AVATAR } from "@utils/constants";
+import { fetcher } from "@utils/swr.fetcher";
 import { useAuthContext } from "context/auth.context";
 
 export interface IUserData {
@@ -28,26 +29,22 @@ const Logo = ({ ...props }) => (
 const Navbar = () => {
   const ctx = useAuthContext();
   const [searchQuery, setSearchQuery] = useState("");
-  const [searchResults, setSearchResults] = useState<IUserData[]>([]);
+  const [shouldSearch, setShouldSearch] = useState<boolean>(false);
+
+  const {
+    data: searchResults,
+    error: searchError,
+    isLoading: searchLoading,
+  } = useSWR(
+    searchQuery.length > 0 || shouldSearch
+      ? `/users/search/${searchQuery}`
+      : null,
+    fetcher,
+    { revalidateOnFocus: false }
+  );
 
   const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setSearchQuery(e.target.value);
-  };
-
-  const handleSearchSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
-    e.preventDefault();
-    console.log(searchQuery);
-    try {
-      const res = await basicFetch.get(`/users/search/${searchQuery}`);
-      if (!res.ok) {
-        throw new Error("Error fetching search results");
-      }
-      const data = await res.json();
-      console.log({ data });
-      setSearchResults(data);
-    } catch (error) {
-      console.log(error);
-    }
   };
 
   return (
@@ -64,10 +61,11 @@ const Navbar = () => {
         <li className="justify-center w-full col-span-3 list-none md:col-span-6 md:flex">
           {(ctx?.user || ctx?.loadingUser) && (
             <Searchbar
-              searchResults={searchResults}
+              searchResults={searchResults || []}
               onChange={handleSearchChange}
-              onSubmit={handleSearchSubmit}
+              onSubmit={() => setShouldSearch(true)}
               placeholder="Search..."
+              searchLoading={searchLoading && searchQuery.length > 0}
             />
           )}
         </li>
@@ -96,9 +94,11 @@ const Navbar = () => {
         </li>
         <li className="w-full text-right">
           <SearchbarPopover
-            onChange={() => {}}
-            onSubmit={() => {}}
+            searchResults={searchResults || []}
+            onChange={handleSearchChange}
+            onSubmit={() => setShouldSearch(true)}
             placeholder="Search..."
+            searchLoading={searchLoading && searchQuery.length > 0}
           />
         </li>
         <li className="flex gap-x-2">
