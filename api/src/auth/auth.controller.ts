@@ -10,7 +10,7 @@ import {
 import { AuthService } from './auth.service';
 import RequestWithUser from './inrefaces/requestWithUser.interface';
 import { Response } from 'express';
-import JwtGuard from 'src/common/guards/jwt_guard';
+import JwtTwoFactorGuard from 'src/common/guards/jwt_guard';
 import { AuthGuard } from '@nestjs/passport';
 import { ConfigService } from '@nestjs/config';
 import { ApiTags } from '@nestjs/swagger';
@@ -23,7 +23,7 @@ export class AuthController {
         private configService: ConfigService,
     ) {}
 
-    @UseGuards(JwtGuard)
+    @UseGuards(JwtTwoFactorGuard)
     @Get('')
     async test(@Req() req: RequestWithUser, @Res() res: Response) {
         const test = await this.authService.getMe(req.user.id);
@@ -61,23 +61,22 @@ export class AuthController {
             if (alreadyExist.isTwoFactorEnabled) {
                 const cookie = this.authService.getCookieWithJwtToken(
                     alreadyExist,
-                    // true,
+                    false,
                 );
                 response.setHeader('Set-Cookie', cookie);
                 response.redirect('/api/2fa/generate');
-                return;
             } else {
                 const cookie =
                     this.authService.getCookieWithJwtToken(alreadyExist);
                 response.setHeader('Set-Cookie', cookie);
                 response.redirect(
-                    this.configService.get('FRONTEND_URL') + '/home?2fa=true',
+                    this.configService.get('FRONTEND_URL') + '/home',
                 );
             }
         }
     }
 
-    @UseGuards(JwtGuard)
+    @UseGuards(JwtTwoFactorGuard)
     @Get('logout')
     async logout(@Req() request: RequestWithUser, @Res() response: Response) {
         console.log('LOGOUT');
@@ -85,7 +84,7 @@ export class AuthController {
         response.send(200);
     }
 
-    @UseGuards(JwtGuard)
+    @UseGuards(JwtTwoFactorGuard)
     @Post('2fa_on')
     async twoFactorOn(
         @Req() request: RequestWithUser,
@@ -96,7 +95,7 @@ export class AuthController {
     }
 
     // temporary endpoint, should be in 'user' resource.
-    @UseGuards(JwtGuard)
+    @UseGuards(JwtTwoFactorGuard)
     @Get('me')
     async getMe(@Req() request: RequestWithUser, @Res() response: Response) {
         const user = await this.authService.getMe(request.user.id);

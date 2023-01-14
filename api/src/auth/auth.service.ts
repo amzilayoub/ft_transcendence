@@ -12,7 +12,7 @@ export class AuthService {
     // Thanks to setting the isSecondFactorAuthenticated property, we can now distinguish between tokens created with and without two-factor authentication.
     public getCookieWithJwtToken(
         _user: any,
-        // isSecondFactorAuthenticated = false,
+        isSecondFactorAuthenticated = false,
     ) {
         const payload = {
             user: {
@@ -23,15 +23,17 @@ export class AuthService {
                 avatar_url: _user.avatar_url,
                 isTwoFactorEnabled: _user.isTwoFactorEnabled,
             },
+            isSecondFactorAuthenticated,
         };
 
+        // console.log('token:token', payload);
         const token = this.jwt.sign(payload);
         return `Authentication=${token}; HttpOnly; Path=/; Max-Age=${
             60 * 60 * 24 * 7
         }`;
     }
 
-    public getJwtToken(_user: any) {
+    public getJwtToken(_user: any, isSecondFactorAuthenticated?: boolean) {
         const payload = {
             user: {
                 username: _user.username,
@@ -44,7 +46,7 @@ export class AuthService {
                 isTwoFactorEnabled: _user.isTwoFactorEnabled,
                 id: _user.id,
             },
-            // isSecondFactorAuthenticated,
+            isSecondFactorAuthenticated,
         };
         const token = this.jwt.sign(payload, {
             secret: process.env.JWT_SECRET,

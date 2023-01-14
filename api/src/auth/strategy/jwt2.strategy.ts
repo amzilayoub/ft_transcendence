@@ -8,7 +8,10 @@ import { AuthService } from '../auth.service';
 
 // create a strategy and a guard that check if the two-factor authentication was successful.
 @Injectable()
-export class JwtStrategy extends PassportStrategy(Strategy, 'jwt') {
+export class JwtTwoFactorStrategy extends PassportStrategy(
+    Strategy,
+    'jwt-two-factor',
+) {
     constructor(
         private readonly configService: ConfigService,
         private readonly authService: AuthService,
@@ -24,7 +27,14 @@ export class JwtStrategy extends PassportStrategy(Strategy, 'jwt') {
 
     async validate(payload: any) {
         const user = await this.authService.getMe(payload.user.id);
+        // console.log('payloaddddddd', payload.isSecondFactorAuthenticated);
         if (!user) return false;
-        return user;
+        console.log(payload.isSecondFactorAuthenticated);
+        if (!user.isTwoFactorEnabled) {
+            return user;
+        }
+        if (payload.isSecondFactorAuthenticated) {
+            return user;
+        }
     }
 }

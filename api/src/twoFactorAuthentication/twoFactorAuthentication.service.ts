@@ -38,6 +38,6 @@ export class TwoFactorAuthenticationService {
         user: FortyTwoUserDto,
         token: string,
     ) {
-        return authenticator.verify({ token, secret: user.twoFactorSecret });
+        return authenticator.verify({ token, secret: user.TwoFactorSecret });
     }
 }
