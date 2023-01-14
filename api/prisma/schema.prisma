@@ -20,6 +20,7 @@ model user {
     first_name         String?
     last_name          String?
     avatar_url         String?
+    cover_url          String?
     isTwoFactorEnabled Boolean? @default(false)
     TwoFactorSecret    String?
 
