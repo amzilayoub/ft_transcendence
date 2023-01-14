@@ -17,14 +17,25 @@ export class JwtStrategy extends PassportStrategy(Strategy, 'jwt') {
             secretOrKey: process.env.SECRET_KEY,
             ignoreExpiration: false,
             jwtFromRequest: ExtractJwt.fromExtractors([
-                (request: Request) => request?.cookies?.Authentication,
+                (request: Request) => {
+                    if (request?.headers.authorization)
+                        return request?.headers.authorization.split(' ')[1];
+                    return request?.cookies?.Authentication;
+                },
             ]),
         });
     }
 
     async validate(payload: any) {
         const user = await this.authService.getMe(payload.user.id);
-        if (!user) return false;
-        return user;
+        if (!user || payload === null) return false;
+        else {
+            return payload.user || payload;
+        }
+    }
+
+    private static extractJWT(req: Request): string | null {
+        if (!req.cookies) return null;
+        return req.cookies['Authentication'] || null;
     }
 }
