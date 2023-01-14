@@ -5,6 +5,10 @@ import { user } from '@prisma/client';
 import { ChatService } from './chat.service';
 import { CreateRoomDto, JoinRoomDto } from './dto/chat_common.dto';
 
+/*
+ ** NOTE: Checks to do later on:
+ ** 1- check if the user has the right to get the room info (members, messages....), like if he joined the room already
+ */
 @ApiTags('Chat')
 @Controller('chat')
 export class ChatController {
@@ -86,12 +90,19 @@ export class ChatController {
         /*
          ** Set message as read for the user who requested them
          */
-        await this.chatService.setMessagesAsRead(roomId, user['id']);
+        await this.chatService.setRoomAsRead(roomId, user['id']);
         /*
          ** then return the array of messages
          ** NOTE: Needs to add pagination here later on
          */
         return await this.chatService.getRoomMessages(roomId, user['id']);
+    }
+
+    @Get('room/:roomId')
+    async getRoomById(@Headers() headers, @Param('roomId') roomId: number) {
+        const user = this.getUserInfo(headers);
+
+        return await this.chatService.getUserRooms(user['id'], roomId);
     }
 
     getUserInfo(headers) {
