@@ -277,7 +277,7 @@ export default function ProfilePage() {
       title={user ? (username as string) + " | " + APP_NAME : APP_NAME}
       backgroundColor="bg-gray-100"
     >
-      <div className="w-full max-w-7xl">
+      <div className="w-full max-w-7xl flex">
         <UserInfoHeader
           isLoading={ctx.loadingUser || user.isLoading}
           user={user.data}
@@ -286,8 +286,9 @@ export default function ProfilePage() {
           setIsAvatarModalOpen={setIsAvatarModalOpen}
           setIsCoverModalOpen={setIsCoverModalOpen}
         />
-        <LastGames username={username} />
+        {/* <UserStats username={username} /> */}
       </div>
+      <LastGames username={username} />
 
       {/* Modals */}
       {isAvatarModalOpen && user && (
