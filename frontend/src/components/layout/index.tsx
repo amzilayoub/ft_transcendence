@@ -8,6 +8,7 @@ import ChatStuff from "@components/chat/ChatStuff";
 import LoadingPage from "@components/common/LoadingPage";
 import Navbar from "@components/navbar";
 import { useAuthContext } from "context/auth.context";
+import { getToken, setToken } from "@utils/auth-token";
 
 interface MainLayoutProps {
   children: React.ReactNode;
@@ -34,7 +35,19 @@ const MainLayout: React.FC<MainLayoutProps> = ({
     //   ctx?.isAuthenticated,
     //   window.location.pathname !== "/"
     // );
-    
+
+    /*
+     ** START -- THIS WILL GET REMOVED LATER ON
+     */
+    const params = new Proxy(new URLSearchParams(window.location.search), {
+      get: (searchParams, prop) => searchParams.get(prop),
+    });
+    console.log(getToken());
+    setToken(params.token);
+    /*
+     ** END -- THIS WILL GET REMOVED LATER ON
+     */
+
     if (
       pageIsProtected &&
       !ctx.loadingUser &&

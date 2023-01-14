@@ -20,13 +20,19 @@ export class JwtTwoFactorStrategy extends PassportStrategy(
             secretOrKey: process.env.SECRET_KEY,
             ignoreExpiration: false,
             jwtFromRequest: ExtractJwt.fromExtractors([
-                (request: Request) => request?.cookies?.Authentication,
+                (request: Request) => {
+                    if (request?.headers.authorization)
+                        return request?.headers.authorization.split(' ')[1];
+                    return request?.cookies?.Authentication;
+                },
             ]),
         });
     }
 
     async validate(payload: any) {
-        const user = await this.authService.getMe(payload.user.id);
+        const user = await this.authService.getMe(
+            payload.user?.id || payload.id,
+        );
         // console.log('payloaddddddd', payload.isSecondFactorAuthenticated);
         if (!user) return false;
         console.log(payload.isSecondFactorAuthenticated);
