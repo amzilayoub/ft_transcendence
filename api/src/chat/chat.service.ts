@@ -97,7 +97,7 @@ export class ChatService {
 				AND messages.user_id = receiver.user_id
 				AND is_read = false
 			)::INTEGER AS "unread_messages_count",
-			
+			sender.unread_message_count AS "unreadMessagesCount",
 			room.updated_at AS "last_message_time",
 			CASE
 				WHEN room_type.type = 'dm'
@@ -177,12 +177,21 @@ export class ChatService {
 		`);
     }
 
-    setMessagesAsRead(roomId: number, userId: number) {
+    setRoomUnread(roomId: number, senderUserId: number) {
         return this.prismaService.$queryRaw(Prisma.sql`
-			UPDATE messages
-			SET is_read = true
+			UPDATE room_user_rel
+			SET unread_message_count = unread_message_count + 1
 			WHERE room_id = ${roomId}
-			AND user_id != ${userId}
+			AND user_id != ${senderUserId}
+		`);
+    }
+
+    setRoomAsRead(roomId: number, userId: number) {
+        return this.prismaService.$queryRaw(Prisma.sql`
+			UPDATE room_user_rel
+			SET unread_message_count = 0
+			WHERE room_id = ${roomId}
+			AND user_id = ${userId}
 		`);
     }
 
