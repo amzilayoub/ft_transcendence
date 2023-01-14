@@ -6,6 +6,8 @@ import { GiPingPongBat } from "react-icons/gi";
 import { IoMdClose } from "react-icons/io";
 import { SiMediafire } from "react-icons/si";
 
+import PlayerStatsChart from "./RadarChart";
+
 const StatItem = ({
   icon,
   label,
@@ -37,7 +39,7 @@ const StatItem = ({
 const UserStats = ({ username }: { username: string }) => {
   // const stats = useUserStats(username)
   return (
-    <nav className="flex flex-col px-4 py-5 gap-y-4 w-96 min-h-[400px] rounded-xl border bg-white shadow-lg">
+    <nav className="flex flex-col px-4 py-5 gap-y-4 w-[500px] rounded-xl border bg-white shadow-lg">
       <div className="flex justify-between items-center">
         <p className="text-gray-900 text-xl font-bold">Stats</p>
       </div>
@@ -63,6 +65,9 @@ const UserStats = ({ username }: { username: string }) => {
           className="text-blue-500"
         />
       </ul>
+      <div className="flex justify-center">
+        <PlayerStatsChart />
+      </div>
     </nav>
   );
 };
