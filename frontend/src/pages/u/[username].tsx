@@ -2,6 +2,7 @@
 import { ReactElement, useEffect, useState } from "react";
 
 import cn from "classnames";
+import dynamic from "next/dynamic";
 import Image from "next/image";
 import { useRouter } from "next/router";
 import { BiEdit } from "react-icons/bi";
@@ -12,13 +13,16 @@ import BaseModal from "@components/common/BaseModal";
 import { ExternalLink } from "@components/common/Links";
 import MainLayout from "@components/layout";
 import UserStats from "@components/stats";
-import LastGames from "@components/stats/History";
 import useUser from "@hooks/useUser";
 import Button from "@ui/Button";
 import { APP_NAME } from "@utils/constants";
 import { removeUser } from "@utils/local-storage";
 import { useAuthContext } from "context/auth.context";
 import { IUser, SetStateFunc } from "global/types";
+
+const LastGames = dynamic(() => import("@components/stats/History"), {
+  ssr: false,
+});
 
 const UtilityButton = ({
   icon,
