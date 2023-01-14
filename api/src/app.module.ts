@@ -4,14 +4,16 @@ import { ConfigModule } from '@nestjs/config';
 import { PrismaModule } from './prisma/prisma.module';
 import { AuthModule } from './auth/auth.module';
 import { TwoFactorAuthenticationModule } from './twoFactorAuthentication/twoFactorAuthentication.module';
+import { UserModule } from './users/user.module';
 
 @Module({
     imports: [
-        ChatModule,
         ConfigModule.forRoot({ isGlobal: true }),
-        PrismaModule,
         AuthModule,
         TwoFactorAuthenticationModule,
+        UserModule,
+        ChatModule,
+        PrismaModule,
     ],
     controllers: [],
     providers: [],
