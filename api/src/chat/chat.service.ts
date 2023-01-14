@@ -62,7 +62,7 @@ export class ChatService {
         const query = `
 			SELECT receiver.*, room_type.type,
 			users.id as user_id,
-			users.avatar_url AS "avatarUrl",
+			users.avatar_url,
 			(
 				SELECT message
 				FROM messages
@@ -79,7 +79,7 @@ export class ChatService {
 					THEN true
 				ELSE
 					false
-			END AS "isBlocked",
+			END AS "is_blocked",
 			CASE
 				WHEN
 				(SELECT COUNT(*)
@@ -96,9 +96,9 @@ export class ChatService {
 				WHERE messages.room_id = receiver.room_id
 				AND messages.user_id = receiver.user_id
 				AND is_read = false
-			)::INTEGER AS "unreadMessagesCount",
+			)::INTEGER AS "unread_messages_count",
 			
-			room.updated_at AS "lastMessageTime",
+			room.updated_at AS "last_message_time",
 			CASE
 				WHEN room_type.type = 'dm'
 					THEN users.username
@@ -155,7 +155,7 @@ export class ChatService {
 
     getRoomMembers(roomId: number) {
         return this.prismaService.$queryRaw(Prisma.sql`
-				SELECT users.id, users.username AS name, users.avatar_url AS "avatarUrl"
+				SELECT users.id, users.username AS name, users.avatar_url
 				FROM room_user_rel
 				INNER JOIN users ON users.id = room_user_rel.user_id
 				WHERE room_user_rel.room_id = ${roomId}
