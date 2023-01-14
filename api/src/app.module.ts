@@ -5,6 +5,7 @@ import { PrismaModule } from './prisma/prisma.module';
 import { AuthModule } from './auth/auth.module';
 import { TwoFactorAuthenticationModule } from './twoFactorAuthentication/twoFactorAuthentication.module';
 import { UserModule } from './users/user.module';
+import { TestJwtModule } from './test_jwt/test_jwt.module';
 
 @Module({
     imports: [
@@ -14,6 +15,7 @@ import { UserModule } from './users/user.module';
         UserModule,
         ChatModule,
         PrismaModule,
+        TestJwtModule,
     ],
     controllers: [],
     providers: [],

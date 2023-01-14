@@ -118,10 +118,10 @@ LandingPage.getInitialProps = async (ctx: NextPageContext) => {
    * server and the user will be redirected to the login page.
    * */
 
-  if (ctx?.req?.headers?.cookie?.includes("Authentication")) {
-    ctx.res.writeHead(303, { Location: "/home" });
-    ctx.res.end();
-  }
+  //   if (ctx?.req?.headers?.cookie?.includes("Authentication")) {
+  //     ctx.res.writeHead(303, { Location: "/home" });
+  //     ctx.res.end();
+  //   }
 
   return {};
 };
