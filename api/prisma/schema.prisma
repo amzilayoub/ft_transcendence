@@ -74,6 +74,8 @@ model room_user_rel {
     userLink user @relation(fields: [user_id], references: [id])
     user_id  Int
 
+    unread_message_count Int @default(0)
+
     created_at DateTime @default(now())
     updated_at DateTime @updatedAt
 }

@@ -55,6 +55,7 @@ export class ChatGateway {
             user['id'],
             createMessage.message,
         );
+        await this.chatService.setRoomUnread(createMessage.roomId, user['id']);
         const msgObject = {
             id: message.id,
             senderId: message.user_id,
@@ -107,6 +108,27 @@ export class ChatGateway {
                 ?.join(NAMESPACE + joinRoomDto.roomId);
         }
         return true;
+    }
+
+    @SubscribeMessage('setAsUnead')
+    setAsUnead(
+        @ConnectedSocket() client: any,
+        @MessageBody('roomId') roomId: number,
+    ) {
+        const user = this.getUserInfo(client.handshake.auth.token);
+        if (user === null) return;
+        return this.chatService.setRoomUnread(roomId, user['id']);
+    }
+
+    @SubscribeMessage('setRead')
+    setRead(
+        @ConnectedSocket() client: any,
+        @MessageBody('roomId') roomId: number,
+    ) {
+        const user = this.getUserInfo(client.handshake.auth.token);
+        if (user === null) return;
+
+        return this.chatService.setRoomAsRead(roomId, user['id']);
     }
 
     @SubscribeMessage('findAllMessage')
