@@ -50,6 +50,9 @@ const AllGamesModal = ({
         ...game.player2,
         score: score2,
       },
+      gameId:
+        Math.random().toString(36).substring(2, 15) +
+        Math.random().toString(36).substring(2, 15),
     };
   });
   return (

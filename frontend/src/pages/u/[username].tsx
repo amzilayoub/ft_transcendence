@@ -11,6 +11,7 @@ import { IconType } from "react-icons/lib";
 import BaseModal from "@components/common/BaseModal";
 import { ExternalLink } from "@components/common/Links";
 import MainLayout from "@components/layout";
+import UserStats from "@components/stats";
 import LastGames from "@components/stats/History";
 import useUser from "@hooks/useUser";
 import Button from "@ui/Button";
@@ -286,7 +287,7 @@ export default function ProfilePage() {
           setIsAvatarModalOpen={setIsAvatarModalOpen}
           setIsCoverModalOpen={setIsCoverModalOpen}
         />
-        {/* <UserStats username={username} /> */}
+        <UserStats username={username} />
       </div>
       <LastGames username={username} />
 
