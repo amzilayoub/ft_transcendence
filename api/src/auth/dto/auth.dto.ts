@@ -56,6 +56,8 @@ export class FortyTwoUserDto {
     @IsString()
     twoFactorSecret: string;
     @IsString()
+    TwoFactorSecret: string;
+    @IsString()
     first_name: string;
     @IsString()
     last_name: string;
@@ -74,4 +76,10 @@ export class FortyTwoUserDto {
             micro: string;
         };
     };
+}
+
+export class TwoFactorAuthenticationCodeDto {
+    @IsString()
+    @IsNotEmpty()
+    code: string;
 }
