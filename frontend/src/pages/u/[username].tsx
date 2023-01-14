@@ -11,9 +11,11 @@ import { IconType } from "react-icons/lib";
 import BaseModal from "@components/common/BaseModal";
 import { ExternalLink } from "@components/common/Links";
 import MainLayout from "@components/layout";
-import * as api from "@lib/api";
+import LastGames from "@components/stats/History";
+import useUser from "@hooks/useUser";
 import Button from "@ui/Button";
 import { APP_NAME } from "@utils/constants";
+import { removeUser } from "@utils/local-storage";
 import { useAuthContext } from "context/auth.context";
 import { IUser, SetStateFunc } from "global/types";
 
@@ -216,10 +218,10 @@ const UserInfoHeader = ({
                   <Button
                     onClick={() => {}}
                     className={cn({
-                      "bg-opacity-70": user?.isFollowing,
+                      "bg-opacity-70": user?.is_following,
                     })}
                   >
-                    <p>{user?.isFollowing ? "Following" : "Follow"}</p>
+                    <p>{user?.is_following ? "Following" : "Follow"}</p>
                   </Button>
                 )}
               </div>
@@ -257,8 +259,7 @@ export default function ProfilePage() {
 
   const [isAvatarModalOpen, setIsAvatarModalOpen] = useState(false);
   const [isCoverModalOpen, setIsCoverModalOpen] = useState(false);
-  const [user, setUser] = useState<IUser | null>(null);
-  const [loadingUser, setLoadingUser] = useState(false); // for the other user, not the logged in user
+  const user = useUser(username, router.isReady);
 
   useEffect(() => {
     if (
@@ -271,28 +272,6 @@ export default function ProfilePage() {
     }
   }, [router, ctx.isAuthenticated, ctx.loadingUser]);
 
-  useEffect(() => {
-    if (!router.isReady) return;
-    if (isMyProfile) {
-      setUser(ctx.user);
-    } else {
-      setLoadingUser(true);
-      api
-        .getUserByUsername(username)
-        .then((user) => {
-          setUser(user);
-        })
-        .catch((err) => {
-          if (err.response?.status === 401) {
-            router.push("/");
-          }
-        })
-        .finally(() => {
-          setLoadingUser(false);
-        });
-    }
-  }, [username, isMyProfile, ctx.user, router.isReady]);
-
   return (
     <MainLayout
       title={user ? (username as string) + " | " + APP_NAME : APP_NAME}
@@ -300,14 +279,16 @@ export default function ProfilePage() {
     >
       <div className="w-full max-w-7xl">
         <UserInfoHeader
-          isLoading={ctx.loadingUser || loadingUser}
-          user={user}
+          isLoading={ctx.loadingUser || user.isLoading}
+          user={user.data}
           username={username}
           isMyProfile={isMyProfile}
           setIsAvatarModalOpen={setIsAvatarModalOpen}
           setIsCoverModalOpen={setIsCoverModalOpen}
         />
+        <LastGames username={username} />
       </div>
+
       {/* Modals */}
       {isAvatarModalOpen && user && (
         <BaseModal
@@ -316,7 +297,7 @@ export default function ProfilePage() {
         >
           <div className="w-[600px] h-[600px] flex flex-col items-center justify-center ">
             <Image
-              src={user?.avatar_url || "/images/default-avatar.jpg"}
+              src={user.data?.avatar_url || "/images/default-avatar.jpg"}
               alt={`avatar for ${username}`}
               fill
               className="object-cover rounded-full"
@@ -331,7 +312,7 @@ export default function ProfilePage() {
         >
           <div className="w-[900px] h-[220px] flex flex-col items-center justify-center">
             <Image
-              src={user?.cover_url || "/images/cover-placeholder.png"}
+              src={user.data?.cover_url || "/images/cover-placeholder.png"}
               alt={`cover for ${username}`}
               fill
               className="object-cover"
