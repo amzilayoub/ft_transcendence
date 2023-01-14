@@ -22,6 +22,7 @@ export class AuthService {
                 intra_url: _user.intra_url,
                 avatar_url: _user.avatar_url,
                 isTwoFactorEnabled: _user.isTwoFactorEnabled,
+                TwoFactorSecret: _user.TwoFactorSecret,
             },
             isSecondFactorAuthenticated,
         };
@@ -44,6 +45,7 @@ export class AuthService {
                 intra_url: _user.intra_url,
                 avatar_url: _user.avatar_url,
                 isTwoFactorEnabled: _user.isTwoFactorEnabled,
+                TwoFactorSecret: _user.TwoFactorSecret,
                 id: _user.id,
             },
             isSecondFactorAuthenticated,
