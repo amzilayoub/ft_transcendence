@@ -6,6 +6,8 @@ import { useChatContext } from "context/chat.context";
 
 import ChatBox from "./ChatBox";
 import ChatSidebar from "./ChatSidebar";
+import { getToken } from "@utils/auth-token";
+import basicFetch from "@utils/basicFetch";
 
 const ChatStuff = () => {
   let [socketIO, setSocketIO] = useState(null);
@@ -16,6 +18,7 @@ const ChatStuff = () => {
     conversationsMetadata,
     showChatSidebar,
     setShowChatSidebar,
+    setConversationsMetadata,
   } = useChatContext(socketIO);
 
   useEffect(() => {
@@ -25,6 +28,37 @@ const ChatStuff = () => {
 
     setSocketIO(socket);
 
+    const getRoomInfo = async (id) => {
+      const resp = await basicFetch.get(`/chat/room/${id}`);
+
+      if (resp.status == 200) {
+        return resp.json();
+      }
+    };
+
+    if (socket) {
+      socket.on("updateListConversations", async (obj) => {
+        let targetedRoom = (await getRoomInfo(obj.room.room_id))[0];
+        setConversationsMetadata((state) => {
+          const newState = state.filter((item) => {
+            console.log(item.isActiveBox);
+            if (item.isActiveBox && item.room_id == obj.room.room_id) {
+              socket.emit(
+                "setRead",
+                {
+                  roomId: item.room_id,
+                },
+                () => {}
+              );
+              targetedRoom.unreadMessagesCount = 0;
+              targetedRoom.isActiveBox = true;
+            }
+            return item.room_id != obj.room.room_id;
+          });
+          return [targetedRoom, ...newState];
+        });
+      });
+    }
     return () => {
       socket.close();
     };
