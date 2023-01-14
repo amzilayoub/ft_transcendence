@@ -56,8 +56,12 @@ const AllGamesModal = ({
     };
   });
   return (
-    <BaseModal isOpen={isOpen} onClose={onClose}>
-      <div className="p-8 w-[520px] min-h-[calc(60vh)]">
+    <BaseModal
+      isOpen={isOpen}
+      onClose={onClose}
+      styles={{ modal: "xl:w-[60vw] w-[90vw] max-w-6xl" }}
+    >
+      <div className="p-8 min-h-[calc(60vh)]">
         <div className="flex flex-col gap-y-4">
           <h2 className="text-2xl font-bold">All Games</h2>
           <div className="h-px bg-gray-200 " />

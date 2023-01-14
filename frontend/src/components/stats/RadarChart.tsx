@@ -31,7 +31,14 @@ export const data = {
 };
 
 const PlayerStatsChart = () => {
-  return <Radar data={data} options={{}} />;
+  return (
+    <Radar
+      data={data}
+      options={{
+        responsive: true,
+      }}
+    />
+  );
 };
 
 export default PlayerStatsChart;

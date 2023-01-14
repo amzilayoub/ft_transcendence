@@ -129,7 +129,7 @@ const LastGames = ({ username }: { username: string }) => {
 
   return (
     <>
-      <nav className="flex flex-col px-4 py-5 gap-y-4 max-w-sm min-h-[400px] rounded-xl border bg-white shadow-lg">
+      <nav className="flex flex-col px-4 py-5 gap-y-4 min-h-[400px] rounded-xl border bg-white shadow-lg">
         <div className="flex justify-between items-center">
           <p className="text-gray-900 text-xl font-bold">Recent Games</p>
           <button

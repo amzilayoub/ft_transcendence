@@ -86,7 +86,7 @@ const UserInfo = ({
   };
 }) => {
   return (
-    <div className="flex items-start justify-between p-5 sm:px-6">
+    <div className="flex h-full items-start justify-between p-5 sm:px-6">
       <header className="flex flex-col ">
         {fullName && (
           <p className="text-2xl font-bold text-gray-900">{fullName}</p>
@@ -121,7 +121,7 @@ const UserInfo = ({
   );
 };
 const UserNotFoundHeader = ({ username }: { username: string }) => (
-  <section className="w-full py-2 bg-white shadow-md rounded-b-xl">
+  <section className="w-full py-2 h-full bg-white shadow-md rounded-b-xl">
     <div className="flex items-start justify-between p-10">
       <p className="text-lg font-semibold text-gray-800">@{username}</p>
     </div>
@@ -137,7 +137,7 @@ const UserNotFoundHeader = ({ username }: { username: string }) => (
 );
 
 const UserLoadingHeader = () => (
-  <section className="w-full py-2 bg-white shadow-md rounded-b-xl">
+  <section className="w-full h-full py-2 bg-white shadow-md rounded-b-xl">
     <div className="flex items-start justify-between p-10">
       <p className="text-lg font-semibold text-gray-800">
         <span className="animate-pulse">Loading...</span>
@@ -161,11 +161,11 @@ const UserInfoHeader = ({
   setIsCoverModalOpen: SetStateFunc<boolean>;
   setIsAvatarModalOpen: SetStateFunc<boolean>;
 }) => (
-  <div className="flex flex-col w-full px-2 gap-y-2">
-    <div className="flex justify-between w-full gap-x-2">
+  <div className="flex flex-col w-full gap-y-2 ">
+    <div className="flex justify-between w-full shadow-lg gap-x-2">
       {/* Cover and profile picture */}
       <div className="w-full">
-        <figure className="relative w-full h-[220px]">
+        <figure className="relative w-full h-[280px]">
           {user ? (
             !user.cover_url ? (
               <div className="w-full h-full bg-gray-300 rounded-t-xl " />
@@ -207,47 +207,48 @@ const UserInfoHeader = ({
             )}
           </figure>
         </figure>
-        {user ? (
-          <section className="w-full py-2 bg-white shadow-md rounded-b-xl">
-            {/* Action buttons */}
-            <div className="flex justify-end w-full h-12 ">
-              <div className="flex justify-end w-1/2 px-6 py-1 ">
-                {isMyProfile ? (
-                  <UtilityButton
-                    icon={<BiEdit className="w-6 h-6" />}
-                    onClick={() => {
-                      setIsAvatarModalOpen(true);
-                    }}
-                  />
-                ) : (
-                  <Button
-                    onClick={() => {}}
-                    className={cn({
-                      "bg-opacity-70": user?.is_following,
-                    })}
-                  >
-                    <p>{user?.is_following ? "Following" : "Follow"}</p>
-                  </Button>
-                )}
+        <section className="h-[220px]">
+          {user ? (
+            <div className="w-full h-full py-2 bg-white shadow-md rounded-b-xl">
+              {/* Action buttons */}
+              <div className="flex justify-end w-full h-12">
+                <div className="flex justify-end w-1/2 px-6 py-1 ">
+                  {isMyProfile ? (
+                    <UtilityButton
+                      icon={<BiEdit className="w-6 h-6" />}
+                      onClick={() => {
+                        setIsAvatarModalOpen(true);
+                      }}
+                    />
+                  ) : (
+                    <Button
+                      onClick={() => {}}
+                      className={cn({
+                        "bg-opacity-70": user?.is_following,
+                      })}
+                    >
+                      <p>{user?.is_following ? "Following" : "Follow"}</p>
+                    </Button>
+                  )}
+                </div>
               </div>
+              {/* User info */}
+              <UserInfo
+                fullName={user?.first_name}
+                username={user?.username as string}
+                bio={user?.bio}
+                links={{
+                  twitter: user?.twitterUsername!,
+                  intra: user?.intraUsername,
+                }}
+              />
             </div>
-
-            {/* User info */}
-            <UserInfo
-              fullName={user?.first_name}
-              username={user?.username as string}
-              bio={user?.bio}
-              links={{
-                twitter: user?.twitterUsername!,
-                intra: user?.intraUsername,
-              }}
-            />
-          </section>
-        ) : !isLoading ? (
-          <UserNotFoundHeader username={username} />
-        ) : (
-          <UserLoadingHeader />
-        )}
+          ) : !isLoading ? (
+            <UserNotFoundHeader username={username} />
+          ) : (
+            <UserLoadingHeader />
+          )}
+        </section>
       </div>
     </div>
   </div>
@@ -282,18 +283,20 @@ export default function ProfilePage() {
       title={user ? (username as string) + " | " + APP_NAME : APP_NAME}
       backgroundColor="bg-gray-100"
     >
-      <div className="w-full max-w-7xl flex">
-        <UserInfoHeader
-          isLoading={ctx.loadingUser || user.isLoading}
-          user={user.data}
-          username={username}
-          isMyProfile={isMyProfile}
-          setIsAvatarModalOpen={setIsAvatarModalOpen}
-          setIsCoverModalOpen={setIsCoverModalOpen}
-        />
-        <UserStats username={username} />
+      <div className="w-full max-w-7xl gap-3 px-2 xl:px-0 flex flex-col">
+        <div className=" gap-3 flex flex-col sm:flex-row">
+          <UserInfoHeader
+            isLoading={ctx.loadingUser || user.isLoading}
+            user={user.data}
+            username={username}
+            isMyProfile={isMyProfile}
+            setIsAvatarModalOpen={setIsAvatarModalOpen}
+            setIsCoverModalOpen={setIsCoverModalOpen}
+          />
+          <UserStats username={username} />
+        </div>
+        <LastGames username={username} />
       </div>
-      <LastGames username={username} />
 
       {/* Modals */}
       {isAvatarModalOpen && user && (

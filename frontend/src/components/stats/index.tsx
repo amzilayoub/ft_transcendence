@@ -6,6 +6,8 @@ import { GiPingPongBat } from "react-icons/gi";
 import { IoMdClose } from "react-icons/io";
 import { SiMediafire } from "react-icons/si";
 
+import useUserStats from "@hooks/useUserStats";
+
 import PlayerStatsChart from "./RadarChart";
 
 const StatItem = ({
@@ -37,9 +39,10 @@ const StatItem = ({
   </li>
 );
 const UserStats = ({ username }: { username: string }) => {
-  // const stats = useUserStats(username)
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  const _stats = useUserStats(username, false);
   return (
-    <nav className="flex flex-col px-4 py-5 gap-y-4 w-[500px] rounded-xl border bg-white shadow-lg">
+    <nav className="flex flex-col px-4 py-5 gap-y-4 max-h-[500px] rounded-xl border bg-white shadow-lg">
       <div className="flex justify-between items-center">
         <p className="text-gray-900 text-xl font-bold">Stats</p>
       </div>
