@@ -39,22 +39,22 @@ const UserListItem = ({
       .finally(() => setBlockLoading(false));
   };
 
-  const createConversation = async () => {
-    const resp = await basicFetch.post(
-      "/chat/room/create",
-      {},
+  const createConversation = () => {
+    socket.emit(
+      "createRoom",
       {
         userId: user["id"],
+      },
+      (resp) => {
+        console.log("createRoom");
+        console.log(resp);
       }
     );
-    if (resp.status in [200, 201]) {
-      return await resp.json();
-    }
   };
   return (
     <li
-      onClick={async () => {
-        const data = await createConversation();
+      onClick={() => {
+        createConversation();
       }}
       className={cn(
         "group flex items-center cursor-pointer rounded-lg border border-gray-200 justify-between p-4 hover:bg-gray-50 duration-150",

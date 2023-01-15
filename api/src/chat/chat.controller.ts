@@ -43,37 +43,37 @@ export class ChatController {
         @Req() request: RequestWithUser,
         @Body() body: CreateRoomDto,
     ) {
-        const user = await this.authService.getMe(request.user.id);
+        // const user = await this.authService.getMe(request.user.id);
 
-        const defaultRoom = await this.chatService.getRoomType('dm');
-        const roomTypeId = body.roomTypeId || defaultRoom.id;
+        // const defaultRoom = await this.chatService.getRoomType('dm');
+        // const roomTypeId = body.roomTypeId || defaultRoom.id;
 
-        if (body.userId) {
-            const roomInfo = await this.chatService.findRoomBetweenUsers(
-                user['id'],
-                body.userId,
-            );
-            /*
-             ** if we found a room, we return it
-             */
-            if (roomInfo[0] !== undefined)
-                return await this.chatService.getRoomInfo(roomInfo[0].room_id);
-        }
+        // if (body.userId) {
+        //     const roomInfo = await this.chatService.findRoomBetweenUsers(
+        //         user['id'],
+        //         body.userId,
+        //     );
+        //     /*
+        //      ** if we found a room, we return it
+        //      */
+        //     if (roomInfo[0] !== undefined)
+        //         return await this.chatService.getRoomInfo(roomInfo[0].room_id);
+        // }
 
-        const newRoom = await this.chatService.createRoom(user, roomTypeId);
-        /*
-         ** if there's a user in the request, that means we want to join
-         ** the following user as well to the new created room
-         */
-        if (body.userId)
-            await this.chatService.joinRoom(newRoom['id'], body.userId);
+        // const newRoom = await this.chatService.createRoom(user, roomTypeId);
+        // /*
+        //  ** if there's a user in the request, that means we want to join
+        //  ** the following user as well to the new created room
+        //  */
+        // if (body.userId)
+        //     await this.chatService.joinRoom(newRoom['id'], body.userId);
 
-        /*
-         ** by default, the owner of the room, obviously
-         ** is going to be part of it :)
-         */
-        await this.chatService.joinRoom(newRoom['id'], user['id']);
-        return newRoom;
+        // /*
+        //  ** by default, the owner of the room, obviously
+        //  ** is going to be part of it :)
+        //  */
+        // await this.chatService.joinRoom(newRoom['id'], user['id']);
+        // return newRoom;
     }
 
     @Post('join-room')
