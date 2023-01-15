@@ -39,7 +39,7 @@ const CreateRoomTab = () => {
             </div>
           </form>
         </Tab.Panel>
-        <Tab.Panel key="protected-room-panel" className="">
+        <Tab.Panel key="private-room-panel" className="">
           <p>
             Lorem ipsum dolor sit amet consectetur adipisicing elit. Quisquam
           </p>
@@ -48,6 +48,7 @@ const CreateRoomTab = () => {
           <form action="">
             <div className="flex flex-col gap-y-2">
               <TextInput
+                name="roomName"
                 label="Room Name *"
                 placeholder="Enter room name"
                 onChange={(e) => {
@@ -56,6 +57,7 @@ const CreateRoomTab = () => {
                 error="Room name must be at least 3 characters"
               />
               <TextInput
+                name="roomPassword"
                 label="Room Password"
                 placeholder="Enter room password"
                 onChange={(e) => {
@@ -63,6 +65,7 @@ const CreateRoomTab = () => {
                 }}
               />
               <TextInput
+                name="confirmRoomPassword"
                 label="Confirm Room Password"
                 placeholder="Confirm room password"
                 onChange={(e) => {

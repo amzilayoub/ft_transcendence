@@ -83,8 +83,10 @@ const UserListItem = ({
       </div>
       {showConfirm && (
         <ConfirmationModal
-          title={`Block @${user.username}`}
-          message="Are you sure you want to block this user?"
+          title={`${isBlocked ? "Unblock" : "Block"} @${user.username}`}
+          message={`Are you sure you want to ${
+            isBlocked ? "unblock" : "block" + " this user?"
+          }`}
           onConfirm={() => {
             handleBlock();
             setShowConfirm(false);

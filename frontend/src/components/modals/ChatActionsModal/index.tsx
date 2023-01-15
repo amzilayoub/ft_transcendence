@@ -20,17 +20,17 @@ const ChatActionsModal = ({
     <BaseModal isOpen={isOpen} onClose={onClose}>
       <div className="p-8 w-[420px] h-[calc(60vh)]">
         <Tab.Group>
-          <Tab.List className="flex space-x-1 rounded-xl bg-blue-900/20 p-1">
+          <Tab.List className="flex space-x-1 rounded-md border">
             {["People", "Explore", "Create"].map((tab) => (
               <Tab
                 key={tab}
                 className={({ selected }) =>
                   cn(
-                    "w-full rounded-lg py-2.5 text-sm font-medium leading-5 text-blue-700",
-                    "ring-white ring-opacity-60 ring-offset-2 ring-offset-blue-400 focus:outline-none focus:ring-2",
+                    "w-full rounded-lg py-2.5 text-md font-medium leading-5 cursor-pointer",
                     {
-                      "bg-white shadow": selected,
-                      "text-blue-100 hover:bg-white/[0.12] hover:text-white":
+                      " ring-1 ring-primary/90 cursor-default ring-offset-1 text-primary bg-white shadow":
+                        selected,
+                      "text-gray-400 hover:bg-white/[0.12] hover:text-gray-600":
                         !selected,
                     }
                   )
@@ -41,24 +41,18 @@ const ChatActionsModal = ({
             ))}
           </Tab.List>
           <Tab.Panels className="mt-2">
-            <Tab.Panel>
+            <Tab.Panel key={"people-panel"}>
               <SearchPeopleTab />
             </Tab.Panel>
             <Tab.Panel
               key={"create-panel"}
-              className={cn(
-                "rounded-xl bg-white p-3",
-                "ring-white ring-opacity-60 ring-offset-2 ring-offset-blue-400 focus:outline-none focus:ring-2"
-              )}
+              className={cn("rounded-xl bg-white p-3")}
             >
               <ExploreRoomsTab />
             </Tab.Panel>
             <Tab.Panel
               key={"discover-panel"}
-              className={cn(
-                "rounded-xl bg-white p-3",
-                "ring-white ring-opacity-60 ring-offset-2 ring-offset-blue-400 focus:outline-none focus:ring-2"
-              )}
+              className={cn("rounded-xl bg-white p-3")}
             >
               <CreateRoomTab />
             </Tab.Panel>
