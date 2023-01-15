@@ -37,19 +37,6 @@ const MainLayout: React.FC<MainLayoutProps> = ({
     // );
 
 
-    /*
-     ** START -- THIS WILL GET REMOVED LATER ON
-     */
-    const params = new Proxy(new URLSearchParams(window.location.search), {
-      get: (searchParams, prop) => searchParams.get(prop),
-    });
-    console.log(getToken());
-    setToken(params.token);
-    /*
-     ** END -- THIS WILL GET REMOVED LATER ON
-     */
-
-
     if (
       pageIsProtected &&
       !ctx.loadingUser &&
