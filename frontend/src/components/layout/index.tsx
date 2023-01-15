@@ -5,7 +5,7 @@ import Head from "next/head";
 import { useRouter } from "next/router";
 
 import ChatStuff from "@components/chat/ChatStuff";
-import LoadingPage from "@components/common/LoadingPage";
+import LoadingPage from "@ui/LoadingPage";
 import Navbar from "@components/navbar";
 import { useAuthContext } from "context/auth.context";
 

@@ -6,7 +6,7 @@ import { BiBlock } from "react-icons/bi";
 import { IoSearchOutline } from "react-icons/io5";
 import useSWR from "swr/immutable";
 
-import ConfirmationModal from "@components/common/ConfirmationModal";
+import ConfirmationModal from "@ui/ConfirmationModal";
 import UserListItemLoading from "@ui/skeletons/UserSkeletons";
 import TextInput from "@ui/TextInput";
 import basicFetch from "@utils/basicFetch";
@@ -33,7 +33,8 @@ const UserListItem = ({
       })
       .catch((err) => {
         console.error(err);
-      }).finally(() => setBlockLoading(false));
+      })
+      .finally(() => setBlockLoading(false));
   };
 
   return (

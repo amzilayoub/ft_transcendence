@@ -9,12 +9,12 @@ import { BiEdit } from "react-icons/bi";
 import { FaGlobe, FaTwitter } from "react-icons/fa";
 import { IconType } from "react-icons/lib";
 
-import BaseModal from "@components/common/BaseModal";
-import { ExternalLink } from "@components/common/Links";
 import MainLayout from "@components/layout";
 import UserStats from "@components/stats";
 import useUser from "@hooks/useUser";
+import BaseModal from "@ui/BaseModal";
 import Button from "@ui/Button";
+import { ExternalLink } from "@ui/Links";
 import { APP_NAME } from "@utils/constants";
 import { removeUser } from "@utils/local-storage";
 import { useAuthContext } from "context/auth.context";

@@ -3,7 +3,7 @@ import React from "react";
 import { Tab } from "@headlessui/react";
 import cn from "classnames";
 
-import BaseModal from "@components/common/BaseModal";
+import BaseModal from "@ui/BaseModal";
 
 import CreateRoomTab from "./CreateRoomTab";
 import ExploreRoomsTab from "./ExploreRoomsTab";
