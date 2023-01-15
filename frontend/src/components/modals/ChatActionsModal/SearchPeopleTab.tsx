@@ -24,7 +24,7 @@ const UserListItem = ({
   const [showConfirm, setShowConfirm] = useState(false);
   const [blockLoading, setBlockLoading] = useState(false);
 
-  const onMuteClick = () => {
+  const handleBlock = () => {
     setBlockLoading(true);
     basicFetch
       .get(`/users/${user.username}/${isBlocked ? "unblock" : "block"}`)
@@ -40,7 +40,12 @@ const UserListItem = ({
   return (
     <li
       onClick={() => {}}
-      className="group flex items-center cursor-pointer rounded-lg border border-gray-200 justify-between p-4 hover:bg-gray-50 duration-150"
+      className={cn(
+        "group flex items-center cursor-pointer rounded-lg border border-gray-200 justify-between p-4 hover:bg-gray-50 duration-150",
+        {
+          "border-red-300": isBlocked,
+        }
+      )}
     >
       <div className="flex items-center gap-x-2 justify-between w-full">
         <div className="w-full flex gap-x-2">
@@ -56,31 +61,32 @@ const UserListItem = ({
             <p className="text-xs text-gray-400">@{user.username}</p>
           </div>
         </div>
-        {false && (
+        {ctx.user?.username === user.username ? (
           <button className="text-xs text-gray-400">Chat with yourself?</button>
+        ) : (
+          <button
+            onClick={(e) => {
+              e.stopPropagation();
+              setShowConfirm(true);
+            }}
+            className={cn(
+              "items-center p-2 rounded-full font-semibold text-red-500 gap-x-2 hover:text-red-500 hover:bg-white duration-150",
+              {
+                flex: isBlocked,
+                "hidden group-hover:flex": !isBlocked,
+              }
+            )}
+          >
+            <BiBlock />
+          </button>
         )}
-        <button
-          onClick={(e) => {
-            e.stopPropagation();
-            setShowConfirm(true);
-          }}
-          className={cn(
-            "items-center p-2 rounded-full font-semibold text-red-500 gap-x-2 hover:text-red-500 hover:bg-white duration-150",
-            {
-              flex: isBlocked,
-              "hidden group-hover:flex": !isBlocked,
-            }
-          )}
-        >
-          <BiBlock />
-        </button>
       </div>
       {showConfirm && (
         <ConfirmationModal
           title={`Block @${user.username}`}
           message="Are you sure you want to block this user?"
           onConfirm={() => {
-            onMuteClick();
+            handleBlock();
             setShowConfirm(false);
           }}
           onCancel={() => setShowConfirm(false)}
@@ -133,14 +139,17 @@ const SearchPeopleTab = ({}: {}) => {
           inputClassName="pl-12 py-[8px] "
         />
       </form>
-      <ul className="py-4">
+
+      <ul className="no-scrollbar mt-4 gap-y-1 flex flex-col overflow-y-scroll h-[calc(60vh-160px)] scroll-smooth">
         {!searchError &&
           !searchLoading &&
+          searchResults &&
           searchResults?.map((user: IUser) => (
             <UserListItem key={user.username} user={user} />
           ))}
+
         {searchLoading &&
-          [1, 2, 3, 4, 5].map((i) => <UserListItemLoading key={i} />)}
+          [...new Array(6)].map((i) => <UserListItemLoading key={i} />)}
         {!searchError && searchResults?.length === 0 && (
           <p className="py-10 text-center text-gray-400">No results found</p>
         )}

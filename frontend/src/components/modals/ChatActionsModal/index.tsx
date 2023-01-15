@@ -18,7 +18,7 @@ const ChatActionsModal = ({
 }) => {
   return (
     <BaseModal isOpen={isOpen} onClose={onClose}>
-      <div className="p-8 w-[420px] min-h-[calc(60vh)]">
+      <div className="p-8 w-[420px] h-[calc(60vh)]">
         <Tab.Group>
           <Tab.List className="flex space-x-1 rounded-xl bg-blue-900/20 p-1">
             {["People", "Explore", "Create"].map((tab) => (
