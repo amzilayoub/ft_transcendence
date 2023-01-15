@@ -33,7 +33,7 @@ export class ChatGateway {
     }
 
     async handleConnection(@ConnectedSocket() client: any) {
-        // return 'hello';
+        return 'hello';
         const user = this.getUserInfo(client.handshake.headers);
         if (user === null) return;
         const userRooms = await this.chatService.getUserRooms(user['id']);
