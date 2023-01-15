@@ -87,3 +87,20 @@ export interface IConversation {
 export interface IFriendMetaData extends IConversationMetaData {
   isOnline: boolean;
 }
+
+export interface IRoom {
+  id: number;
+  name: string;
+  description: string;
+  avatar_url: string;
+  type: string; // 'public' | 'private' | 'protected' | 'direct' (?);
+  created_at: Date;
+  // updated_at: Date;
+  am_i_blocked?: boolean; // tmp, normally this means that the user is banned
+  am_i_muted?: boolean;
+  am_i_admin?: boolean;
+  am_i_member?: boolean;
+  am_i_owner?: boolean;
+  am_i_pending?: boolean;
+  am_i_banned?: boolean;
+}

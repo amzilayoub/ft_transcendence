@@ -4,7 +4,7 @@ import cn from "classnames";
 import Image from "next/image";
 import Link from "next/link";
 
-import AllGamesModal from "@components/modals/AllGamesModal";
+import GamesHistoryModal from "@components/modals/GamesHistoryModal";
 import { truncateString } from "@utils/format";
 
 interface GameSummaryProps {
@@ -30,10 +30,13 @@ const GamePlayer = (props: {
   isPlayer1: boolean;
 }) => (
   <div
-    className={cn("flex gap-x-4 border-black px-3 py-3 w-full h-full", {
-      "border-r-1": props.isPlayer1,
-      "flex-row-reverse border-l-1": !props.isPlayer1,
-    })}
+    className={cn(
+      "flex gap-x-4 border-black px-3 py-3 w-full h-full items-center",
+      {
+        "border-r-1": props.isPlayer1,
+        "flex-row-reverse border-l-1": !props.isPlayer1,
+      }
+    )}
   >
     <Link href={`/u/${props.username}`} className="  flex items-center ">
       <Image
@@ -41,7 +44,7 @@ const GamePlayer = (props: {
         alt={props.username + " avatar"}
         width={64}
         height={64}
-        className="rounded-full object-cover"
+        className="rounded-full object-cover w-14 h-14"
       />
     </Link>
     <div
@@ -156,7 +159,7 @@ const LastGames = ({ username }: { username: string }) => {
         )}
       </nav>
       {seeAll && (
-        <AllGamesModal
+        <GamesHistoryModal
           username={username}
           isOpen={seeAll}
           onClose={() => setSeeAll(false)}

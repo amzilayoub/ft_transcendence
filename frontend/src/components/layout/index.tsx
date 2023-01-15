@@ -5,7 +5,7 @@ import Head from "next/head";
 import { useRouter } from "next/router";
 
 import ChatStuff from "@components/chat/ChatStuff";
-import LoadingPage from "@components/common/LoadingPage";
+import LoadingPage from "@ui/LoadingPage";
 import Navbar from "@components/navbar";
 import { useAuthContext } from "context/auth.context";
 import { getToken, setToken } from "@utils/auth-token";
@@ -36,6 +36,7 @@ const MainLayout: React.FC<MainLayoutProps> = ({
     //   window.location.pathname !== "/"
     // );
 
+
     /*
      ** START -- THIS WILL GET REMOVED LATER ON
      */
@@ -47,6 +48,7 @@ const MainLayout: React.FC<MainLayoutProps> = ({
     /*
      ** END -- THIS WILL GET REMOVED LATER ON
      */
+
 
     if (
       pageIsProtected &&
@@ -74,7 +76,7 @@ const MainLayout: React.FC<MainLayoutProps> = ({
           <main className="flex w-full h-full min-h-screen">
             <div
               className={cn(
-                "pt-20 flex flex-col items-center w-full justify-center h-full relative",
+                "pt-20 flex flex-col items-center w-full justify-center h-full relative pb-16", // pb-16 is for the chat stuff
                 backgroundColor
               )}
             >

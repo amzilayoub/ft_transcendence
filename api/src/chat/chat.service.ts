@@ -69,7 +69,7 @@ export class ChatService {
 				WHERE room_id = receiver.room_id
 				ORDER BY id DESC
 				LIMIT 1
-			) AS "lastMessage",
+			) AS "last_message",
 			CASE
 				WHEN
 				(SELECT COUNT(*)
@@ -89,7 +89,7 @@ export class ChatService {
 					THEN true
 				ELSE
 					false
-			END AS "amIBlocked",
+			END AS "am_i_blocked",
 			(
 				SELECT COUNT(messages.*)
 				FROM messages
@@ -97,7 +97,7 @@ export class ChatService {
 				AND messages.user_id = receiver.user_id
 				AND is_read = false
 			)::INTEGER AS "unread_messages_count",
-			sender.unread_message_count AS "unreadMessagesCount",
+			sender.unread_message_count,
 			room.updated_at AS "last_message_time",
 			CASE
 				WHEN room_type.type = 'dm'

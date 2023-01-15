@@ -4,13 +4,16 @@ import cn from "classnames";
 import Image from "next/image";
 import { AiOutlineUserAdd } from "react-icons/ai";
 import { BsThreeDots, BsVolumeMute } from "react-icons/bs";
+import { IoSearchOutline } from "react-icons/io5";
 import { MdBlockFlipped } from "react-icons/md";
+import { RiMailAddLine } from "react-icons/ri";
 import { SlArrowDown } from "react-icons/sl";
 
+import ChatActionsModal from "@components/modals/ChatActionsModal";
+import TextInput from "@ui/TextInput";
 import basicFetch from "@utils/basicFetch";
 import { truncateString } from "@utils/format";
 import { IConversationMetaData, IFriendMetaData } from "global/types";
-import ChatActionsModal from "@components/modals/ChatActionsModal";
 
 const SeekNewConversation = ({
   searchQuery,
@@ -193,7 +196,7 @@ const ChatSidebar = ({
     <>
       <div
         className={cn(
-          "transition-height ease-in-out delay-150 flex flex-col w-72 items-center bg-white border border-gray-300 overflow-hidden shadow-lg rounded-t-2xl",
+          "transition-height ease-in-out delay-150 flex flex-col w-[360px] items-center bg-white border border-gray-300 overflow-hidden shadow-lg shadow-gray-400 rounded-t-2xl",
           {
             "h-[calc(100vh-32vh)]": showChatSidebar,
             "h-14": !showChatSidebar,
@@ -213,10 +216,23 @@ const ChatSidebar = ({
                 </div>
               )}
             </div>
-            <div className="flex items-center justify-center text-xs duration-100 rounded-full cursor-pointer w-7 h-7 hover:bg-gray-200 ">
-              <SlArrowDown
-                className={cn({ "transform rotate-180": !showChatSidebar })}
-              />
+            <div className="gap-x-2 flex items-center justify-center ">
+              <button
+                onClick={(e) => {
+                  e.stopPropagation();
+                  setShowChatActionsModal(true);
+                }}
+                className="flex items-center justify-center rounded-full cursor-pointer w-8 h-8 duration-200 hover:bg-gray-200"
+              >
+                <RiMailAddLine className={cn("")} />
+              </button>
+              <button className="flex items-center justify-center rounded-full cursor-pointer w-8 h-8 duration-200 hover:bg-gray-200">
+                <SlArrowDown
+                  className={cn({
+                    "transform rotate-180": !showChatSidebar,
+                  })}
+                />
+              </button>
             </div>
           </div>
         </div>
@@ -226,18 +242,20 @@ const ChatSidebar = ({
             hidden: !showChatSidebar,
           })}
         >
-          <div className="flex items-center justify-between w-full p-2">
-            <input
-              type="text"
-              placeholder="Search conversations"
-              value={searchQuery}
-              onChange={(e) => setsearchQuery(e.target.value)}
-              className="w-full p-2 border border-gray-300 rounded-md focus:outline-none"
-            />
-            <AiOutlineUserAdd
-              className="h-8 p-1 ml-2 duration-300 rounded-full cursor-pointer bg-slate-300 hover:bg-slate-400 w-9"
-              onClick={() => setShowChatActionsModal(true)}
-            />
+          <div className=" px-3 py-2">
+            <div className="group relative h-10 w-full">
+              <label className="absolute top-3 left-3 flex items-center justify-center text-gray-400">
+                <button type="submit" className="h-full w-full cursor-default">
+                  <IoSearchOutline className="group-focus-within:text-secondary group-hover:text-secondary h-6 w-6 text-gray-400" />
+                </button>
+              </label>
+              <TextInput
+                value={searchQuery}
+                onChange={(e) => setsearchQuery(e.target.value)}
+                placeholder="Search conversations"
+                inputClassName="pl-12 py-[8px] "
+              />
+            </div>
           </div>
           {searchResults &&
           searchResults.length > 0 &&

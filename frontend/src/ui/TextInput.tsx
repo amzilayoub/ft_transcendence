@@ -3,9 +3,9 @@ import React from "react";
 import cn from "classnames";
 
 export interface TextInputProps {
-  label: string;
-  placeholder: string;
   name: string;
+  placeholder: string;
+  label?: string;
   type?: string;
   onChange: (event: React.ChangeEvent<HTMLInputElement>) => void;
   error?: string;

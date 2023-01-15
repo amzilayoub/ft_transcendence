@@ -2,12 +2,11 @@ import React, { useEffect, useState } from "react";
 
 import { io } from "socket.io-client";
 
+import basicFetch from "@utils/basicFetch";
 import { useChatContext } from "context/chat.context";
 
 import ChatBox from "./ChatBox";
 import ChatSidebar from "./ChatSidebar";
-import { getToken } from "@utils/auth-token";
-import basicFetch from "@utils/basicFetch";
 
 const ChatStuff = () => {
   let [socketIO, setSocketIO] = useState(null);
@@ -65,7 +64,7 @@ const ChatStuff = () => {
   }, [setSocketIO]); // a hack to stop infinite rendering
 
   return (
-    <div className="absolute bottom-0 right-0  max-h-[calc(100vh-10rem)] px-6">
+    <div className="fixed bottom-0 right-0 px-6 hidden md:block">
       <ChatSidebar
         showChatSidebar={showChatSidebar}
         setShowChatSidebar={setShowChatSidebar}
