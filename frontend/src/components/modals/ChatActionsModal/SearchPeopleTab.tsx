@@ -136,7 +136,7 @@ const SearchPeopleTab = ({}: {}) => {
         </label>
         <TextInput
           name="search"
-          placeholder="Search people"
+          placeholder="Search for people"
           onChange={(e) => handleSearchChange(e)}
           inputClassName="pl-12 py-[8px] "
         />
