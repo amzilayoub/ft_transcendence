@@ -8,12 +8,14 @@ import {
 import { ChatService } from './chat.service';
 import { CreateMessageDto, JoinRoomDto } from './dto/chat_common.dto';
 import { AuthService } from 'src/auth/auth.service';
+import { ConfigService } from '@nestjs/config';
 
 const NAMESPACE = '/chat';
-
+const configService = new ConfigService();
 @WebSocketGateway({
     cors: {
-        origin: '*',
+        origin: configService.get('FRONTEND_URL'),
+        credentials: true,
     },
     namespace: NAMESPACE,
 })
@@ -21,14 +23,18 @@ export class ChatGateway {
     @WebSocketServer()
     private server;
     private connectedClient = {};
+    private cookie;
 
     constructor(
         private readonly chatService: ChatService,
         private readonly authService: AuthService,
-    ) {}
+    ) {
+        this.cookie = require('cookie');
+    }
 
     async handleConnection(@ConnectedSocket() client: any) {
-        const user = this.getUserInfo(client.handshake.auth.token);
+        // return 'hello';
+        const user = this.getUserInfo(client.handshake.headers);
         if (user === null) return;
         const userRooms = await this.chatService.getUserRooms(user['id']);
         this.connectedClient[user['id']] = client.id;
@@ -138,5 +144,13 @@ export class ChatGateway {
 
     getUserInfo(token: string) {
         return this.authService.getJwtToken(token);
+    }
+
+    getTokenFromCookie(@ConnectedSocket() client: any) {
+        const authToken = this.cookie.parse(client.handshake.headers.cookie)[
+            'Authentication'
+        ];
+        if (authToken) return authToken;
+        return null;
     }
 }
