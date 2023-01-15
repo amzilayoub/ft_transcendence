@@ -138,10 +138,6 @@ export const ChatProvider = ({ children }: { children: React.ReactNode }) => {
   );
 
   useEffect(() => {
-    // const params = new Proxy(new URLSearchParams(window.location.search), {
-    //   get: (searchParams, prop) => searchParams.get(prop),
-    // });
-    // if (params.token) setToken(params.token);
     if (!authCtx.isAuthenticated) return;
     loadConversationsMetadata();
   }, [authCtx.isAuthenticated]);

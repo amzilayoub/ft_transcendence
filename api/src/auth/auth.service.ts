@@ -1,4 +1,4 @@
-import { ForbiddenException, Injectable } from '@nestjs/common';
+import { Injectable } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import { PrismaClientKnownRequestError } from '@prisma/client/runtime';
 import { PrismaService } from 'src/prisma/prisma.service';
@@ -9,7 +9,11 @@ import axios, { AxiosError } from 'axios';
 export class AuthService {
     constructor(private prisma: PrismaService, private jwt: JwtService) {}
 
-    public getCookieWithJwtToken(_user: any) {
+    // Thanks to setting the isSecondFactorAuthenticated property, we can now distinguish between tokens created with and without two-factor authentication.
+    public getCookieWithJwtToken(
+        _user: any,
+        isSecondFactorAuthenticated = false,
+    ) {
         const payload = {
             user: {
                 id: _user.id,
@@ -18,16 +22,19 @@ export class AuthService {
                 intra_url: _user.intra_url,
                 avatar_url: _user.avatar_url,
                 isTwoFactorEnabled: _user.isTwoFactorEnabled,
+                TwoFactorSecret: _user.TwoFactorSecret,
             },
+            isSecondFactorAuthenticated,
         };
 
+        // console.log('token:token', payload);
         const token = this.jwt.sign(payload);
         return `Authentication=${token}; HttpOnly; Path=/; Max-Age=${
             60 * 60 * 24 * 7
         }`;
     }
 
-    public getJwtToken(_user: any) {
+    public getJwtToken(_user: any, isSecondFactorAuthenticated?: boolean) {
         const payload = {
             user: {
                 username: _user.username,
@@ -38,10 +45,16 @@ export class AuthService {
                 intra_url: _user.intra_url,
                 avatar_url: _user.avatar_url,
                 isTwoFactorEnabled: _user.isTwoFactorEnabled,
+                TwoFactorSecret: _user.TwoFactorSecret,
                 id: _user.id,
             },
+            isSecondFactorAuthenticated,
         };
-        return this.jwt.sign(payload);
+        const token = this.jwt.sign(payload, {
+            secret: process.env.JWT_SECRET,
+            expiresIn: process.env.JWT_EXPIRATION_TIME,
+        });
+        return `Authentication=${token}; Path=/; Max-Age=${process.env.JWT_EXPIRATION_TIME}`;
     }
 
     async add42User(dto: FortyTwoUserDto) {
@@ -123,7 +136,7 @@ export class AuthService {
     }
 
     public getCookieForLogOut() {
-        return `Authentication=; HttpOnly; Path=/; Max-Age=0`;
+        return `Authentication=; Path=/; Max-Age=0`;
     }
 
     async enableTwoFactor(user: FortyTwoUserDto) {

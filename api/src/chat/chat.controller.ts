@@ -6,7 +6,7 @@ import {
     Param,
     UseGuards,
     Req,
-	Headers
+    Headers,
 } from '@nestjs/common';
 
 import { ApiTags } from '@nestjs/swagger';
@@ -15,6 +15,7 @@ import { CreateRoomDto, JoinRoomDto } from './dto/chat_common.dto';
 import JwtGuard from 'src/common/guards/jwt_guard';
 import { AuthService } from 'src/auth/auth.service';
 import RequestWithUser from 'src/auth/inrefaces/requestWithUser.interface';
+import { JwtService } from '@nestjs/jwt';
 
 @UseGuards(JwtGuard)
 /*
@@ -24,10 +25,10 @@ import RequestWithUser from 'src/auth/inrefaces/requestWithUser.interface';
 @ApiTags('Chat')
 @Controller('chat')
 export class ChatController {
-	jwt: any;
     constructor(
         private authService: AuthService,
         private chatService: ChatService,
+        private jwt: JwtService,
     ) {}
 
     /*
@@ -89,7 +90,6 @@ export class ChatController {
     @Get('room/all')
     async userRooms(@Req() request: RequestWithUser) {
         const user = await this.authService.getMe(request.user.id);
-        console.log({user});
         return await this.chatService.getUserRooms(user['id']);
     }
 

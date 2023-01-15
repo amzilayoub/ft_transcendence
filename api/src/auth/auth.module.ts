@@ -5,8 +5,9 @@ import { PrismaModule } from '../prisma/prisma.module';
 import { JwtModule } from '@nestjs/jwt';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { PassportModule } from '@nestjs/passport';
-import { JwtStrategy } from './strategy/jwt.strategy';
+import { JwtTwoFactorStrategy } from './strategy/jwt2.strategy';
 import { FortyTwoStrategy } from './strategy/ft.strategy';
+import { JwtStrategy } from './strategy/jwt.strategy';
 
 @Module({
     imports: [
@@ -17,7 +18,7 @@ import { FortyTwoStrategy } from './strategy/ft.strategy';
             useFactory: async (configService: ConfigService) => ({
                 secret: process.env.SECRET_KEY,
                 signOptions: {
-                    expiresIn: configService.get('JWT_EXPIRATION_TIME'),
+                    expiresIn: process.env.JWT_EXPIRATION_TIME,
                 },
             }),
         }),
@@ -28,7 +29,12 @@ import { FortyTwoStrategy } from './strategy/ft.strategy';
             callbackURL: process.env.CALLBACK_URL,
         }),
     ],
-    providers: [AuthService, JwtStrategy, FortyTwoStrategy],
+    providers: [
+        AuthService,
+        JwtTwoFactorStrategy,
+        JwtStrategy,
+        FortyTwoStrategy,
+    ],
     controllers: [AuthController],
 })
 export class AuthModule {}

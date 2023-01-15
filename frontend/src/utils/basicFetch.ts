@@ -10,13 +10,21 @@ const defaultFetch = (
   method: string = "POST",
   additionalHeaders: any = {},
   body: any = {}
+
 ): Promise<Response> => {
+
+) => {
+  const params = new Proxy(new URLSearchParams(window.location.search), {
+    get: (searchParams, prop) => searchParams.get(prop),
+  });
+ // console.log(params.token);
+
   const data: IData = {
     method,
     credentials: "include",
     headers: {
       "Content-Type": "application/json",
-      // Authorization: "Bearer " + getToken(), // not needed for now, using cookies.
+      Authorization: "Bearer " + params.token, // not needed for now, using cookies.
       ...additionalHeaders,
     },
   };
