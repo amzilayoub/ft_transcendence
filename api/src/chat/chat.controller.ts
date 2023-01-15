@@ -38,42 +38,42 @@ export class ChatController {
      ** if its the case, then we return it,
      ** otherwise, we create a new room
      */
-    @Post('create-room')
+    @Post('room/create')
     async createRoom(
         @Req() request: RequestWithUser,
         @Body() body: CreateRoomDto,
     ) {
-        const user = await this.authService.getMe(request.user.id);
+        // const user = await this.authService.getMe(request.user.id);
 
-        const defaultRoom = await this.chatService.getRoomType('dm');
-        const roomTypeId = body.roomTypeId || defaultRoom.id;
+        // const defaultRoom = await this.chatService.getRoomType('dm');
+        // const roomTypeId = body.roomTypeId || defaultRoom.id;
 
-        if (body.userId) {
-            const roomInfo = await this.chatService.findRoomBetweenUsers(
-                user['id'],
-                body.userId,
-            );
-            /*
-             ** if we found a room, we return it
-             */
-            if (roomInfo[0] !== undefined)
-                return await this.chatService.getRoomInfo(roomInfo[0].room_id);
-        }
+        // if (body.userId) {
+        //     const roomInfo = await this.chatService.findRoomBetweenUsers(
+        //         user['id'],
+        //         body.userId,
+        //     );
+        //     /*
+        //      ** if we found a room, we return it
+        //      */
+        //     if (roomInfo[0] !== undefined)
+        //         return await this.chatService.getRoomInfo(roomInfo[0].room_id);
+        // }
 
-        const newRoom = await this.chatService.createRoom(user, roomTypeId);
-        /*
-         ** if there's a user in the request, that means we want to join
-         ** the following user as well to the new created room
-         */
-        if (body.userId)
-            await this.chatService.joinRoom(newRoom['id'], body.userId);
+        // const newRoom = await this.chatService.createRoom(user, roomTypeId);
+        // /*
+        //  ** if there's a user in the request, that means we want to join
+        //  ** the following user as well to the new created room
+        //  */
+        // if (body.userId)
+        //     await this.chatService.joinRoom(newRoom['id'], body.userId);
 
-        /*
-         ** by default, the owner of the room, obviously
-         ** is going to be part of it :)
-         */
-        await this.chatService.joinRoom(newRoom['id'], user['id']);
-        return newRoom;
+        // /*
+        //  ** by default, the owner of the room, obviously
+        //  ** is going to be part of it :)
+        //  */
+        // await this.chatService.joinRoom(newRoom['id'], user['id']);
+        // return newRoom;
     }
 
     @Post('join-room')
@@ -132,14 +132,12 @@ export class ChatController {
     }
 
     @Get('room/:roomId')
-    async getRoomById(@Headers() headers, @Param('roomId') roomId: number) {
-        const user = this.getUserInfo(headers);
+    async getRoomById(
+        @Req() request: RequestWithUser,
+        @Param('roomId') roomId: number,
+    ) {
+        const user = await this.authService.getMe(request.user.id);
 
         return await this.chatService.getUserRooms(user['id'], roomId);
-    }
-
-    getUserInfo(headers) {
-        const token = headers.authorization.split(' ')[1];
-        return this.jwt.decode(token);
     }
 }

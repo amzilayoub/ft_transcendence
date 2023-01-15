@@ -94,7 +94,7 @@ const ConversationMetadata = ({
       <div className="group w-full cursor-pointer">
         <div className="flex items-center">
           <Image
-            src={`${process.env.NEXT_PUBLIC_RESOURCE_URL}${avatar}`}
+            src={`${avatar}`}
             alt={`${name} avatar`}
             width={40}
             height={40}
@@ -303,6 +303,7 @@ const ChatSidebar = ({
         <ChatActionsModal
           isOpen={showChatActionsModal}
           onClose={() => setShowChatActionsModal(false)}
+          socket={socket}
           // onMuteClick={onMuteClick}
           // onBlockClick={onBlockClick}
         />

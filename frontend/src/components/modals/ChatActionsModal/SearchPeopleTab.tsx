@@ -16,8 +16,10 @@ import { IUser, PartialWithRequired } from "global/types";
 
 const UserListItem = ({
   user,
+  createRoom,
 }: {
   user: PartialWithRequired<IUser, "username">;
+  createRoom: any;
 }) => {
   const ctx = useAuthContext();
   const [isBlocked, setIsBlocked] = useState(false);
@@ -39,7 +41,11 @@ const UserListItem = ({
 
   return (
     <li
-      onClick={() => {}}
+      onClick={() => {
+        createRoom({
+          userId: user["id"],
+        });
+      }}
       className={cn(
         "group flex items-center cursor-pointer rounded-lg border border-gray-200 justify-between p-4 hover:bg-gray-50 duration-150",
         {
@@ -99,7 +105,7 @@ const UserListItem = ({
     </li>
   );
 };
-const SearchPeopleTab = ({}: {}) => {
+const SearchPeopleTab = ({ createRoom }: { createRoom: any }) => {
   //   const chatCtx = useChatContext();
   const [searchQuery, setSearchQuery] = useState("");
   const [shouldSearch, setShouldSearch] = useState<boolean>(false);
@@ -147,7 +153,11 @@ const SearchPeopleTab = ({}: {}) => {
           !searchLoading &&
           searchResults &&
           searchResults?.map((user: IUser) => (
-            <UserListItem key={user.username} user={user} />
+            <UserListItem
+              key={user.username}
+              user={user}
+              createRoom={createRoom}
+            />
           ))}
 
         {searchLoading &&

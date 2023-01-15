@@ -40,7 +40,6 @@ const ChatStuff = () => {
         let targetedRoom = (await getRoomInfo(obj.room.room_id))[0];
         setConversationsMetadata((state) => {
           const newState = state.filter((item) => {
-            console.log(item.isActiveBox);
             if (item.isActiveBox && item.room_id == obj.room.room_id) {
               socket.emit(
                 "setRead",
