@@ -10,9 +10,11 @@ import ExploreRoomsTab from "./ExploreRoomsTab";
 import SearchPeopleTab from "./SearchPeopleTab";
 
 const ChatActionsModal = ({
+  socket,
   isOpen = false,
   onClose = () => {},
 }: {
+  socket: any;
   isOpen: boolean;
   onClose: () => void;
 }) => {
@@ -42,7 +44,7 @@ const ChatActionsModal = ({
           </Tab.List>
           <Tab.Panels className="mt-2">
             <Tab.Panel key={"people-panel"}>
-              <SearchPeopleTab />
+              <SearchPeopleTab socket={socket} />
             </Tab.Panel>
             <Tab.Panel
               key={"create-panel"}

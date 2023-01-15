@@ -218,7 +218,7 @@ const ChatBox = ({
               </svg>
             </span>
             <Image
-              src={`${process.env.NEXT_PUBLIC_RESOURCE_URL}${conversationMetaData?.avatarUrl}`}
+              src={`${conversationMetaData?.avatar_url}`}
               alt={`${conversationMetaData?.name || "User"}'s avatar`}
               width={40}
               height={40}

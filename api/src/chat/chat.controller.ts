@@ -38,7 +38,7 @@ export class ChatController {
      ** if its the case, then we return it,
      ** otherwise, we create a new room
      */
-    @Post('create-room')
+    @Post('room/create')
     async createRoom(
         @Req() request: RequestWithUser,
         @Body() body: CreateRoomDto,
@@ -132,14 +132,12 @@ export class ChatController {
     }
 
     @Get('room/:roomId')
-    async getRoomById(@Headers() headers, @Param('roomId') roomId: number) {
-        const user = this.getUserInfo(headers);
+    async getRoomById(
+        @Req() request: RequestWithUser,
+        @Param('roomId') roomId: number,
+    ) {
+        const user = await this.authService.getMe(request.user.id);
 
         return await this.chatService.getUserRooms(user['id'], roomId);
-    }
-
-    getUserInfo(headers) {
-        const token = headers.authorization.split(' ')[1];
-        return this.jwt.decode(token);
     }
 }

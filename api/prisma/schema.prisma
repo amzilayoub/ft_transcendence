@@ -42,10 +42,10 @@ model user {
 model room {
     id Int @id @default(autoincrement())
 
-    userLink1 user @relation(fields: [owner_id], references: [id])
-    owner_id  Int
+    userLink1 user? @relation(fields: [owner_id], references: [id], onDelete: SetNull)
+    owner_id  Int?
 
-    room_type    room_type @relation(fields: [room_type_id], references: [id])
+    room_type    room_type @relation(fields: [room_type_id], references: [id], onDelete: Cascade)
     room_type_id Int
 
     count_messages Int? @default(0)
@@ -69,11 +69,11 @@ model room_type {
 model room_user_rel {
     id Int @id @default(autoincrement())
 
-    roomLink room @relation(fields: [room_id], references: [id])
+    roomLink room @relation(fields: [room_id], references: [id], onDelete: Cascade)
     room_id  Int
 
-    userLink user @relation(fields: [user_id], references: [id])
-    user_id  Int
+    userLink user? @relation(fields: [user_id], references: [id], onDelete: SetNull)
+    user_id  Int?
 
     unread_message_count Int @default(0)
 
@@ -84,10 +84,10 @@ model room_user_rel {
 model messages {
     id Int @id @default(autoincrement())
 
-    userLink user @relation(fields: [user_id], references: [id])
-    user_id  Int
+    userLink user? @relation(fields: [user_id], references: [id], onDelete: SetNull)
+    user_id  Int?
 
-    roomLink room @relation(fields: [room_id], references: [id])
+    roomLink room @relation(fields: [room_id], references: [id], onDelete: Cascade)
     room_id  Int
 
     message String
@@ -101,10 +101,10 @@ model messages {
 model blacklist {
     id Int @id @default(autoincrement())
 
-    userLink user @relation("userLink", fields: [user_id], references: [id])
+    userLink user @relation("userLink", fields: [user_id], references: [id], onDelete: Cascade)
     user_id  Int
 
-    userLink2       user @relation("userLink2", fields: [blocked_user_id], references: [id])
+    userLink2       user @relation("userLink2", fields: [blocked_user_id], references: [id], onDelete: Cascade)
     blocked_user_id Int
 
     created_at DateTime @default(now())
@@ -114,10 +114,10 @@ model blacklist {
 model friends {
     id Int @id @default(autoincrement())
 
-    userLink  user @relation("userLink", fields: [user_id_1], references: [id])
+    userLink  user @relation("userLink", fields: [user_id_1], references: [id], onDelete: Cascade)
     user_id_1 Int
 
-    userLink2 user @relation("userLink2", fields: [user_id_2], references: [id])
+    userLink2 user @relation("userLink2", fields: [user_id_2], references: [id], onDelete: Cascade)
     user_id_2 Int
 
     created_at DateTime @default(now())

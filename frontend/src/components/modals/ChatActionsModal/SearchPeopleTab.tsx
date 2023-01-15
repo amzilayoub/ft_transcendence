@@ -16,8 +16,10 @@ import { IUser, PartialWithRequired } from "global/types";
 
 const UserListItem = ({
   user,
+  socket,
 }: {
   user: PartialWithRequired<IUser, "username">;
+  socket: any;
 }) => {
   const ctx = useAuthContext();
   const [isBlocked, setIsBlocked] = useState(false);
@@ -37,9 +39,23 @@ const UserListItem = ({
       .finally(() => setBlockLoading(false));
   };
 
+  const createConversation = async () => {
+    const resp = await basicFetch.post(
+      "/chat/room/create",
+      {},
+      {
+        userId: user["id"],
+      }
+    );
+    if (resp.status in [200, 201]) {
+      return await resp.json();
+    }
+  };
   return (
     <li
-      onClick={() => {}}
+      onClick={async () => {
+        const data = await createConversation();
+      }}
       className={cn(
         "group flex items-center cursor-pointer rounded-lg border border-gray-200 justify-between p-4 hover:bg-gray-50 duration-150",
         {
@@ -99,7 +115,7 @@ const UserListItem = ({
     </li>
   );
 };
-const SearchPeopleTab = ({}: {}) => {
+const SearchPeopleTab = ({ socket }: { socket: any }) => {
   //   const chatCtx = useChatContext();
   const [searchQuery, setSearchQuery] = useState("");
   const [shouldSearch, setShouldSearch] = useState<boolean>(false);
@@ -147,7 +163,7 @@ const SearchPeopleTab = ({}: {}) => {
           !searchLoading &&
           searchResults &&
           searchResults?.map((user: IUser) => (
-            <UserListItem key={user.username} user={user} />
+            <UserListItem key={user.username} user={user} socket={socket} />
           ))}
 
         {searchLoading &&
