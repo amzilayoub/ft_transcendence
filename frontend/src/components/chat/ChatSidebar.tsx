@@ -5,12 +5,13 @@ import Image from "next/image";
 import { AiOutlineUserAdd } from "react-icons/ai";
 import { BsThreeDots, BsVolumeMute } from "react-icons/bs";
 import { MdBlockFlipped } from "react-icons/md";
+import { RiMailAddLine } from "react-icons/ri";
 import { SlArrowDown } from "react-icons/sl";
 
+import ChatActionsModal from "@components/modals/ChatActionsModal";
 import basicFetch from "@utils/basicFetch";
 import { truncateString } from "@utils/format";
 import { IConversationMetaData, IFriendMetaData } from "global/types";
-import ChatActionsModal from "@components/modals/ChatActionsModal";
 
 const SeekNewConversation = ({
   searchQuery,
@@ -193,7 +194,7 @@ const ChatSidebar = ({
     <>
       <div
         className={cn(
-          "transition-height ease-in-out delay-150 flex flex-col w-72 items-center bg-white border border-gray-300 overflow-hidden shadow-lg rounded-t-2xl",
+          "transition-height ease-in-out delay-150 flex flex-col w-96 items-center bg-white border border-gray-300 overflow-hidden shadow-lg shadow-gray-400 rounded-t-2xl",
           {
             "h-[calc(100vh-32vh)]": showChatSidebar,
             "h-14": !showChatSidebar,
@@ -213,10 +214,23 @@ const ChatSidebar = ({
                 </div>
               )}
             </div>
-            <div className="flex items-center justify-center text-xs duration-100 rounded-full cursor-pointer w-7 h-7 hover:bg-gray-200 ">
-              <SlArrowDown
-                className={cn({ "transform rotate-180": !showChatSidebar })}
-              />
+            <div className="gap-x-2 flex items-center justify-center ">
+              <button
+                onClick={(e) => {
+                  e.stopPropagation();
+                  setShowChatActionsModal(true);
+                }}
+                className="flex items-center justify-center rounded-full cursor-pointer w-8 h-8 duration-200 hover:bg-gray-200"
+              >
+                <RiMailAddLine className={cn("")} />
+              </button>
+              <button className="flex items-center justify-center rounded-full cursor-pointer w-8 h-8 duration-200 hover:bg-gray-200">
+                <SlArrowDown
+                  className={cn({
+                    "transform rotate-180": !showChatSidebar,
+                  })}
+                />
+              </button>
             </div>
           </div>
         </div>
@@ -233,10 +247,6 @@ const ChatSidebar = ({
               value={searchQuery}
               onChange={(e) => setsearchQuery(e.target.value)}
               className="w-full p-2 border border-gray-300 rounded-md focus:outline-none"
-            />
-            <AiOutlineUserAdd
-              className="h-8 p-1 ml-2 duration-300 rounded-full cursor-pointer bg-slate-300 hover:bg-slate-400 w-9"
-              onClick={() => setShowChatActionsModal(true)}
             />
           </div>
           {searchResults &&

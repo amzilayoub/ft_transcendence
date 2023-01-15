@@ -34,7 +34,7 @@ const MainLayout: React.FC<MainLayoutProps> = ({
     //   ctx?.isAuthenticated,
     //   window.location.pathname !== "/"
     // );
-    
+
     if (
       pageIsProtected &&
       !ctx.loadingUser &&
@@ -58,7 +58,8 @@ const MainLayout: React.FC<MainLayoutProps> = ({
       ) : (pageIsProtected && ctx?.isAuthenticated) || ctx.loadingUser ? (
         <>
           <Navbar />
-          <main className="flex w-full h-full min-h-screen">
+          <main className="flex w-full h-full min-h-screen ">
+            {/* <div class="flex flex-col h-screen"> */}
             <div
               className={cn(
                 "pt-20 flex flex-col items-center w-full justify-center h-full relative",
