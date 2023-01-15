@@ -16,10 +16,10 @@ import { IUser, PartialWithRequired } from "global/types";
 
 const UserListItem = ({
   user,
-  socket,
+  createRoom,
 }: {
   user: PartialWithRequired<IUser, "username">;
-  socket: any;
+  createRoom: any;
 }) => {
   const ctx = useAuthContext();
   const [isBlocked, setIsBlocked] = useState(false);
@@ -39,22 +39,12 @@ const UserListItem = ({
       .finally(() => setBlockLoading(false));
   };
 
-  const createConversation = () => {
-    socket.emit(
-      "createRoom",
-      {
-        userId: user["id"],
-      },
-      (resp) => {
-        console.log("createRoom");
-        console.log(resp);
-      }
-    );
-  };
   return (
     <li
       onClick={() => {
-        createConversation();
+        createRoom({
+          userId: user["id"],
+        });
       }}
       className={cn(
         "group flex items-center cursor-pointer rounded-lg border border-gray-200 justify-between p-4 hover:bg-gray-50 duration-150",
@@ -115,7 +105,7 @@ const UserListItem = ({
     </li>
   );
 };
-const SearchPeopleTab = ({ socket }: { socket: any }) => {
+const SearchPeopleTab = ({ createRoom }: { createRoom: any }) => {
   //   const chatCtx = useChatContext();
   const [searchQuery, setSearchQuery] = useState("");
   const [shouldSearch, setShouldSearch] = useState<boolean>(false);
@@ -163,7 +153,11 @@ const SearchPeopleTab = ({ socket }: { socket: any }) => {
           !searchLoading &&
           searchResults &&
           searchResults?.map((user: IUser) => (
-            <UserListItem key={user.username} user={user} socket={socket} />
+            <UserListItem
+              key={user.username}
+              user={user}
+              createRoom={createRoom}
+            />
           ))}
 
         {searchLoading &&

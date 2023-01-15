@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect } from "react";
 
 import { Tab } from "@headlessui/react";
 import cn from "classnames";
@@ -18,6 +18,12 @@ const ChatActionsModal = ({
   isOpen: boolean;
   onClose: () => void;
 }) => {
+  let createRoom = (body: any, callBackFunc = (res: any) => {}) => {
+    socket.emit("createRoom", body, (resp: any) => {
+      callBackFunc(resp);
+    });
+  };
+
   return (
     <BaseModal isOpen={isOpen} onClose={onClose}>
       <div className="p-8 w-[420px] h-[calc(60vh)]">
@@ -44,7 +50,7 @@ const ChatActionsModal = ({
           </Tab.List>
           <Tab.Panels className="mt-2">
             <Tab.Panel key={"people-panel"}>
-              <SearchPeopleTab socket={socket} />
+              <SearchPeopleTab createRoom={createRoom} />
             </Tab.Panel>
             <Tab.Panel
               key={"create-panel"}
