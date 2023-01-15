@@ -280,7 +280,7 @@ export default function ProfilePage() {
 
   return (
     <MainLayout
-      title={user ? (username as string) + " | " + APP_NAME : APP_NAME}
+      title={username ? username + " | " + APP_NAME : APP_NAME}
       backgroundColor="bg-gray-100"
     >
       <div className="w-full max-w-7xl gap-3 px-2 xl:px-0 flex flex-col">
