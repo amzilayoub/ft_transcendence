@@ -67,13 +67,13 @@ const UserListItem = ({
         <Link href={`/u/${user.username}`} className="w-full flex gap-x-2">
           <Image
             src={user.avatar_url || "/images/default-avatar.jpg"}
-            alt={user.first_name || user.username}
+            alt={(user.first_name || user.username) + " avatar"}
             width={32}
             height={32}
             className="rounded-full"
           />
           <div className="ml-2">
-            <p className="text-sm font-medium">{user.first_name}</p>
+            <p className="text-sm font-medium">{`${user.first_name} ${user.last_name}`}</p>
             <p className="text-xs text-gray-400">@{user.username}</p>
           </div>
         </Link>

@@ -4,7 +4,7 @@ import BaseModal from "@components/common/BaseModal";
 import { GameSummary } from "@components/stats/History";
 import PaginationActions from "@ui/PaginationActions";
 
-const AllGamesModal = ({
+const GamesHistoryModal = ({
   username,
   isOpen = false,
   onClose = () => {},
@@ -92,4 +92,4 @@ const AllGamesModal = ({
   );
 };
 
-export default AllGamesModal;
+export default GamesHistoryModal;

@@ -4,7 +4,7 @@ import cn from "classnames";
 import Image from "next/image";
 import Link from "next/link";
 
-import AllGamesModal from "@components/modals/AllGamesModal";
+import GamesHistoryModal from "@components/modals/GamesHistoryModal";
 import { truncateString } from "@utils/format";
 
 interface GameSummaryProps {
@@ -159,7 +159,7 @@ const LastGames = ({ username }: { username: string }) => {
         )}
       </nav>
       {seeAll && (
-        <AllGamesModal
+        <GamesHistoryModal
           username={username}
           isOpen={seeAll}
           onClose={() => setSeeAll(false)}

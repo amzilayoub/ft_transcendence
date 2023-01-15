@@ -4,11 +4,13 @@ import cn from "classnames";
 import Image from "next/image";
 import { AiOutlineUserAdd } from "react-icons/ai";
 import { BsThreeDots, BsVolumeMute } from "react-icons/bs";
+import { IoSearchOutline } from "react-icons/io5";
 import { MdBlockFlipped } from "react-icons/md";
 import { RiMailAddLine } from "react-icons/ri";
 import { SlArrowDown } from "react-icons/sl";
 
 import ChatActionsModal from "@components/modals/ChatActionsModal";
+import TextInput from "@ui/TextInput";
 import basicFetch from "@utils/basicFetch";
 import { truncateString } from "@utils/format";
 import { IConversationMetaData, IFriendMetaData } from "global/types";
@@ -194,7 +196,7 @@ const ChatSidebar = ({
     <>
       <div
         className={cn(
-          "transition-height ease-in-out delay-150 flex flex-col w-96 items-center bg-white border border-gray-300 overflow-hidden shadow-lg shadow-gray-400 rounded-t-2xl",
+          "transition-height ease-in-out delay-150 flex flex-col w-[360px] items-center bg-white border border-gray-300 overflow-hidden shadow-lg shadow-gray-400 rounded-t-2xl",
           {
             "h-[calc(100vh-32vh)]": showChatSidebar,
             "h-14": !showChatSidebar,
@@ -240,14 +242,20 @@ const ChatSidebar = ({
             hidden: !showChatSidebar,
           })}
         >
-          <div className="flex items-center justify-between w-full p-2">
-            <input
-              type="text"
-              placeholder="Search conversations"
-              value={searchQuery}
-              onChange={(e) => setsearchQuery(e.target.value)}
-              className="w-full p-2 border border-gray-300 rounded-md focus:outline-none"
-            />
+          <div className=" px-3 py-2">
+            <div className="group relative h-10 w-full">
+              <label className="absolute top-3 left-3 flex items-center justify-center text-gray-400">
+                <button type="submit" className="h-full w-full cursor-default">
+                  <IoSearchOutline className="group-focus-within:text-secondary group-hover:text-secondary h-6 w-6 text-gray-400" />
+                </button>
+              </label>
+              <TextInput
+                value={searchQuery}
+                onChange={(e) => setsearchQuery(e.target.value)}
+                placeholder="Search conversations"
+                inputClassName="pl-12 py-[8px] "
+              />
+            </div>
           </div>
           {searchResults &&
           searchResults.length > 0 &&

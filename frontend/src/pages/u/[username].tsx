@@ -234,7 +234,7 @@ const UserInfoHeader = ({
               </div>
               {/* User info */}
               <UserInfo
-                fullName={user?.first_name}
+                fullName={`${user?.first_name} ${user?.last_name}`}
                 username={user?.username as string}
                 bio={user?.bio}
                 links={{
