@@ -8,12 +8,16 @@ import {
 import { ChatService } from './chat.service';
 import { CreateMessageDto, JoinRoomDto } from './dto/chat_common.dto';
 import { AuthService } from 'src/auth/auth.service';
+import { ConfigService } from '@nestjs/config';
+import { UseGuards } from '@nestjs/common';
+import { JwtService } from '@nestjs/jwt';
 
 const NAMESPACE = '/chat';
-
+const configService = new ConfigService();
 @WebSocketGateway({
     cors: {
-        origin: '*',
+        origin: configService.get('FRONTEND_URL'),
+        credentials: true,
     },
     namespace: NAMESPACE,
 })
@@ -21,14 +25,18 @@ export class ChatGateway {
     @WebSocketServer()
     private server;
     private connectedClient = {};
+    private cookie;
 
     constructor(
         private readonly chatService: ChatService,
         private readonly authService: AuthService,
-    ) {}
+        private readonly jwt: JwtService,
+    ) {
+        this.cookie = require('cookie');
+    }
 
     async handleConnection(@ConnectedSocket() client: any) {
-        const user = this.getUserInfo(client.handshake.auth.token);
+        const user = this.getUserInfo(client);
         if (user === null) return;
         const userRooms = await this.chatService.getUserRooms(user['id']);
         this.connectedClient[user['id']] = client.id;
@@ -38,7 +46,7 @@ export class ChatGateway {
     }
 
     handleDisconnect(@ConnectedSocket() client: any) {
-        const user = this.getUserInfo(client.handshake.auth.token);
+        const user = this.getUserInfo(client);
         if (user === null) return;
 
         delete this.connectedClient[user['id']];
@@ -49,7 +57,8 @@ export class ChatGateway {
         @MessageBody() createMessage: CreateMessageDto,
         @ConnectedSocket() client: any,
     ) {
-        const user = this.getUserInfo(client.handshake.auth.token);
+        const user = this.getUserInfo(client);
+        if (user === null) return;
         const message = await this.chatService.createMessage(
             createMessage.roomId,
             user['id'],
@@ -94,7 +103,7 @@ export class ChatGateway {
         @ConnectedSocket() client: any,
         @MessageBody() joinRoomDto: JoinRoomDto,
     ) {
-        const user = this.getUserInfo(client.handshake.auth.token);
+        const user = this.getUserInfo(client);
         if (user === null) return;
         client.join(NAMESPACE + joinRoomDto.roomId);
         /*
@@ -115,7 +124,7 @@ export class ChatGateway {
         @ConnectedSocket() client: any,
         @MessageBody('roomId') roomId: number,
     ) {
-        const user = this.getUserInfo(client.handshake.auth.token);
+        const user = this.getUserInfo(client);
         if (user === null) return;
         return this.chatService.setRoomUnread(roomId, user['id']);
     }
@@ -125,7 +134,7 @@ export class ChatGateway {
         @ConnectedSocket() client: any,
         @MessageBody('roomId') roomId: number,
     ) {
-        const user = this.getUserInfo(client.handshake.auth.token);
+        const user = this.getUserInfo(client);
         if (user === null) return;
 
         return this.chatService.setRoomAsRead(roomId, user['id']);
@@ -136,7 +145,22 @@ export class ChatGateway {
         return this.chatService.findAllMessages();
     }
 
-    getUserInfo(token: string) {
-        return this.authService.getJwtToken(token);
+    /*
+     ** Helper functions
+     */
+    getUserInfo(client) {
+        const token = this.getTokenFromCookie(client);
+        if (!token) return null;
+
+        const data = this.jwt.decode(token);
+        return data['user'];
+    }
+
+    getTokenFromCookie(@ConnectedSocket() client: any) {
+        const authToken = this.cookie.parse(client.handshake.headers.cookie)[
+            'Authentication'
+        ];
+        if (authToken) return authToken;
+        return null;
     }
 }
