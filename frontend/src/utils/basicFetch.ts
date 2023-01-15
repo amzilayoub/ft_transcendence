@@ -10,7 +10,7 @@ const defaultFetch = (
   method: string = "POST",
   additionalHeaders: any = {},
   body: any = {}
-) => {
+): Promise<Response> => {
   const data: IData = {
     method,
     credentials: "include",

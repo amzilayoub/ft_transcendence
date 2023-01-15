@@ -1,11 +1,14 @@
 import { useState } from "react";
 
+import cn from "classnames";
 import Image from "next/image";
+import { BsVolumeMute } from "react-icons/bs";
 import { IoSearchOutline } from "react-icons/io5";
 import useSWR from "swr/immutable";
 
 import UserListItemLoading from "@ui/skeletons/UserSkeletons";
 import TextInput from "@ui/TextInput";
+import basicFetch from "@utils/basicFetch";
 import { fetcher } from "@utils/swr.fetcher";
 import { useAuthContext } from "context/auth.context";
 import { IUser, PartialWithRequired } from "global/types";
@@ -16,11 +19,24 @@ const UserListItem = ({
   user: PartialWithRequired<IUser, "username">;
 }) => {
   const ctx = useAuthContext();
+  const [isMuted, setIsMuted] = useState(false);
+
+  const onMuteClick = () => {
+    // setIsMuted(!isMuted);
+    basicFetch
+      .get(`/users/${user.username}/${isMuted ? "unmute" : "mute"}`)
+      .then((res) => {
+        if (res.status === 200) setIsMuted(!isMuted);
+      })
+      .catch((err) => {
+        console.error(err);
+      });
+  };
 
   return (
     <li
       onClick={() => {}}
-      className="flex items-center cursor-pointer rounded-lg border border-gray-200 justify-between p-4 hover:bg-gray-100 "
+      className="group flex items-center cursor-pointer rounded-lg border border-gray-200 justify-between p-4 hover:bg-gray-50 duration-150"
     >
       <div className="flex items-center gap-x-2 justify-between w-full">
         <div className="w-full flex gap-x-2">
@@ -36,9 +52,24 @@ const UserListItem = ({
             <p className="text-xs text-gray-400">@{user.username}</p>
           </div>
         </div>
-        {user.username && user.username === ctx?.user?.username && (
-          <button className="text-sm text-gray-400">Chat with yourself?</button>
+        {false && (
+          <button className="text-xs text-gray-400">Chat with yourself?</button>
         )}
+        <button
+          onClick={(e) => {
+            e.stopPropagation();
+            onMuteClick();
+          }}
+          className={cn(
+            "items-center p-2 rounded-full font-semibold text-red-500 gap-x-2 hover:text-red-500 hover:bg-white duration-150",
+            {
+              flex: isMuted,
+              "hidden group-hover:flex": !isMuted,
+            }
+          )}
+        >
+          <BsVolumeMute />
+        </button>
       </div>
     </li>
   );
