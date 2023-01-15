@@ -5,7 +5,7 @@ import cn from "classnames";
 export interface ButtonProps
   extends React.ButtonHTMLAttributes<HTMLButtonElement> {
   children: ReactNode;
-  variant?: "primary" | "secondary" | "danger";
+  variant?: "primary" | "secondary" | "danger" | "none";
   type?: "submit" | "button";
   size?: "small" | "normal" | "large";
   pill?: boolean;
@@ -28,6 +28,7 @@ const styles = {
       "bg-secondary/95 hover:bg-secondary/80 ring-secondary focus:ring-secondary/50 text-white",
     danger:
       "bg-red-500 hover:bg-red-700 focus:ring-red-500 focus:ring-opacity-50 text-white",
+    none: "",
   },
   pill: "rounded-full",
   disabled: "opacity-50 cursor-not-allowed",

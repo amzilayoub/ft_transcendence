@@ -2,10 +2,11 @@ import { useState } from "react";
 
 import cn from "classnames";
 import Image from "next/image";
-import { BsVolumeMute } from "react-icons/bs";
+import { BiBlock } from "react-icons/bi";
 import { IoSearchOutline } from "react-icons/io5";
 import useSWR from "swr/immutable";
 
+import ConfirmationModal from "@components/common/ConfirmationModal";
 import UserListItemLoading from "@ui/skeletons/UserSkeletons";
 import TextInput from "@ui/TextInput";
 import basicFetch from "@utils/basicFetch";
@@ -19,18 +20,20 @@ const UserListItem = ({
   user: PartialWithRequired<IUser, "username">;
 }) => {
   const ctx = useAuthContext();
-  const [isMuted, setIsMuted] = useState(false);
+  const [isBlocked, setIsBlocked] = useState(false);
+  const [showConfirm, setShowConfirm] = useState(false);
+  const [blockLoading, setBlockLoading] = useState(false);
 
   const onMuteClick = () => {
-    // setIsMuted(!isMuted);
+    setBlockLoading(true);
     basicFetch
-      .get(`/users/${user.username}/${isMuted ? "unmute" : "mute"}`)
+      .get(`/users/${user.username}/${isBlocked ? "unblock" : "block"}`)
       .then((res) => {
-        if (res.status === 200) setIsMuted(!isMuted);
+        if (res.status === 200) setIsBlocked(!isBlocked);
       })
       .catch((err) => {
         console.error(err);
-      });
+      }).finally(() => setBlockLoading(false));
   };
 
   return (
@@ -58,19 +61,32 @@ const UserListItem = ({
         <button
           onClick={(e) => {
             e.stopPropagation();
-            onMuteClick();
+            setShowConfirm(true);
           }}
           className={cn(
             "items-center p-2 rounded-full font-semibold text-red-500 gap-x-2 hover:text-red-500 hover:bg-white duration-150",
             {
-              flex: isMuted,
-              "hidden group-hover:flex": !isMuted,
+              flex: isBlocked,
+              "hidden group-hover:flex": !isBlocked,
             }
           )}
         >
-          <BsVolumeMute />
+          <BiBlock />
         </button>
       </div>
+      {showConfirm && (
+        <ConfirmationModal
+          title={`Block @${user.username}`}
+          message="Are you sure you want to block this user?"
+          onConfirm={() => {
+            onMuteClick();
+            setShowConfirm(false);
+          }}
+          onCancel={() => setShowConfirm(false)}
+          isOpen={showConfirm}
+          isConfirmLoading={blockLoading}
+        />
+      )}
     </li>
   );
 };
