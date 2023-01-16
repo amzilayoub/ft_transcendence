@@ -35,6 +35,7 @@ model user {
     userLink2     blacklist[]     @relation("userLink2")
     friends       friends[]       @relation("userLink")
     friends2      friends[]       @relation("userLink2")
+    room_admin    room_admin[]
 
     @@map("users")
 }
@@ -55,12 +56,16 @@ model room {
 
     room_user_rel room_user_rel[]
     messages      messages[]
+    room_details  room_details[]
+    room_admin    room_admin[]
+    room_rules    room_rules[]
 }
 
 model room_type {
     id Int @id @default(autoincrement())
 
     type       String
+    rule       String?
     created_at DateTime @default(now())
     updated_at DateTime @updatedAt
     room       room[]
@@ -120,6 +125,42 @@ model friends {
     userLink2 user @relation("userLink2", fields: [user_id_2], references: [id], onDelete: Cascade)
     user_id_2 Int
 
+    created_at DateTime @default(now())
+    updated_at DateTime @updatedAt
+}
+
+model room_details {
+    id Int @id @default(autoincrement())
+
+    roomLink1 room @relation(fields: [room_id], references: [id], onDelete: Cascade)
+    room_id   Int
+
+    name       String
+    avatar_url String?
+
+    created_at DateTime @default(now())
+    updated_at DateTime @updatedAt
+}
+
+model room_admin {
+    id Int @id @default(autoincrement())
+
+    roomLink1 room @relation(fields: [room_id], references: [id], onDelete: Cascade)
+    room_id   Int
+
+    userLink user @relation(fields: [user_id], references: [id], onDelete: Cascade)
+    user_id  Int
+
+    created_at DateTime @default(now())
+    updated_at DateTime @updatedAt
+}
+
+model room_rules {
+    id        Int  @id @default(autoincrement())
+    roomLink1 room @relation(fields: [room_id], references: [id], onDelete: Cascade)
+    room_id   Int
+
+    rule       String?
     created_at DateTime @default(now())
     updated_at DateTime @updatedAt
 }

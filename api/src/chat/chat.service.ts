@@ -103,8 +103,10 @@ export class ChatService {
 				WHEN room_type.type = 'dm'
 					THEN users.username
 				ELSE
-				--Here I should return the name of the room
-					'shared room'
+					(	SELECT room_details.name
+						FROM room_details
+						WHERE room.id = room_details.room_id
+						)
 			END AS name,
 			CASE 
 				WHEN room_type.type = 'dm'
@@ -119,7 +121,12 @@ export class ChatService {
 			AND users.id = receiver.user_id
 			-- Here is a self join
 			AND sender.room_id = receiver.room_id
-			AND sender.user_id != receiver.user_id
+			AND sender.user_id != CASE
+									WHEN room_type.type = 'dm'
+										THEN receiver.user_id
+									ELSE
+										-1
+									END
 			AND sender.user_id = ${userId}
 			${specificRoom}
 			ORDER BY room.updated_at DESC
@@ -145,10 +152,20 @@ export class ChatService {
         });
     }
 
+    createRoomRule(roomeId: number, rule?: string) {}
+
     getRoomType(name: string) {
         return this.prismaService.room_type.findFirst({
             where: {
                 type: name,
+            },
+        });
+    }
+
+    getRoomTypeById(id: number) {
+        return this.prismaService.room_type.findFirst({
+            where: {
+                id,
             },
         });
     }
@@ -175,6 +192,38 @@ export class ChatService {
 				WHERE room_id = ${roomId}
 				ORDER BY id ASC
 		`);
+    }
+
+    exploreRooms(roomName: string, userId: number) {
+        const query = `%${roomName}%`;
+        return this.prismaService.$queryRaw(Prisma.sql`
+					SELECT room.id, room_details.name, room_details.avatar_url
+					FROM room
+					INNER JOIN room_details ON room_details.room_id = room.id
+					INNER JOIN room_type ON room_type.id = room.room_type_id
+					INNER JOIN room_user_rel ON room_user_rel.room_id = room.id
+					WHERE room_type.type != 'private'
+					AND room_user_rel.user_id != ${userId}
+					AND room_details.name LIKE ${query}`);
+    }
+
+    getAllRoomType() {
+        return this.prismaService.room_type.findMany({
+            where: {
+                type: {
+                    not: 'dm',
+                },
+            },
+        });
+    }
+
+    createRoomName(roomId: number, name: string) {
+        return this.prismaService.room_details.create({
+            data: {
+                room_id: roomId,
+                name,
+            },
+        });
     }
 
     setRoomUnread(roomId: number, senderUserId: number) {

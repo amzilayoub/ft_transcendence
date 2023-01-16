@@ -11,7 +11,7 @@ import { truncateString } from "@utils/format";
 import { fetcher } from "@utils/swr.fetcher";
 import { IRoom } from "global/types";
 
-const RoomListItem = ({ room }: { room: IRoom  }) => {
+const RoomListItem = ({ room }: { room: IRoom }) => {
   return (
     <li
       onClick={() => {}}
@@ -53,7 +53,7 @@ const ExploreRoomsTab = ({}: {}) => {
     isLoading: searchLoading,
   } = useSWR(
     searchQuery.length > 0 || shouldSearch
-      ? `/chat/room/search/${searchQuery}`
+      ? `/chat/room/explore/${searchQuery}`
       : null,
     fetcher
   );
@@ -89,7 +89,7 @@ const ExploreRoomsTab = ({}: {}) => {
         {!searchError &&
           !searchLoading &&
           searchResults &&
-          searchResults?.map((room: IRoom ) => (
+          searchResults?.map((room: IRoom) => (
             <RoomListItem key={room.id} room={room} />
           ))}
 

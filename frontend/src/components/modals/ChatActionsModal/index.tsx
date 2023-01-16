@@ -62,7 +62,7 @@ const ChatActionsModal = ({
               key={"discover-panel"}
               className={cn("rounded-xl bg-white p-3")}
             >
-              <CreateRoomTab />
+              <CreateRoomTab createRoom={createRoom} />
             </Tab.Panel>
           </Tab.Panels>
         </Tab.Group>
