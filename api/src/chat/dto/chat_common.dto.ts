@@ -21,7 +21,15 @@ export class CreateRoomDto {
 
     @IsOptional()
     @IsString()
-    title: string;
+    name: string;
+
+    @IsOptional()
+    @IsString()
+    password: string;
+
+    @IsOptional()
+    @IsString()
+    confirmPassword: string;
 }
 
 export class JoinRoomDto {

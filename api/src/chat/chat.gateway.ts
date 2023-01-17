@@ -15,6 +15,8 @@ import { AuthService } from 'src/auth/auth.service';
 import { ConfigService } from '@nestjs/config';
 import { UseGuards } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
+import { PrismaClient, room, room_type } from '@prisma/client';
+import * as argon2 from 'argon2';
 
 const NAMESPACE = '/chat';
 const configService = new ConfigService();
@@ -80,6 +82,12 @@ export class ChatGateway {
         }
 
         const newRoom = await this.chatService.createRoom(user, roomTypeId);
+        if (defaultRoom.id != roomTypeId) {
+            const roomData = await this.chatService.getRoomTypeById(roomTypeId);
+            if (!roomData) return;
+
+            await this.handleSharedRoom(client, body, roomData, newRoom);
+        }
         /*
          ** if there's a user in the request, that means we want to join
          ** the following user as well to the new created room
@@ -99,6 +107,13 @@ export class ChatGateway {
         return newRoom;
     }
 
+    /*
+     ** if there's a userId in the coming request
+     ** that means it's a DM, so we should first check if
+     ** there's already a room between the 2 users
+     ** if its the case, then we return it,
+     ** otherwise, we create a new room
+     */
     @SubscribeMessage('createMessage')
     async createMessage(
         @MessageBody() createMessage: CreateMessageDto,
@@ -192,6 +207,30 @@ export class ChatGateway {
             clientId: client.id,
         });
     }
+
+    async handleSharedRoom(
+        @ConnectedSocket() client: any,
+        @MessageBody() body: CreateRoomDto,
+        roomTypeObject: room_type,
+        newRoom: room,
+    ) {
+        const objectToInsert = {};
+        const parsedRule = JSON.parse(roomTypeObject.rule);
+        let jsonString = '';
+
+        if (parsedRule['passwordRequired'] == true) {
+            if (body.password === body.confirmPassword)
+                objectToInsert['password'] = await argon2.hash(body.password);
+        }
+        await this.chatService.createRoomName(newRoom.id, body.name);
+        jsonString = JSON.stringify(objectToInsert);
+        if (jsonString != '{}')
+            await this.chatService.createRoomRule(
+                roomTypeObject.id,
+                jsonString,
+            );
+    }
+
     getUserInfo(client) {
         const token = this.getTokenFromCookie(client);
         if (!token) return null;
