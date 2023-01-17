@@ -243,8 +243,4 @@ export class ChatService {
 			AND user_id = ${userId}
 		`);
     }
-
-    findAllMessages() {
-        return [];
-    }
 }

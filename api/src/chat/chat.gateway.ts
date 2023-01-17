@@ -30,6 +30,7 @@ const configService = new ConfigService();
 export class ChatGateway {
     @WebSocketServer()
     private server;
+
     private connectedClient = {};
     private cookie;
 
@@ -43,7 +44,7 @@ export class ChatGateway {
 
     async handleConnection(@ConnectedSocket() client: any) {
         const user = this.getUserInfo(client);
-        if (user === null) return;
+        if (user === null) return { status: 401 };
         const userRooms = await this.chatService.getUserRooms(user['id']);
         this.connectedClient[user['id']] = client.id;
         userRooms.forEach((element) => {
@@ -53,7 +54,7 @@ export class ChatGateway {
 
     handleDisconnect(@ConnectedSocket() client: any) {
         const user = this.getUserInfo(client);
-        if (user === null) return;
+        if (user === null) return { status: 401 };
 
         delete this.connectedClient[user['id']];
     }
@@ -64,7 +65,7 @@ export class ChatGateway {
         @MessageBody() body: CreateRoomDto,
     ) {
         const user = this.getUserInfo(client);
-        if (user === null) return;
+        if (user === null) return { status: 401 };
 
         const defaultRoom = await this.chatService.getRoomType('dm');
         const roomTypeId = body.roomTypeId || defaultRoom.id;
@@ -78,13 +79,18 @@ export class ChatGateway {
              ** if we found a room, we return it
              */
             if (roomInfo[0] !== undefined)
-                return await this.chatService.getRoomInfo(roomInfo[0].room_id);
+                return {
+                    status: 401,
+                    data: await this.chatService.getRoomInfo(
+                        roomInfo[0].room_id,
+                    ),
+                };
         }
 
         const newRoom = await this.chatService.createRoom(user, roomTypeId);
         if (defaultRoom.id != roomTypeId) {
             const roomData = await this.chatService.getRoomTypeById(roomTypeId);
-            if (!roomData) return;
+            if (!roomData) return { status: 401 };
 
             await this.handleSharedRoom(client, body, roomData, newRoom);
         }
@@ -104,7 +110,7 @@ export class ChatGateway {
         await this.chatService.joinRoom(newRoom['id'], user['id']);
         this.joinRoom(client, { roomId: newRoom.id, userId: user['id'] });
         this.notifyMembers(client, newRoom.id, user['id']);
-        return newRoom;
+        return { status: 200, data: newRoom };
     }
 
     /*
@@ -120,7 +126,7 @@ export class ChatGateway {
         @ConnectedSocket() client: any,
     ) {
         const user = this.getUserInfo(client);
-        if (user === null) return;
+        if (user === null) return { status: 401 };
         const message = await this.chatService.createMessage(
             createMessage.roomId,
             user['id'],
@@ -147,7 +153,7 @@ export class ChatGateway {
          ** and this one to update the list of conversations
          */
         this.notifyMembers(client, message.room_id, user['id']);
-        return msgObject;
+        return { status: 200, data: msgObject };
     }
 
     @SubscribeMessage('joinRoom')
@@ -156,7 +162,7 @@ export class ChatGateway {
         @MessageBody() joinRoomDto: JoinRoomDto,
     ) {
         const user = this.getUserInfo(client);
-        if (user === null) return;
+        if (user === null) return { status: 401 };
         client.join(NAMESPACE + joinRoomDto.roomId);
         /*
          ** Get the other client if included, otherwise,
@@ -168,7 +174,7 @@ export class ChatGateway {
                 .get(socketId)
                 ?.join(NAMESPACE + joinRoomDto.roomId);
         }
-        return true;
+        return { status: 200, data: true };
     }
 
     @SubscribeMessage('setAsUnead')
@@ -177,8 +183,11 @@ export class ChatGateway {
         @MessageBody('roomId') roomId: number,
     ) {
         const user = this.getUserInfo(client);
-        if (user === null) return;
-        return this.chatService.setRoomUnread(roomId, user['id']);
+        if (user === null) return { status: 401 };
+        return {
+            status: 200,
+            data: this.chatService.setRoomUnread(roomId, user['id']),
+        };
     }
 
     @SubscribeMessage('setRead')
@@ -187,14 +196,12 @@ export class ChatGateway {
         @MessageBody('roomId') roomId: number,
     ) {
         const user = this.getUserInfo(client);
-        if (user === null) return;
+        if (user === null) return { status: 401 };
 
-        return this.chatService.setRoomAsRead(roomId, user['id']);
-    }
-
-    @SubscribeMessage('findAllMessage')
-    findAll() {
-        return this.chatService.findAllMessages();
+        return {
+            status: 200,
+            data: this.chatService.setRoomAsRead(roomId, user['id']),
+        };
     }
 
     /*
