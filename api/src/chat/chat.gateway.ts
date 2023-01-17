@@ -6,14 +6,24 @@ import {
     ConnectedSocket,
 } from '@nestjs/websockets';
 import { ChatService } from './chat.service';
-import { CreateMessageDto, JoinRoomDto } from './dto/chat_common.dto';
+import {
+    CreateMessageDto,
+    CreateRoomDto,
+    JoinRoomDto,
+} from './dto/chat_common.dto';
 import { AuthService } from 'src/auth/auth.service';
+import { ConfigService } from '@nestjs/config';
+import { UseGuards } from '@nestjs/common';
+import { JwtService } from '@nestjs/jwt';
+import { PrismaClient, room, room_type } from '@prisma/client';
+import * as argon2 from 'argon2';
 
 const NAMESPACE = '/chat';
-
+const configService = new ConfigService();
 @WebSocketGateway({
     cors: {
-        origin: '*',
+        origin: configService.get('FRONTEND_URL'),
+        credentials: true,
     },
     namespace: NAMESPACE,
 })
@@ -21,14 +31,18 @@ export class ChatGateway {
     @WebSocketServer()
     private server;
     private connectedClient = {};
+    private cookie;
 
     constructor(
         private readonly chatService: ChatService,
         private readonly authService: AuthService,
-    ) {}
+        private readonly jwt: JwtService,
+    ) {
+        this.cookie = require('cookie');
+    }
 
     async handleConnection(@ConnectedSocket() client: any) {
-        const user = this.getUserInfo(client.handshake.auth.token);
+        const user = this.getUserInfo(client);
         if (user === null) return;
         const userRooms = await this.chatService.getUserRooms(user['id']);
         this.connectedClient[user['id']] = client.id;
@@ -38,18 +52,75 @@ export class ChatGateway {
     }
 
     handleDisconnect(@ConnectedSocket() client: any) {
-        const user = this.getUserInfo(client.handshake.auth.token);
+        const user = this.getUserInfo(client);
         if (user === null) return;
 
         delete this.connectedClient[user['id']];
     }
 
+    @SubscribeMessage('createRoom')
+    async createRoom(
+        @ConnectedSocket() client: any,
+        @MessageBody() body: CreateRoomDto,
+    ) {
+        const user = this.getUserInfo(client);
+        if (user === null) return;
+
+        const defaultRoom = await this.chatService.getRoomType('dm');
+        const roomTypeId = body.roomTypeId || defaultRoom.id;
+
+        if (body.userId) {
+            const roomInfo = await this.chatService.findRoomBetweenUsers(
+                user['id'],
+                body.userId,
+            );
+            /*
+             ** if we found a room, we return it
+             */
+            if (roomInfo[0] !== undefined)
+                return await this.chatService.getRoomInfo(roomInfo[0].room_id);
+        }
+
+        const newRoom = await this.chatService.createRoom(user, roomTypeId);
+        if (defaultRoom.id != roomTypeId) {
+            const roomData = await this.chatService.getRoomTypeById(roomTypeId);
+            if (!roomData) return;
+
+            await this.handleSharedRoom(client, body, roomData, newRoom);
+        }
+        /*
+         ** if there's a user in the request, that means we want to join
+         ** the following user as well to the new created room
+         */
+        if (body.userId) {
+            await this.chatService.joinRoom(newRoom['id'], body.userId);
+            this.joinRoom(client, { roomId: newRoom.id, userId: body.userId });
+        }
+
+        /*
+         ** by default, the owner of the room, obviously
+         ** is going to be part of it :)
+         */
+        await this.chatService.joinRoom(newRoom['id'], user['id']);
+        this.joinRoom(client, { roomId: newRoom.id, userId: user['id'] });
+        this.notifyMembers(client, newRoom.id, user['id']);
+        return newRoom;
+    }
+
+    /*
+     ** if there's a userId in the coming request
+     ** that means it's a DM, so we should first check if
+     ** there's already a room between the 2 users
+     ** if its the case, then we return it,
+     ** otherwise, we create a new room
+     */
     @SubscribeMessage('createMessage')
     async createMessage(
         @MessageBody() createMessage: CreateMessageDto,
         @ConnectedSocket() client: any,
     ) {
-        const user = this.getUserInfo(client.handshake.auth.token);
+        const user = this.getUserInfo(client);
+        if (user === null) return;
         const message = await this.chatService.createMessage(
             createMessage.roomId,
             user['id'],
@@ -75,17 +146,7 @@ export class ChatGateway {
         /*
          ** and this one to update the list of conversations
          */
-        this.server
-            .to(NAMESPACE + createMessage.roomId)
-            .emit('updateListConversations', {
-                room: (
-                    await this.chatService.getUserRooms(
-                        user['id'],
-                        message.room_id,
-                    )
-                )[0],
-                clientId: client.id,
-            });
+        this.notifyMembers(client, message.room_id, user['id']);
         return msgObject;
     }
 
@@ -94,7 +155,7 @@ export class ChatGateway {
         @ConnectedSocket() client: any,
         @MessageBody() joinRoomDto: JoinRoomDto,
     ) {
-        const user = this.getUserInfo(client.handshake.auth.token);
+        const user = this.getUserInfo(client);
         if (user === null) return;
         client.join(NAMESPACE + joinRoomDto.roomId);
         /*
@@ -115,7 +176,7 @@ export class ChatGateway {
         @ConnectedSocket() client: any,
         @MessageBody('roomId') roomId: number,
     ) {
-        const user = this.getUserInfo(client.handshake.auth.token);
+        const user = this.getUserInfo(client);
         if (user === null) return;
         return this.chatService.setRoomUnread(roomId, user['id']);
     }
@@ -125,7 +186,7 @@ export class ChatGateway {
         @ConnectedSocket() client: any,
         @MessageBody('roomId') roomId: number,
     ) {
-        const user = this.getUserInfo(client.handshake.auth.token);
+        const user = this.getUserInfo(client);
         if (user === null) return;
 
         return this.chatService.setRoomAsRead(roomId, user['id']);
@@ -136,7 +197,53 @@ export class ChatGateway {
         return this.chatService.findAllMessages();
     }
 
-    getUserInfo(token: string) {
-        return this.authService.getJwtToken(token);
+    /*
+     ** Helper functions
+     */
+
+    async notifyMembers(client: any, roomId: number, userId: number) {
+        this.server.to(NAMESPACE + roomId).emit('updateListConversations', {
+            room: (await this.chatService.getUserRooms(userId, roomId))[0],
+            clientId: client.id,
+        });
+    }
+
+    async handleSharedRoom(
+        @ConnectedSocket() client: any,
+        @MessageBody() body: CreateRoomDto,
+        roomTypeObject: room_type,
+        newRoom: room,
+    ) {
+        const objectToInsert = {};
+        const parsedRule = JSON.parse(roomTypeObject.rule);
+        let jsonString = '';
+
+        if (parsedRule['passwordRequired'] == true) {
+            if (body.password === body.confirmPassword)
+                objectToInsert['password'] = await argon2.hash(body.password);
+        }
+        await this.chatService.createRoomName(newRoom.id, body.name);
+        jsonString = JSON.stringify(objectToInsert);
+        if (jsonString != '{}')
+            await this.chatService.createRoomRule(
+                roomTypeObject.id,
+                jsonString,
+            );
+    }
+
+    getUserInfo(client) {
+        const token = this.getTokenFromCookie(client);
+        if (!token) return null;
+
+        const data = this.jwt.decode(token);
+        return data['user'];
+    }
+
+    getTokenFromCookie(@ConnectedSocket() client: any) {
+        const authToken = this.cookie.parse(client.handshake.headers.cookie)[
+            'Authentication'
+        ];
+        if (authToken) return authToken;
+        return null;
     }
 }

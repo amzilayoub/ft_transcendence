@@ -62,14 +62,13 @@ export const SearchchatTab = () => {
   );
 };
 
-const CreateRoomTab = () => {
   return (
     <Tab.Group>
       <Tab.List className="flex w-full h-8 justify-center items-center">
         <div className="flex justify-center items-center rounded-lg h-8 w-2/3 bg-slate-200 ">
-          {["public", "private", "protected"].map((tab) => (
+          {roomTypes.map((tab) => (
             <Tab
-              key={tab}
+              key={tab.id}
               className={({ selected }) =>
                 cn({
                   "bg-slate-400 shadow w-full h-full rounded-lg": selected,
@@ -78,7 +77,7 @@ const CreateRoomTab = () => {
                 })
               }
             >
-              {tab}
+              {tab.type}
             </Tab>
           ))}
         </div>
@@ -120,7 +119,7 @@ const CreateRoomTab = () => {
                 label="Room Name *"
                 placeholder="Enter room name"
                 onChange={(e) => {
-                  e.preventDefault();
+                  handleCreateRoomInput(e, "name");
                 }}
                 error="Room name must be at least 3 characters"
               />
@@ -129,7 +128,7 @@ const CreateRoomTab = () => {
                 label="Room Password"
                 placeholder="Enter room password"
                 onChange={(e) => {
-                  e.preventDefault();
+                  handleCreateRoomInput(e, "password");
                 }}
               />
               <TextInput
@@ -137,7 +136,7 @@ const CreateRoomTab = () => {
                 label="Confirm Room Password"
                 placeholder="Confirm room password"
                 onChange={(e) => {
-                  e.preventDefault();
+                  handleCreateRoomInput(e, "confirmPassword");
                 }}
               />
               <SearchchatTab />
