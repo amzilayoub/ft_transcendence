@@ -1,7 +1,9 @@
 import { Tab } from "@headlessui/react";
 import TextInput from "@ui/TextInput";
+import basicFetch from "@utils/basicFetch";
 import cn from "classnames";
 import Image from "next/image";
+import { useEffect, useState } from "react";
 import Creatable from "react-select/creatable";
 
 export const friends = [
@@ -22,7 +24,11 @@ export const friends = [
   },
 ];
 
-export const SearchchatTab = () => {
+export const SearchchatTab = ({
+  createRoomEvent,
+}: {
+  createRoomEvent: any;
+}) => {
   return (
     <>
       <form onSubmit={() => {}} className="pb-6">
@@ -53,7 +59,10 @@ export const SearchchatTab = () => {
         className="bg-blue-500 duration-300 text-white py-1 px-2 w-full rounded-md space-y-5 hover:bg-blue-600"
         onClick={(e) => {
           e.preventDefault();
-          // handleCreateRoom(e);
+          createRoomEvent(
+            e,
+            roomTypes.find((item) => item.type == "protected")
+          );
         }}
       >
         Create
@@ -62,6 +71,48 @@ export const SearchchatTab = () => {
   );
 };
 
+const CreateRoomTab = ({ createRoom }: { createRoom: any }) => {
+  const [roomTypes, setRoomTypes] = useState([]);
+  const [createRoomInfo, setCreateRoomInfo] = useState({
+    name: "",
+    password: "",
+    confirmPassword: "",
+  });
+  const getRoomTypes = async () => {
+    const res = await basicFetch.get("/chat/room/types/all");
+
+    if (res.status == 200) {
+      return await res.json();
+    }
+    return [];
+  };
+  useEffect(() => {
+    getRoomTypes().then((res) => {
+      setRoomTypes(res);
+    });
+  }, [true]);
+
+  const handleCreateRoomInput = (e: any, field: string) => {
+    e.preventDefault();
+    console.log(e.target.value);
+    setCreateRoomInfo((state) => {
+      return { ...state, [field]: e.target.value };
+    });
+    console.log(createRoomInfo);
+  };
+
+  const createRoomEvent = (e: any, roomType: any) => {
+    e.preventDefault();
+    createRoom(
+      {
+        ...createRoomInfo,
+        roomTypeId: roomType["id"],
+      },
+      (res: any) => {
+        console.log(res);
+      }
+    );
+  };
   return (
     <Tab.Group>
       <Tab.List className="flex w-full h-8 justify-center items-center">
@@ -95,7 +146,7 @@ export const SearchchatTab = () => {
               error="Room name must be at least 3 characters"
             />
           </div>
-          <SearchchatTab />
+          <SearchchatTab createRoomEvent={createRoomEvent} />
         </Tab.Panel>
         <Tab.Panel key="private-room-panel" className="">
           <div className="flex flex-col gap-y-2 pb-3">
@@ -109,7 +160,7 @@ export const SearchchatTab = () => {
               error="Room name must be at least 3 characters"
             />
           </div>
-          <SearchchatTab />
+          <SearchchatTab createRoomEvent={createRoomEvent} />
         </Tab.Panel>
         <Tab.Panel key="protected-room-panel" className="">
           <form action="">
@@ -139,7 +190,7 @@ export const SearchchatTab = () => {
                   handleCreateRoomInput(e, "confirmPassword");
                 }}
               />
-              <SearchchatTab />
+              <SearchchatTab createRoomEvent={createRoomEvent} />
             </div>
           </form>
         </Tab.Panel>
