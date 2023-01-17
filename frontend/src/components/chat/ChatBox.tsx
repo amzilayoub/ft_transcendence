@@ -1,11 +1,10 @@
 import React, { useCallback, useEffect, useRef, useState } from "react";
 
+import basicFetch from "@utils/basicFetch";
 import cn from "classnames";
+import { IConversation, IMessage } from "global/types";
 import Image from "next/image";
 import { RxCross2 } from "react-icons/rx";
-
-import basicFetch from "@utils/basicFetch";
-import { IConversation, IMessage } from "global/types";
 
 const Message = ({
   message,
