@@ -101,9 +101,10 @@ const ChatBox = ({
         "createMessage",
         { roomId: conversationMetaData.room_id, message: input },
         (msg) => {
-          msg.isMe = true;
+          if (msg.status != 200) return;
+          msg.data.isMe = true;
           setConversation((state) => {
-            return { ...state, messages: [...state?.messages, msg] };
+            return { ...state, messages: [...state?.messages, msg.data] };
           });
         }
       );
@@ -172,7 +173,7 @@ const ChatBox = ({
           userId: conversationMetaData.user_id,
         },
         (res) => {
-          console.log(res);
+          if (res.status != 200) return;
         }
       );
   };

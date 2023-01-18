@@ -36,6 +36,7 @@ model user {
     friends       friends[]       @relation("userLink")
     friends2      friends[]       @relation("userLink2")
     room_admin    room_admin[]
+    notifications notifications[]
 
     @@map("users")
 }
@@ -163,4 +164,28 @@ model room_rules {
     rule       String?
     created_at DateTime @default(now())
     updated_at DateTime @updatedAt
+}
+
+model notifications {
+    id Int @id @default(autoincrement())
+
+    message String
+
+    userLink1 user @relation(fields: [user_id], references: [id], onDelete: Cascade)
+    user_id   Int
+
+    notificationTypeLink1 notification_type @relation(fields: [notification_type_id], references: [id], onDelete: Cascade)
+    notification_type_id  Int
+
+    created_at DateTime @default(now())
+    updated_at DateTime @updatedAt
+}
+
+model notification_type {
+    id Int @id @default(autoincrement())
+
+    name          String
+    created_at    DateTime        @default(now())
+    updated_at    DateTime        @updatedAt
+    notifications notifications[]
 }
