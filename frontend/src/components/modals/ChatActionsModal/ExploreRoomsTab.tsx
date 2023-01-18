@@ -1,15 +1,14 @@
 import { useState } from "react";
 
-import cn from "classnames";
-import Image from "next/image";
-import { IoSearchOutline } from "react-icons/io5";
-import useSWR from "swr/immutable";
-
 import UserListItemLoading from "@ui/skeletons/UserSkeletons";
 import TextInput from "@ui/TextInput";
 import { truncateString } from "@utils/format";
 import { fetcher } from "@utils/swr.fetcher";
+import cn from "classnames";
 import { IRoom } from "global/types";
+import Image from "next/image";
+import { IoSearchOutline } from "react-icons/io5";
+import useSWR from "swr/immutable";
 
 const RoomListItem = ({ room }: { room: IRoom }) => {
   return (
@@ -92,7 +91,6 @@ const ExploreRoomsTab = ({}: {}) => {
           searchResults?.map((room: IRoom) => (
             <RoomListItem key={room.id} room={room} />
           ))}
-
         {searchLoading &&
           [...new Array(6)].map((i) => <UserListItemLoading key={i} />)}
         {!searchError && searchResults?.length === 0 && (

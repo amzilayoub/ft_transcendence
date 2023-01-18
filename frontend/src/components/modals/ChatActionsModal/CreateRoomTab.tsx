@@ -1,9 +1,10 @@
+import { useEffect, useState } from "react";
+
 import { Tab } from "@headlessui/react";
 import TextInput from "@ui/TextInput";
 import basicFetch from "@utils/basicFetch";
 import cn from "classnames";
 import Image from "next/image";
-import { useEffect, useState } from "react";
 import Creatable from "react-select/creatable";
 
 export const friends = [
@@ -117,7 +118,7 @@ const CreateRoomTab = ({ createRoom }: { createRoom: any }) => {
     <Tab.Group>
       <Tab.List className="flex w-full h-8 justify-center items-center">
         <div className="flex justify-center items-center rounded-lg h-8 w-2/3 bg-slate-200 ">
-          {roomTypes.map((tab) => (
+          {["public", "private", "protected"].map((tab) => (
             <Tab
               key={tab.id}
               className={({ selected }) =>
@@ -128,7 +129,7 @@ const CreateRoomTab = ({ createRoom }: { createRoom: any }) => {
                 })
               }
             >
-              {tab.type}
+              {tab}
             </Tab>
           ))}
         </div>
