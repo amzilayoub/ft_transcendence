@@ -1,9 +1,75 @@
 import { Tab } from "@headlessui/react";
-import cn from "classnames";
-
 import TextInput from "@ui/TextInput";
-import { useEffect, useState } from "react";
 import basicFetch from "@utils/basicFetch";
+import cn from "classnames";
+import Image from "next/image";
+import { useEffect, useState } from "react";
+import Creatable from "react-select/creatable";
+
+export const friends = [
+  {
+    value: "chocolate",
+    label: "ommagour",
+    img: "/images/default-avatar.jpg",
+  },
+  {
+    value: "mbifenzi",
+    label: "Strawberry",
+    img: "/images/default-avatar.jpg",
+  },
+  {
+    value: "vanilla",
+    label: "Apex",
+    img: "/images/default-avatar.jpg",
+  },
+];
+
+export const SearchchatTab = ({
+  createRoomEvent,
+}: {
+  createRoomEvent: any;
+}) => {
+  return (
+    <>
+      <form onSubmit={() => {}} className="pb-6">
+        <div>
+          <Creatable
+            defaultValue={[friends[2], friends[3]]}
+            isMulti
+            name="colors"
+            options={friends}
+            formatOptionLabel={(option) => (
+              <div className="flex gap-4 items-center">
+                <Image
+                  src={option.img}
+                  width={50}
+                  height={50}
+                  alt={""}
+                  className="rounded-full w-8 h-8"
+                />
+                <span>{option.label}</span>
+              </div>
+            )}
+            // className="basic-multi-select"
+            classNamePrefix="select"
+          />
+        </div>
+      </form>
+      <button
+        className="bg-blue-500 duration-300 text-white py-1 px-2 w-full rounded-md space-y-5 hover:bg-blue-600"
+        onClick={(e) => {
+          e.preventDefault();
+          createRoomEvent(
+            e,
+            roomTypes.find((item) => item.type == "protected")
+          );
+        }}
+      >
+        Create
+      </button>
+    </>
+  );
+};
 
 const CreateRoomTab = ({ createRoom }: { createRoom: any }) => {
   const [roomTypes, setRoomTypes] = useState([]);
@@ -12,7 +78,6 @@ const CreateRoomTab = ({ createRoom }: { createRoom: any }) => {
     password: "",
     confirmPassword: "",
   });
-
   const getRoomTypes = async () => {
     const res = await basicFetch.get("/chat/room/types/all");
 
@@ -48,7 +113,6 @@ const CreateRoomTab = ({ createRoom }: { createRoom: any }) => {
       }
     );
   };
-
   return (
     <Tab.Group>
       <Tab.List className="flex w-full h-8 justify-center items-center">
@@ -71,23 +135,32 @@ const CreateRoomTab = ({ createRoom }: { createRoom: any }) => {
       </Tab.List>
       <Tab.Panels className="mt-2">
         <Tab.Panel key="public-room-panel" className="">
-          <form action="">
-            <div className="flex flex-col gap-y-2">
-              <button
-                className="bg-blue-500 duration-300 text-white py-1 px-2 rounded-md hover:bg-blue-600"
-                onClick={(e) => {
-                  e.preventDefault();
-                }}
-              >
-                Create
-              </button>
-            </div>
-          </form>
+          <div className="flex flex-col gap-y-2 pb-3">
+            <TextInput
+              name="roomName"
+              label="Room Name *" // required
+              placeholder="Enter room name"
+              onChange={(e) => {
+                e.preventDefault();
+              }}
+              error="Room name must be at least 3 characters"
+            />
+          </div>
+          <SearchchatTab createRoomEvent={createRoomEvent} />
         </Tab.Panel>
         <Tab.Panel key="private-room-panel" className="">
-          <p>
-            Lorem ipsum dolor sit amet consectetur adipisicing elit. Quisquam
-          </p>
+          <div className="flex flex-col gap-y-2 pb-3">
+            <TextInput
+              name="roomName"
+              label="Room Name *" // required
+              placeholder="Enter room name"
+              onChange={(e) => {
+                e.preventDefault();
+              }}
+              error="Room name must be at least 3 characters"
+            />
+          </div>
+          <SearchchatTab createRoomEvent={createRoomEvent} />
         </Tab.Panel>
         <Tab.Panel key="protected-room-panel" className="">
           <form action="">
@@ -117,17 +190,7 @@ const CreateRoomTab = ({ createRoom }: { createRoom: any }) => {
                   handleCreateRoomInput(e, "confirmPassword");
                 }}
               />
-              <button
-                className="bg-blue-500 duration-300 text-white py-1 px-2 rounded-md hover:bg-blue-600"
-                onClick={(e) => {
-                  createRoomEvent(
-                    e,
-                    roomTypes.find((item) => item.type == "protected")
-                  );
-                }}
-              >
-                Create
-              </button>
+              <SearchchatTab createRoomEvent={createRoomEvent} />
             </div>
           </form>
         </Tab.Panel>

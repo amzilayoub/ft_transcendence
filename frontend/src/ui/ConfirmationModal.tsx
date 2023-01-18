@@ -1,5 +1,4 @@
 import { Dialog } from "@headlessui/react";
-
 import Button from "@ui/Button";
 
 import BaseModal from "./BaseModal";

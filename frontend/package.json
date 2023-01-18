@@ -12,6 +12,8 @@
     "fix": "eslint --fix 'src/**/*.{js,jsx,ts,tsx}'"
   },
   "dependencies": {
+    "@emotion/react": "^11.10.5",
+    "@emotion/styled": "^11.10.5",
     "@headlessui/react": "^1.7.3",
     "@types/node": "18.11.9",
     "@types/react": "18.0.24",
@@ -23,6 +25,8 @@
     "react-chartjs-2": "^5.2.0",
     "react-dom": "18.2.0",
     "react-icons": "^4.7.1",
+    "react-select": "^5.7.0",
+    "react-select-search": "^4.1.6",
     "socket.io": "^4.5.4",
     "socket.io-client": "^4.5.4",
     "swiper": "^8.4.5",
