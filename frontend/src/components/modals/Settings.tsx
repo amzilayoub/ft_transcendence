@@ -18,7 +18,27 @@ const SettingsModal = ({
   onClose: () => void;
 }) => {
   const [enabled, setEnabled] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
+  const currentUserData = {
+    firstName: "John",
+    lastName: "Doe",
+    username: "johndoe",
+    bio: "Lorem ipsum dolor sit amet, consectetur adipiscing elit.",
+  };
+  const [firstName, setFirstName] = useState(currentUserData.firstName);
+  const [lastName, setLastName] = useState(currentUserData.lastName);
+  const [username, setUsername] = useState(currentUserData.username);
+  const [bio, setBio] = useState(currentUserData.bio);
+
   // const [inputFilled, setInputFilled] = useState(false);
+  const handleSave = () => {
+    setIsLoading(true);
+    // Make API call or perform other logic here
+    setTimeout(() => {
+      setIsLoading(false);
+      alert("Data saved successfully!");
+    }, 2000);
+  };
 
   return (
     <BaseModal isOpen={isOpen} onClose={onClose}>
@@ -34,14 +54,32 @@ const SettingsModal = ({
                     <div className="flex flex-col justify-center items-center gap-5">
                       <div className="flex flex-row justify-around items-center gap-5">
                         <div>
-                          <TextInput label="First Name" type="email" />
+                          <TextInput
+                            label="First Name"
+                            type="text"
+                            value={firstName}
+                            onChange={(e) => setFirstName(e.target.value)}
+                            required
+                          />
                         </div>
                         <div>
-                          <TextInput label="Last Name" type="email" />
+                          <TextInput
+                            label="Last Name"
+                            type="text"
+                            value={lastName}
+                            onChange={(e) => setLastName(e.target.value)}
+                            required
+                          />
                         </div>
                       </div>
                       <div className="w-full">
-                        <TextInput label="Username" type="username" />
+                        <TextInput
+                          label="Username"
+                          type="username"
+                          value={username}
+                          onChange={(e) => setUsername(e.target.value)}
+                          required
+                        />
                       </div>
                     </div>
 
@@ -58,13 +96,19 @@ const SettingsModal = ({
                         alt={"ss"}
                         className="rounded-full shadow-inner hover:opacity-50 duration-300"
                       />
-                      <h1 className="text-white absolute hidden group-hover:block duration-300">
+                      <h1 className="text-white absolute hidden group-hover:block  duration-300">
                         upload a photo
                       </h1>
                     </div>
                   </div>
                   <div className="w-full md:w-full">
-                    <textarea className=" placeholder:bg-gray-400 bg-gray-100 rounded-md leading-normal resize-none w-full h-20 py-2 px-3 shadow-inner border border-gray-200 font-medium focus:outline-none focus:bg-white"></textarea>
+                    <TextInput
+                      label="description"
+                      type="text"
+                      value={bio}
+                      onChange={(e) => setBio(e.target.value)}
+                      required
+                    />
                   </div>
                 </div>
 
@@ -99,7 +143,12 @@ const SettingsModal = ({
               </div>
               <div className="w-full flex flex-row justify-around items-center">
                 <Button variant="danger">Delete Account</Button>
-                <Button variant="primary" type="submit">
+                <Button
+                  variant="primary"
+                  type="submit"
+                  isLoading={isLoading}
+                  onClick={handleSave}
+                >
                   Save
                 </Button>
               </div>
