@@ -1,62 +1,155 @@
 import { useState } from "react";
 
-import cn from "classnames";
-import Image from "next/image";
-import { IoSearchOutline } from "react-icons/io5";
-import useSWR from "swr/immutable";
-
+import BaseModal from "@ui/BaseModal";
+import Button from "@ui/Button";
 import UserListItemLoading from "@ui/skeletons/UserSkeletons";
 import TextInput from "@ui/TextInput";
 import { truncateString } from "@utils/format";
-import { fetcher } from "@utils/swr.fetcher";
+import cn from "classnames";
 import { IRoom } from "global/types";
+import Image from "next/image";
+import { IoSearchOutline } from "react-icons/io5";
+
+const handleJoinRoom = (room: IRoom) => {
+  alert(`Joining room ${room.name}`);
+};
 
 const RoomListItem = ({ room }: { room: IRoom }) => {
+  const [showPasswordModal, setShowPasswordModal] = useState<boolean>(false);
+
   return (
     <li
-      onClick={() => {}}
       className={cn(
         "group flex items-center cursor-pointer rounded-lg border border-gray-200 justify-between p-4 hover:bg-gray-50 duration-150",
         {
           "border-red-300": room.am_i_blocked, //tmp
         }
       )}
+      onClick={() => {
+        if (room.type === "protected") {
+          setShowPasswordModal(true);
+        } else {
+          handleJoinRoom(room);
+        }
+      }}
     >
       <div className="flex items-center gap-x-2 justify-between w-full">
-        <div className="w-full flex gap-x-2">
-          <Image
-            src={room.avatar_url || "/images/default-avatar.jpg"}
-            alt={room.name + " avatar"}
-            width={32}
-            height={32}
-            className="rounded-full"
-          />
-          <div className="ml-2">
-            <p className="text-sm font-medium">{room.name}</p>
-            <p className="text-xs text-gray-400 text-ellipsis">
-              {truncateString(room.description, 20)}
-            </p>
+        <div className="w-full flex justify-between gap-x-2">
+          <div className="ml-2 flex">
+            <Image
+              src={room.avatar_url || "/images/default-avatar.jpg"}
+              alt={room.name + " avatar"}
+              width={32}
+              height={32}
+              className="rounded-full"
+            />
+            <div className="ml-2">
+              <p className="text-sm font-medium">{room.name}</p>
+              <p className="text-xs text-gray-400 text-ellipsis">
+                {truncateString(room.description, 20)}
+              </p>
+            </div>
+          </div>
+          <div>
+            {room.type === "public" && (
+              <span className="text-xs text-green-500 font-semibold"></span>
+            )}
+            {room.type === "protected" && (
+              <span className="text-xs text-red-500 font-semibold">
+                Protected
+              </span>
+            )}
+            <button
+              className="ml-2 w-12 items-center
+            "
+            >
+              <span className="text-xs text-gray-400 font-semibold">
+                {room.am_i_member ? "Joined" : ""}
+              </span>
+            </button>
           </div>
         </div>
       </div>
+      {showPasswordModal && (
+        <BaseModal
+          title="Enter password"
+          onClose={() => setShowPasswordModal(false)}
+        >
+          <div className="flex flex-col gap-y-4 p-6 justify-center items-center">
+            <TextInput
+              label={`joining room ${room.name}`}
+              name="password"
+              placeholder="Password"
+              inputClassName="pl-12 py-[8px] "
+            />
+            <Button
+              type="submit"
+              className="w-full"
+              onClick={() => {
+                handleJoinRoom(room);
+                setShowPasswordModal(false);
+              }}
+            >
+              Join
+            </Button>
+          </div>
+        </BaseModal>
+      )}
     </li>
   );
 };
+// const fetcher = (url) => fetch(url).then((res) => res.json());
 const ExploreRoomsTab = ({}: {}) => {
   //   const chatCtx = useChatContext();
   const [searchQuery, setSearchQuery] = useState("");
   const [shouldSearch, setShouldSearch] = useState<boolean>(false);
+  // const [showPasswordModal, setShowPasswordModal] = useState<boolean>(false);
+  var today = new Date();
+  const rooms: IRoom[] = [
+    {
+      id: 1,
+      name: "memers",
+      description: "This is the first room",
+      avatar_url: "/images/default-avatar.jpg",
+      type: "public",
+      created_at: today,
+      am_i_admin: true,
+      am_i_member: true,
+      am_i_owner: false,
+      am_i_pending: false,
+      am_i_banned: false,
+    },
+    {
+      id: 2,
+      name: "gamers",
+      description: "This is the second room",
+      avatar_url: "/images/default-avatar.jpg",
+      type: "protected",
+      created_at: today,
+      am_i_admin: false,
+      am_i_member: false,
+      am_i_owner: false,
+      am_i_pending: false,
+      am_i_banned: false,
+    },
+  ];
 
-  const {
-    data: searchResults,
-    error: searchError,
-    isLoading: searchLoading,
-  } = useSWR(
-    searchQuery.length > 0 || shouldSearch
-      ? `/chat/room/explore/${searchQuery}`
-      : null,
-    fetcher
+  // const {
+  //   data: searchResults,
+  //   error: searchError,
+  //   isLoading: searchLoading,
+  // } = useSWR(
+  //   searchQuery.length > 0 || shouldSearch
+  //     ? `/chat/room/explore/${searchQuery}`
+  //     : null,
+  //   fetcher
+  // );
+
+  const searchResults = rooms.filter((room) =>
+    room.name.toLowerCase().includes(searchQuery.toLowerCase())
   );
+  const searchError = false;
+  const searchLoading = false;
 
   const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setSearchQuery(e.target.value);
@@ -92,7 +185,6 @@ const ExploreRoomsTab = ({}: {}) => {
           searchResults?.map((room: IRoom) => (
             <RoomListItem key={room.id} room={room} />
           ))}
-
         {searchLoading &&
           [...new Array(6)].map((i) => <UserListItemLoading key={i} />)}
         {!searchError && searchResults?.length === 0 && (
