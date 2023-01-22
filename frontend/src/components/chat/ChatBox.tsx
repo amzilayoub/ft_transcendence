@@ -1,9 +1,11 @@
 import React, { useCallback, useEffect, useRef, useState } from "react";
 
+import ChatroomSetingsModal from "@components/modals/ChatActionsModal/ChatroomSetingsModal";
 import basicFetch from "@utils/basicFetch";
 import cn from "classnames";
 import { IConversation, IMessage } from "global/types";
 import Image from "next/image";
+import { BsThreeDots } from "react-icons/bs";
 import { RxCross2 } from "react-icons/rx";
 
 const Message = ({
@@ -53,8 +55,7 @@ const Message = ({
   </li>
 );
 
-/*
-** Example of the message object
+// ** Example of the message object
 const sampleWholeConversation = {
   id: "1",
   members: [
@@ -78,7 +79,6 @@ const sampleWholeConversation = {
     },
   ],
 };
-*/
 
 const ChatBox = ({
   conversationMetaData,
@@ -92,6 +92,7 @@ const ChatBox = ({
   const [conversation, setConversation] = useState<IConversation | null>(null);
   const [input, setInput] = useState("");
   const bottomDiv = useRef<HTMLDivElement>(null);
+  const [ShowChatSettingModal, setShowChatSettingModal] = useState(false);
 
   const handleSendMessage = React.useCallback(
     (e: any) => {
@@ -239,6 +240,16 @@ const ChatBox = ({
         >
           <RxCross2 className="w-5 h-5" />
         </span>
+        <span
+          onClick={(e) => {
+            e.stopPropagation();
+            setShowChatSettingModal(true);
+            console.log("clicked");
+          }}
+          className="absolute p-1 text-gray-400 duration-300 rounded-full cursor-pointer hover:text-slate-600 top-3 right-10 hover:bg-gray-200"
+        >
+          <BsThreeDots className="w-5 h-5" />
+        </span>
       </div>
       <div className="justify-items-stretch flex flex-col h-full overflow-hidden">
         <ul
@@ -258,6 +269,15 @@ const ChatBox = ({
             />
           ))}
           <div ref={bottomDiv}></div>
+          <div>
+            {ShowChatSettingModal && (
+              <ChatroomSetingsModal
+                Metadata={conversationMetaData}
+                onClose={setShowChatSettingModal(false)}
+                
+              />
+            )}
+          </div>
         </ul>
         {/* inputa */}
         <div className="w-full p-3 border-gray-200 sm:mb-0">
