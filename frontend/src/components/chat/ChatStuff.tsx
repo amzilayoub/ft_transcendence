@@ -71,7 +71,7 @@ const ChatStuff = () => {
         onNewConversationClick={() => console.log("new conversation")}
         socket={socketIO}
       />
-      <ul className="absolute bottom-0 flex right-80 gap-x-3">
+      <ul className="absolute bottom-0 flex right-[400px] gap-x-3">
         {activeBoxes?.map((item) => (
           <li key={item.id} className="w-full">
             <ChatBox

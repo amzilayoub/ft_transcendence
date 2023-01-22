@@ -1,6 +1,6 @@
 import React, { useCallback, useEffect, useRef, useState } from "react";
 
-import ChatroomSetingsModal from "@components/modals/ChatActionsModal/ChatroomSetingsModal";
+import ChatroomSetingsModal from "@components/modals/ChatActionsModal/ChatroomSettingsModal";
 import basicFetch from "@utils/basicFetch";
 import cn from "classnames";
 import { IConversation, IMessage } from "global/types";
@@ -56,29 +56,29 @@ const Message = ({
 );
 
 // ** Example of the message object
-const sampleWholeConversation = {
-  id: "1",
-  members: [
-    {
-      id: "1",
-      name: "John Doe",
-      avatarUrl: "https://martinfowler.com/mf.jpg",
-    },
-    {
-      id: "2",
-      name: "Mike Doe",
-      avatarUrl: "https://martinfowler.com/mf.jpg",
-    },
-  ],
-  messages: [
-    {
-      id: "1",
-      senderId: "1",
-      text: "Lorem ipsum dolor sit amet consectetur adipisicing elit. Quisquam, quod. Lorem ipsum dolor sit amet consectetur adipisicing elit. Quisquam, quodZ.",
-      time: "12:00",
-    },
-  ],
-};
+// const sampleWholeConversation = {
+//   id: "1",
+//   members: [
+//     {
+//       id: "1",
+//       name: "John Doe",
+//       avatarUrl: "https://martinfowler.com/mf.jpg",
+//     },
+//     {
+//       id: "2",
+//       name: "Mike Doe",
+//       avatarUrl: "https://martinfowler.com/mf.jpg",
+//     },
+//   ],
+//   messages: [
+//     {
+//       id: "1",
+//       senderId: "1",
+//       text: "Lorem ipsum dolor sit amet consectetur adipisicing elit. Quisquam, quod. Lorem ipsum dolor sit amet consectetur adipisicing elit. Quisquam, quodZ.",
+//       time: "12:00",
+//     },
+//   ],
+// };
 
 const ChatBox = ({
   conversationMetaData,
@@ -269,15 +269,6 @@ const ChatBox = ({
             />
           ))}
           <div ref={bottomDiv}></div>
-          <div>
-            {ShowChatSettingModal && (
-              <ChatroomSetingsModal
-                Metadata={conversationMetaData}
-                onClose={setShowChatSettingModal(false)}
-                
-              />
-            )}
-          </div>
         </ul>
         {/* inputa */}
         <div className="w-full p-3 border-gray-200 sm:mb-0">
@@ -324,6 +315,15 @@ const ChatBox = ({
               </button>
             )}
           </div>
+        </div>
+        <div>
+          {ShowChatSettingModal && (
+            <ChatroomSetingsModal
+              Metadata={conversationMetaData}
+              isOpen={ShowChatSettingModal}
+              onClose={() => setShowChatSettingModal(false)}
+            />
+          )}
         </div>
       </div>
 
