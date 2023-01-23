@@ -1,7 +1,7 @@
 import { Injectable } from '@nestjs/common';
 
 import { PrismaService } from 'src/prisma/prisma.service';
-import { Prisma } from '@prisma/client';
+import { Prisma, room_user_rel } from '@prisma/client';
 
 @Injectable()
 export class ChatService {
@@ -128,6 +128,7 @@ export class ChatService {
 										-1
 									END
 			AND sender.user_id = ${userId}
+			AND receiver.user_id = ${userId}
 			${specificRoom}
 			ORDER BY room.updated_at DESC
 		`;
@@ -137,8 +138,11 @@ export class ChatService {
     findRoomBetweenUsers(currentUserId: number, targetUserId: number) {
         return this.prismaService.$queryRaw(Prisma.sql`
 			SELECT u1.*
-			FROM room_user_rel as u1, room_user_rel as u2
-			WHERE u1.user_id = ${currentUserId}
+			FROM room_user_rel as u1, room_user_rel as u2, room, room_type
+			WHERE u1.room_id = room.id AND u2.room_id = room.id
+			AND room.room_type_id = room_type.id
+			AND room_type.type = 'dm'
+			AND u1.user_id = ${currentUserId}
 			AND u2.user_id = ${targetUserId}
 			AND u1.room_id = u2.room_id
 		`);
@@ -195,15 +199,26 @@ export class ChatService {
     }
 
     exploreRooms(roomName: string, userId: number) {
-        const query = `%${roomName}%`;
+        console.log(userId, roomName);
+        let query = `%${roomName}%`;
+        if (query == '') query = '%%';
         return this.prismaService.$queryRaw(Prisma.sql`
-					SELECT room.id, room_details.name, room_details.avatar_url
+					SELECT DISTINCT room.id, room_details.name, room_details.avatar_url,
+					CASE
+					WHEN (
+							SELECT COUNT(*)
+							 FROM room_user_rel
+							  WHERE room_user_rel.user_id = 27
+							AND room_user_rel.room_id = room.id
+						 ) > 0
+						THEN true
+					ELSE
+						false
+				END AS "am_i_member"
 					FROM room
 					INNER JOIN room_details ON room_details.room_id = room.id
 					INNER JOIN room_type ON room_type.id = room.room_type_id
-					INNER JOIN room_user_rel ON room_user_rel.room_id = room.id
 					WHERE room_type.type != 'private'
-					AND room_user_rel.user_id != ${userId}
 					AND room_details.name LIKE ${query}`);
     }
 
@@ -241,6 +256,15 @@ export class ChatService {
 			SET unread_message_count = 0
 			WHERE room_id = ${roomId}
 			AND user_id = ${userId}
+		`);
+    }
+
+    isJoined(userId: number, roomId: number): Promise<room_user_rel[]> {
+        return this.prismaService.$queryRaw(Prisma.sql`
+			SELECT *
+			FROM room_user_rel
+			WHERE user_id = ${userId}
+			AND room_id = ${roomId}
 		`);
     }
 }

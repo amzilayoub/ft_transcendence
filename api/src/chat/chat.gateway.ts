@@ -15,7 +15,7 @@ import { AuthService } from 'src/auth/auth.service';
 import { ConfigService } from '@nestjs/config';
 import { UseGuards } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
-import { PrismaClient, room, room_type } from '@prisma/client';
+import { PrismaClient, room, room_type, user } from '@prisma/client';
 import * as argon2 from 'argon2';
 
 const NAMESPACE = '/chat';
@@ -70,7 +70,7 @@ export class ChatGateway {
         const defaultRoom = await this.chatService.getRoomType('dm');
         const roomTypeId = body.roomTypeId || defaultRoom.id;
 
-        if (body.userId) {
+        if (body.userId && defaultRoom.type == 'dm') {
             const roomInfo = await this.chatService.findRoomBetweenUsers(
                 user['id'],
                 body.userId,
@@ -80,7 +80,7 @@ export class ChatGateway {
              */
             if (roomInfo[0] !== undefined)
                 return {
-                    status: 401,
+                    status: 200,
                     data: await this.chatService.getRoomInfo(
                         roomInfo[0].room_id,
                     ),
@@ -99,7 +99,7 @@ export class ChatGateway {
          ** the following user as well to the new created room
          */
         if (body.userId) {
-            await this.chatService.joinRoom(newRoom['id'], body.userId);
+            // await this.chatService.joinRoom(newRoom['id'], body.userId);
             this.joinRoom(client, { roomId: newRoom.id, userId: body.userId });
         }
 
@@ -107,7 +107,7 @@ export class ChatGateway {
          ** by default, the owner of the room, obviously
          ** is going to be part of it :)
          */
-        await this.chatService.joinRoom(newRoom['id'], user['id']);
+        // await this.chatService.joinRoom(newRoom['id'], user['id']);
         this.joinRoom(client, { roomId: newRoom.id, userId: user['id'] });
         this.notifyMembers(client, newRoom.id, user['id']);
         return { status: 200, data: newRoom };
@@ -157,12 +157,24 @@ export class ChatGateway {
     }
 
     @SubscribeMessage('joinRoom')
-    joinRoom(
+    async joinRoom(
         @ConnectedSocket() client: any,
         @MessageBody() joinRoomDto: JoinRoomDto,
     ) {
         const user = this.getUserInfo(client);
         if (user === null) return { status: 401 };
+        if (!(await this.isJoined(user, joinRoomDto.roomId))) {
+            await this.chatService.joinRoom(joinRoomDto.roomId, user['id']);
+            client.emit('updateListConversations', {
+                room: (
+                    await this.chatService.getUserRooms(
+                        user['id'],
+                        joinRoomDto.roomId,
+                    )
+                )[0],
+                clientId: -1,
+            });
+        }
         client.join(NAMESPACE + joinRoomDto.roomId);
         /*
          ** Get the other client if included, otherwise,
@@ -252,5 +264,10 @@ export class ChatGateway {
         ];
         if (authToken) return authToken;
         return null;
+    }
+
+    async isJoined(user: user, roomId) {
+        const res = await this.chatService.isJoined(user.id, roomId);
+        return res.length > 0;
     }
 }

@@ -42,9 +42,14 @@ const UserListItem = ({
   return (
     <li
       onClick={() => {
-        createRoom({
-          userId: user["id"],
-        });
+        createRoom(
+          {
+            userId: user["id"],
+          },
+          (resp) => {
+            console.log("resp = ", resp);
+          }
+        );
       }}
       className={cn(
         "group flex items-center cursor-pointer rounded-lg border border-gray-200 justify-between p-4 hover:bg-gray-50 duration-150",

@@ -27,8 +27,10 @@ export const friends = [
 
 export const SearchchatTab = ({
   createRoomEvent,
+  roomTypes,
 }: {
   createRoomEvent: any;
+  roomTypes: any;
 }) => {
   return (
     <>
@@ -60,10 +62,7 @@ export const SearchchatTab = ({
         className="bg-blue-500 duration-300 text-white py-1 px-2 w-full rounded-md space-y-5 hover:bg-blue-600"
         onClick={(e) => {
           e.preventDefault();
-          createRoomEvent(
-            e,
-            roomTypes.find((item) => item.type == "protected")
-          );
+          createRoomEvent(e, roomTypes);
         }}
       >
         Create
@@ -142,12 +141,15 @@ const CreateRoomTab = ({ createRoom }: { createRoom: any }) => {
               label="Room Name *" // required
               placeholder="Enter room name"
               onChange={(e) => {
-                e.preventDefault();
+                handleCreateRoomInput(e, "name");
               }}
               error="Room name must be at least 3 characters"
             />
           </div>
-          <SearchchatTab createRoomEvent={createRoomEvent} />
+          <SearchchatTab
+            createRoomEvent={createRoomEvent}
+            roomTypes={roomTypes.find((item) => item["type"] == "public")}
+          />
         </Tab.Panel>
         <Tab.Panel key="private-room-panel" className="">
           <div className="flex flex-col gap-y-2 pb-3">
@@ -156,12 +158,15 @@ const CreateRoomTab = ({ createRoom }: { createRoom: any }) => {
               label="Room Name *" // required
               placeholder="Enter room name"
               onChange={(e) => {
-                e.preventDefault();
+                handleCreateRoomInput(e, "name");
               }}
               error="Room name must be at least 3 characters"
             />
           </div>
-          <SearchchatTab createRoomEvent={createRoomEvent} />
+          <SearchchatTab
+            createRoomEvent={createRoomEvent}
+            roomTypes={roomTypes.find((item) => item["type"] == "private")}
+          />
         </Tab.Panel>
         <Tab.Panel key="protected-room-panel" className="">
           <form action="">
@@ -191,7 +196,12 @@ const CreateRoomTab = ({ createRoom }: { createRoom: any }) => {
                   handleCreateRoomInput(e, "confirmPassword");
                 }}
               />
-              <SearchchatTab createRoomEvent={createRoomEvent} />
+              <SearchchatTab
+                createRoomEvent={createRoomEvent}
+                roomTypes={roomTypes.find(
+                  (item) => item["type"] == "protected"
+                )}
+              />
             </div>
           </form>
         </Tab.Panel>

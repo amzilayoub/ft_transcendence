@@ -63,10 +63,10 @@ export class ChatController {
         return this.chatService.getUserRooms(user['id'], -1, roomName);
     }
 
-    @Get('room/explore/:roomName')
+    @Get('room/explore/:roomName?')
     async exploreRooms(
         @Req() request: RequestWithUser,
-        @Param('roomName') roomName: string,
+        @Param('roomName') roomName: string = '',
     ) {
         const user = await this.authService.getMe(request.user.id);
         return await this.chatService.exploreRooms(roomName, user['id']);
@@ -107,6 +107,7 @@ export class ChatController {
     ) {
         const user = await this.authService.getMe(request.user.id);
 
+        if (isNaN(roomId)) return [];
         return await this.chatService.getUserRooms(user['id'], roomId);
     }
 }

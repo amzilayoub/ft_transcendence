@@ -1,13 +1,16 @@
 import {
+    IsArray,
     IsIn,
     isIn,
     isInt,
     IsInt,
+    IsNumber,
     isNumber,
     isNumberString,
     IsOptional,
     isString,
     IsString,
+    ValidateNested,
 } from 'class-validator';
 
 export class CreateRoomDto {
@@ -30,6 +33,12 @@ export class CreateRoomDto {
     @IsOptional()
     @IsString()
     confirmPassword: string;
+
+    @IsOptional()
+    @IsArray()
+    @ValidateNested({ each: true })
+    @IsInt()
+    usersId: number[];
 }
 
 export class JoinRoomDto {
