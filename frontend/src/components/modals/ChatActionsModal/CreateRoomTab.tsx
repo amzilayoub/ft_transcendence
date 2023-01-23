@@ -4,8 +4,18 @@ import { Tab } from "@headlessui/react";
 import TextInput from "@ui/TextInput";
 import basicFetch from "@utils/basicFetch";
 import cn from "classnames";
-import Image from "next/image";
-import Creatable from "react-select/creatable";
+import { useAuthContext } from "context/auth.context";
+import AsyncSelect from "react-select/async";
+
+const LoadingIndicator = () => {
+  return (
+    <div className="flex items-center justify-center">
+      <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-gray-900">
+        {/* Loading */}
+      </div>
+    </div>
+  );
+};
 
 export const friends = [
   {
@@ -30,11 +40,43 @@ export const SearchchatTab = ({
 }: {
   createRoomEvent: any;
 }) => {
+  const ctx = useAuthContext();
+  const [roomMembers, setRoomMembers] = useState([]);
+  const [people, setPeople] = useState([...friends]);
+
+  useEffect(() => {
+    const fetchPeople = async () => {
+      const res = await basicFetch.get(`/users/${ctx.user?.username}/friends`);
+      if (res.status == 200) {
+        const data = await res.json();
+        setPeople(data);
+      }
+    };
+    fetchPeople();
+  }, []);
+
+  const handleSearch = async (value: any) => {
+    const res = await basicFetch.get(
+      `/users/${ctx.user?.username}/friends/${value}`
+    );
+    if (res.status == 200) {
+      const data = await res.json();
+      return data;
+    }
+    return [
+      {
+        value: "salut",
+        label: "salut",
+        img: "/images/default-avatar.jpg",
+      },
+    ];
+  };
+
   return (
     <>
       <form onSubmit={() => {}} className="pb-6">
         <div>
-          <Creatable
+          {/* <Creatable
             defaultValue={[friends[2], friends[3]]}
             isMulti
             name="colors"
@@ -51,8 +93,24 @@ export const SearchchatTab = ({
                 <span>{option.label}</span>
               </div>
             )}
+            onChange={(e) => {
+              setRoomMembers(e);
+            }}
+            onInputChange={(e) => {
+              handleSearch(e);
+            }}
+            onCreateOption={handleCreate}
             // className="basic-multi-select"
             classNamePrefix="select"
+          /> */}
+          <AsyncSelect
+            cacheOptions
+            value={roomMembers}
+            defaultOptions
+            loadOptions={handleSearch}
+            components={{ LoadingIndicator }}
+            onChange={(value) => setRoomMembers(value)}
+            isMulti
           />
         </div>
       </form>

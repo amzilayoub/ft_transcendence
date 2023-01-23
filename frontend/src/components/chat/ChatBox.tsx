@@ -1,9 +1,17 @@
 import React, { useCallback, useEffect, useRef, useState } from "react";
 
-import ChatroomSetingsModal from "@components/modals/ChatActionsModal/ChatroomSettingsModal";
+import { ChatdmSettingsModal } from "@components/modals/ChatActionsModal/ChatroomSettingsModal";
+import ChatroomSettingsModal from "@components/modals/ChatActionsModal/ChatroomSettingsModal";
 import basicFetch from "@utils/basicFetch";
 import cn from "classnames";
-import { IConversation, IMessage } from "global/types";
+import {
+  IConversation,
+  IMessage,
+  IRoom,
+  MemberGameStatus,
+  MembershipStatus,
+  RoomType,
+} from "global/types";
 import Image from "next/image";
 import { BsThreeDots } from "react-icons/bs";
 import { RxCross2 } from "react-icons/rx";
@@ -94,6 +102,71 @@ const ChatBox = ({
   const bottomDiv = useRef<HTMLDivElement>(null);
   const [ShowChatSettingModal, setShowChatSettingModal] = useState(false);
 
+  const [conversationData, setConversationData] = useState<IConversation>({
+    id: "1",
+    members: ["mbif", "folfol", "yheb", "apex"],
+    messages: [
+      {
+        id: 1,
+        is_read: true,
+        message: "hey",
+        room_id: 1,
+        updated_at: new Date(),
+        userLink: {
+          id: 1,
+          username: "mbif",
+          avatar_url: "https://i.imgur.com/0y0XG5Y.jpg",
+        },
+        user_id: 1, // duplicate of userLink.id
+        created_at: new Date(),
+      },
+    ],
+  });
+
+  const [roomData, setRoomData] = useState<IRoom>({
+    id: 1,
+    name: "Spagueeetti",
+    description: "this is a testing room",
+    avatar_url: "/default_avatar.png",
+    type: RoomType.PRIVATE,
+    created_at: new Date(),
+    members: [
+      {
+        id: 1,
+        username: "mbif",
+        avatar_url: "/default_avatar.png",
+        isOnline: true,
+        gameStatus: MemberGameStatus.IDLE,
+        membershipStatus: MembershipStatus.OWNER,
+        isBanned: false,
+        isMuted: false,
+        mutedUntil: new Date(),
+      },
+      {
+        id: 2,
+        username: "tetetet",
+        avatar_url: "/default_avatar.png",
+        isOnline: true,
+        gameStatus: MemberGameStatus.IDLE,
+        membershipStatus: MembershipStatus.MEMBER,
+        isBanned: false,
+        isMuted: false,
+        mutedUntil: new Date(),
+      },
+      {
+        id: 3,
+        username: "wewewewewewe",
+        avatar_url: "/default_avatar.png",
+        isOnline: true,
+        gameStatus: MemberGameStatus.IDLE,
+        membershipStatus: MembershipStatus.MEMBER,
+        isBanned: false,
+        isMuted: false,
+        mutedUntil: new Date(),
+      },
+    ],
+    // updated_at: Date;
+  });
   const handleSendMessage = React.useCallback(
     (e: any) => {
       e.preventDefault();
@@ -317,9 +390,18 @@ const ChatBox = ({
           </div>
         </div>
         <div>
-          {ShowChatSettingModal && (
-            <ChatroomSetingsModal
-              Metadata={conversationMetaData}
+          {ShowChatSettingModal && roomData.type != "direct" && (
+            <ChatroomSettingsModal
+              roomData={roomData}
+              isOpen={ShowChatSettingModal}
+              onClose={() => setShowChatSettingModal(false)}
+            />
+          )}
+        </div>
+        <div>
+          {ShowChatSettingModal && conversationMetaData.type === "direct" && (
+            <ChatdmSettingsModal
+              roomData={roomData}
               isOpen={ShowChatSettingModal}
               onClose={() => setShowChatSettingModal(false)}
             />

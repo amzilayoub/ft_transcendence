@@ -16,6 +16,28 @@ export interface IFetchError {
   message: string;
 }
 
+////////////////////////
+
+export enum RoomType {
+  PUBLIC = "public",
+  PRIVATE = "private",
+  PROTECTED = "protected",
+  DIRECT = "direct",
+}
+
+export enum MembershipStatus {
+  OWNER = "owner",
+  MEMBER = "member",
+  MODERATOR = "moderator",
+}
+
+export enum MemberGameStatus {
+  PLAYING = "playing",
+  IDLE = "idle",
+  WAITING = "waiting", // queued
+  WATCHING = "watching",
+}
+
 export interface IUser {
   username: string;
   first_name: string;
@@ -93,14 +115,20 @@ export interface IRoom {
   name: string;
   description: string;
   avatar_url: string;
-  type: string; // 'public' | 'private' | 'protected' | 'direct' (?);
+  type: RoomType;
   created_at: Date;
   // updated_at: Date;
-  am_i_blocked?: boolean; // tmp, normally this means that the user is banned
-  am_i_muted?: boolean;
-  am_i_admin?: boolean;
-  am_i_member?: boolean;
-  am_i_owner?: boolean;
-  am_i_pending?: boolean;
-  am_i_banned?: boolean;
+  members: IRoomMember[];
+}
+
+export interface IRoomMember {
+  id: number;
+  username: string;
+  avatar_url: string;
+  isOnline: boolean;
+  gameStatus: MemberGameStatus;
+  membershipStatus: MembershipStatus;
+  isBanned: boolean;
+  isMuted: boolean;
+  mutedUntil: Date;
 }
