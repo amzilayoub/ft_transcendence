@@ -50,7 +50,6 @@ export const ChatProvider = ({ children }: { children: React.ReactNode }) => {
 
       if (resp.status === 200) {
         const data: IConversationMetaData = await resp.json();
-        // console.log(data);
         setConversationsMetadata(data);
       }
     } catch (error) {

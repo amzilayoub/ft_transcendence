@@ -177,6 +177,17 @@ export class ChatGateway {
                 .get(socketId)
                 ?.join(NAMESPACE + joinRoomDto.roomId);
         }
+        const room = await this.chatService.getUserRooms(
+            user['id'],
+            joinRoomDto.roomId,
+        );
+        client.emit('updateListConversations', {
+            status: 200,
+            data: {
+                room: room[0],
+                clientId: client.id,
+            },
+        });
         return { status: 200, data: true };
     }
 
@@ -212,10 +223,11 @@ export class ChatGateway {
      */
 
     async notifyMembers(client: any, roomId: number, userId: number) {
+        const room = await this.chatService.getUserRooms(userId, roomId);
         this.server.to(NAMESPACE + roomId).emit('updateListConversations', {
             status: 200,
             data: {
-                room: (await this.chatService.getUserRooms(userId, roomId))[0],
+                room: room[0],
                 clientId: client.id,
             },
         });

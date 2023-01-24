@@ -98,7 +98,6 @@ const CreateRoomTab = ({ createRoom }: { createRoom: any }) => {
     setCreateRoomInfo((state) => {
       return { ...state, [field]: e.target.value };
     });
-    console.log(createRoomInfo);
   };
 
   const createRoomEvent = (e: any, roomType: any) => {
