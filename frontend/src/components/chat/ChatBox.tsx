@@ -1,9 +1,19 @@
 import React, { useCallback, useEffect, useRef, useState } from "react";
 
+import { ChatdmSettingsModal } from "@components/modals/ChatActionsModal/ChatroomSettingsModal";
+import ChatroomSettingsModal from "@components/modals/ChatActionsModal/ChatroomSettingsModal";
 import basicFetch from "@utils/basicFetch";
 import cn from "classnames";
-import { IConversation, IMessage } from "global/types";
+import {
+  IConversation,
+  IMessage,
+  IRoom,
+  MemberGameStatus,
+  MembershipStatus,
+  RoomType,
+} from "global/types";
 import Image from "next/image";
+import { BsThreeDots } from "react-icons/bs";
 import { RxCross2 } from "react-icons/rx";
 
 const Message = ({
@@ -53,32 +63,30 @@ const Message = ({
   </li>
 );
 
-/*
-** Example of the message object
-const sampleWholeConversation = {
-  id: "1",
-  members: [
-    {
-      id: "1",
-      name: "John Doe",
-      avatarUrl: "https://martinfowler.com/mf.jpg",
-    },
-    {
-      id: "2",
-      name: "Mike Doe",
-      avatarUrl: "https://martinfowler.com/mf.jpg",
-    },
-  ],
-  messages: [
-    {
-      id: "1",
-      senderId: "1",
-      text: "Lorem ipsum dolor sit amet consectetur adipisicing elit. Quisquam, quod. Lorem ipsum dolor sit amet consectetur adipisicing elit. Quisquam, quodZ.",
-      time: "12:00",
-    },
-  ],
-};
-*/
+// ** Example of the message object
+// const sampleWholeConversation = {
+//   id: "1",
+//   members: [
+//     {
+//       id: "1",
+//       name: "John Doe",
+//       avatarUrl: "https://martinfowler.com/mf.jpg",
+//     },
+//     {
+//       id: "2",
+//       name: "Mike Doe",
+//       avatarUrl: "https://martinfowler.com/mf.jpg",
+//     },
+//   ],
+//   messages: [
+//     {
+//       id: "1",
+//       senderId: "1",
+//       text: "Lorem ipsum dolor sit amet consectetur adipisicing elit. Quisquam, quod. Lorem ipsum dolor sit amet consectetur adipisicing elit. Quisquam, quodZ.",
+//       time: "12:00",
+//     },
+//   ],
+// };
 
 const ChatBox = ({
   conversationMetaData,
@@ -92,7 +100,73 @@ const ChatBox = ({
   const [conversation, setConversation] = useState<IConversation | null>(null);
   const [input, setInput] = useState("");
   const bottomDiv = useRef<HTMLDivElement>(null);
+  const [ShowChatSettingModal, setShowChatSettingModal] = useState(false);
 
+  const [conversationData, setConversationData] = useState<IConversation>({
+    id: "1",
+    members: ["mbif", "folfol", "yheb", "apex"],
+    messages: [
+      {
+        id: 1,
+        is_read: true,
+        message: "hey",
+        room_id: 1,
+        updated_at: new Date(),
+        userLink: {
+          id: 1,
+          username: "mbif",
+          avatar_url: "https://i.imgur.com/0y0XG5Y.jpg",
+        },
+        user_id: 1, // duplicate of userLink.id
+        created_at: new Date(),
+      },
+    ],
+  });
+
+  const [roomData, setRoomData] = useState<IRoom>({
+    id: 1,
+    name: "Spagueeetti",
+    description: "this is a testing room",
+    avatar_url: "/default_avatar.png",
+    type: RoomType.PRIVATE,
+    created_at: new Date(),
+    members: [
+      {
+        id: 1,
+        username: "mbif",
+        avatar_url: "/default_avatar.png",
+        isOnline: true,
+        gameStatus: MemberGameStatus.IDLE,
+        membershipStatus: MembershipStatus.MODERATOR,
+        isBanned: false,
+        isMuted: false,
+        mutedUntil: new Date(),
+      },
+      {
+        id: 2,
+        username: "tetetet",
+        avatar_url: "/default_avatar.png",
+        isOnline: true,
+        gameStatus: MemberGameStatus.IDLE,
+        membershipStatus: MembershipStatus.OWNER,
+        isBanned: false,
+        isMuted: false,
+        mutedUntil: new Date(),
+      },
+      {
+        id: 3,
+        username: "wewewewewewe",
+        avatar_url: "/default_avatar.png",
+        isOnline: true,
+        gameStatus: MemberGameStatus.IDLE,
+        membershipStatus: MembershipStatus.MEMBER,
+        isBanned: false,
+        isMuted: false,
+        mutedUntil: new Date(),
+      },
+    ],
+    // updated_at: Date;
+  });
   const handleSendMessage = React.useCallback(
     (e: any) => {
       e.preventDefault();
@@ -239,6 +313,16 @@ const ChatBox = ({
         >
           <RxCross2 className="w-5 h-5" />
         </span>
+        <span
+          onClick={(e) => {
+            e.stopPropagation();
+            setShowChatSettingModal(true);
+            console.log("clicked");
+          }}
+          className="absolute p-1 text-gray-400 duration-300 rounded-full cursor-pointer hover:text-slate-600 top-3 right-10 hover:bg-gray-200"
+        >
+          <BsThreeDots className="w-5 h-5" />
+        </span>
       </div>
       <div className="justify-items-stretch flex flex-col h-full overflow-hidden">
         <ul
@@ -304,6 +388,24 @@ const ChatBox = ({
               </button>
             )}
           </div>
+        </div>
+        <div>
+          {ShowChatSettingModal && roomData.type != "direct" && (
+            <ChatroomSettingsModal
+              roomData={roomData}
+              isOpen={ShowChatSettingModal}
+              onClose={() => setShowChatSettingModal(false)}
+            />
+          )}
+        </div>
+        <div>
+          {ShowChatSettingModal && conversationMetaData.type === "direct" && (
+            <ChatdmSettingsModal
+              roomData={roomData}
+              isOpen={ShowChatSettingModal}
+              onClose={() => setShowChatSettingModal(false)}
+            />
+          )}
         </div>
       </div>
 

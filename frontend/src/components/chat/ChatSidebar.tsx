@@ -1,6 +1,11 @@
 import React, { useEffect, useState } from "react";
 
+import ChatActionsModal from "@components/modals/ChatActionsModal";
+import TextInput from "@ui/TextInput";
+import basicFetch from "@utils/basicFetch";
+import { truncateString } from "@utils/format";
 import cn from "classnames";
+import { IConversationMetaData, IFriendMetaData } from "global/types";
 import Image from "next/image";
 import { AiOutlineUserAdd } from "react-icons/ai";
 import { BsThreeDots, BsVolumeMute } from "react-icons/bs";
@@ -8,12 +13,6 @@ import { IoSearchOutline } from "react-icons/io5";
 import { MdBlockFlipped } from "react-icons/md";
 import { RiMailAddLine } from "react-icons/ri";
 import { SlArrowDown } from "react-icons/sl";
-
-import ChatActionsModal from "@components/modals/ChatActionsModal";
-import TextInput from "@ui/TextInput";
-import basicFetch from "@utils/basicFetch";
-import { truncateString } from "@utils/format";
-import { IConversationMetaData, IFriendMetaData } from "global/types";
 
 const SeekNewConversation = ({
   searchQuery,
@@ -86,6 +85,8 @@ const ConversationMetadata = ({
   onBlockClick: () => void;
   socket: any;
 }) => {
+  // const today = new Date();
+
   return (
     <div
       onClick={onConversationClick}
@@ -182,6 +183,22 @@ const ChatSidebar = ({
     }
     throw new Error("Error In loadSearch");
   };
+
+  const conversationMetaDataSample: IConversationMetaData[] = [
+    {
+      id: "2",
+      name: "Michael Scott",
+      avatar_url: "https://martinfowler.com/mf.jpg",
+      lastMessage: "hey",
+      lastMessageTime: new Date(),
+      unreadMessagesCount: 1,
+      created_at: new Date(),
+      room_id: 1,
+      type: "private",
+      user_id: 1,
+      isActiveBox: true,
+    },
+  ];
 
   useEffect(() => {
     const setSearchData = async () => {
@@ -282,7 +299,7 @@ const ChatSidebar = ({
               onNewConversationClick={onNewConversationClick}
             />
           ) : (
-            conversationsMetadata.map((item, idx) => (
+            conversationMetaDataSample.map((item, idx) => (
               <ConversationMetadata
                 key={idx}
                 avatar={item.avatar_url}
@@ -293,6 +310,7 @@ const ChatSidebar = ({
                 unreadMessages={item.unreadMessagesCount}
                 onMuteClick={() => {}}
                 onBlockClick={() => {}}
+                socket={socket}
               />
             ))
           )}

@@ -75,23 +75,28 @@ const RoomListItem = ({ room }: { room: IRoom }) => {
           title="Enter password"
           onClose={() => setShowPasswordModal(false)}
         >
-          <div className="flex flex-col gap-y-4 p-6 justify-center items-center">
-            <TextInput
-              label={`joining room ${room.name}`}
-              name="password"
-              placeholder="Password"
-              inputClassName="pl-12 py-[8px] "
-            />
-            <Button
-              type="submit"
-              className="w-full"
-              onClick={() => {
-                handleJoinRoom(room);
-                setShowPasswordModal(false);
-              }}
-            >
-              Join
-            </Button>
+          <div className="p-8">
+            <h2 className="text-2xl font-bold">Password</h2>
+            <div className="h-px bg-gray-200 " />
+            <div className="w-full flex flex-col justify-center items-center gap-4 pt-4">
+              <TextInput
+                label={`joining room ${room.name}`}
+                name="password"
+                placeholder="Password"
+                inputClassName="pl-12 py-[8px] "
+              />
+              <Button
+                type="submit"
+                className="w-full"
+                size="large"
+                onClick={() => {
+                  handleJoinRoom(room);
+                  setShowPasswordModal(false);
+                }}
+              >
+                Join
+              </Button>
+            </div>
           </div>
         </BaseModal>
       )}
