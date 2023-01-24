@@ -22,6 +22,7 @@ const ChatStuff = () => {
   useEffect(() => {
     let socket = io(`${process.env.NEXT_PUBLIC_SOCKET_URL}/chat`, {
       withCredentials: true, // this is needed to send cookies
+      transports: ["websocket"],
     });
 
     setSocketIO(socket);
@@ -36,10 +37,11 @@ const ChatStuff = () => {
 
     if (socket) {
       socket.on("updateListConversations", async (obj) => {
-        let targetedRoom = (await getRoomInfo(obj.room.room_id))[0];
+        console.log("updateListConversations = ", obj);
+        let targetedRoom = (await getRoomInfo(obj.data.room.room_id))[0];
         setConversationsMetadata((state) => {
           const newState = state.filter((item) => {
-            if (item.isActiveBox && item.room_id == obj.room.room_id) {
+            if (item.isActiveBox && item.room_id == obj.data.room.room_id) {
               socket.emit(
                 "setRead",
                 {
@@ -50,7 +52,7 @@ const ChatStuff = () => {
               targetedRoom.unreadMessagesCount = 0;
               targetedRoom.isActiveBox = true;
             }
-            return item.room_id != obj.room.room_id;
+            return item.room_id != obj.data.room.room_id;
           });
           return [targetedRoom, ...newState];
         });

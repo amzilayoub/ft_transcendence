@@ -31,15 +31,18 @@ export class ChatController {
         private jwt: JwtService,
     ) {}
 
-    @Post('join-room')
+    @Post('room/join')
     async JoinRoom(
         @Req() request: RequestWithUser,
         @Body() joinRoomDto: JoinRoomDto,
     ) {
         const user = await this.authService.getMe(request.user.id);
         const userId = joinRoomDto.userId || user['id'];
-
-        return await this.chatService.joinRoom(joinRoomDto.roomId, userId);
+        const isJoined = (
+            await this.chatService.isJoined(user.id, joinRoomDto.roomId)
+        )[0];
+        if (!isJoined)
+            return await this.chatService.joinRoom(joinRoomDto.roomId, userId);
     }
 
     @Get('/room/types/all')
@@ -63,10 +66,10 @@ export class ChatController {
         return this.chatService.getUserRooms(user['id'], -1, roomName);
     }
 
-    @Get('room/explore/:roomName')
+    @Get('room/explore/:roomName?')
     async exploreRooms(
         @Req() request: RequestWithUser,
-        @Param('roomName') roomName: string,
+        @Param('roomName') roomName: string = '',
     ) {
         const user = await this.authService.getMe(request.user.id);
         return await this.chatService.exploreRooms(roomName, user['id']);
@@ -107,6 +110,7 @@ export class ChatController {
     ) {
         const user = await this.authService.getMe(request.user.id);
 
+        if (isNaN(roomId)) return [];
         return await this.chatService.getUserRooms(user['id'], roomId);
     }
 }

@@ -56,7 +56,7 @@ const ChatActionsModal = ({
               key={"create-panel"}
               className={cn("rounded-xl bg-white p-3")}
             >
-              <ExploreRoomsTab />
+              <ExploreRoomsTab socket={socket} />
             </Tab.Panel>
             <Tab.Panel
               key={"discover-panel"}

@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 
 import BaseModal from "@ui/BaseModal";
 import Button from "@ui/Button";
@@ -9,12 +9,13 @@ import cn from "classnames";
 import { IRoom } from "global/types";
 import Image from "next/image";
 import { IoSearchOutline } from "react-icons/io5";
+import basicFetch from "@utils/basicFetch";
 
 const handleJoinRoom = (room: IRoom) => {
   alert(`Joining room ${room.name}`);
 };
 
-const RoomListItem = ({ room }: { room: IRoom }) => {
+const RoomListItem = ({ room, socket }: { room: IRoom; socket: any }) => {
   const [showPasswordModal, setShowPasswordModal] = useState<boolean>(false);
 
   return (
@@ -25,11 +26,21 @@ const RoomListItem = ({ room }: { room: IRoom }) => {
           "border-red-300": room.am_i_blocked, //tmp
         }
       )}
-      onClick={() => {
+      onClick={async () => {
+        if (room.am_i_member) return;
         if (room.type === "protected") {
           setShowPasswordModal(true);
         } else {
-          handleJoinRoom(room);
+          await basicFetch.post(
+            "/chat/room/join",
+            {},
+            {
+              roomId: room.id,
+            }
+          );
+          socket.emit("joinRoom", {
+            roomId: room.id,
+          });
         }
       }}
     >
@@ -104,10 +115,11 @@ const RoomListItem = ({ room }: { room: IRoom }) => {
   );
 };
 // const fetcher = (url) => fetch(url).then((res) => res.json());
-const ExploreRoomsTab = ({}: {}) => {
+const ExploreRoomsTab = ({ socket }: { socket: any }) => {
   //   const chatCtx = useChatContext();
   const [searchQuery, setSearchQuery] = useState("");
   const [shouldSearch, setShouldSearch] = useState<boolean>(false);
+  const [searchResults, setSearchResults] = useState([]);
   // const [showPasswordModal, setShowPasswordModal] = useState<boolean>(false);
   var today = new Date();
   const rooms: IRoom[] = [
@@ -149,10 +161,14 @@ const ExploreRoomsTab = ({}: {}) => {
   //     : null,
   //   fetcher
   // );
+  const getRooms = async (value) => {
+    const resp = await basicFetch.get(`/chat/room/explore/${value}`);
 
-  const searchResults = rooms.filter((room) =>
-    room.name.toLowerCase().includes(searchQuery.toLowerCase())
-  );
+    if (resp.status == 200) {
+      return await resp.json();
+    }
+    return [];
+  };
   const searchError = false;
   const searchLoading = false;
 
@@ -160,6 +176,12 @@ const ExploreRoomsTab = ({}: {}) => {
     setSearchQuery(e.target.value);
     setShouldSearch(false);
   };
+
+  useEffect(() => {
+    getRooms("").then((resp) => {
+      setSearchResults(resp);
+    });
+  }, [true]);
 
   return (
     <div>
@@ -178,7 +200,9 @@ const ExploreRoomsTab = ({}: {}) => {
         <TextInput
           name="search"
           placeholder="Search rooms"
-          onChange={(e) => handleSearchChange(e)}
+          onChange={async (e) => {
+            setSearchResults(await getRooms(e.target.value));
+          }}
           inputClassName="pl-12 py-[8px] "
         />
       </form>
@@ -188,7 +212,7 @@ const ExploreRoomsTab = ({}: {}) => {
           !searchLoading &&
           searchResults &&
           searchResults?.map((room: IRoom) => (
-            <RoomListItem key={room.id} room={room} />
+            <RoomListItem key={room.id} room={room} socket={socket} />
           ))}
         {searchLoading &&
           [...new Array(6)].map((i) => <UserListItemLoading key={i} />)}
