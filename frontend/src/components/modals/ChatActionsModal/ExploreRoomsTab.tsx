@@ -26,11 +26,18 @@ const RoomListItem = ({ room, socket }: { room: IRoom; socket: any }) => {
           "border-red-300": room.am_i_blocked, //tmp
         }
       )}
-      onClick={() => {
+      onClick={async () => {
         if (room.am_i_member) return;
         if (room.type === "protected") {
           setShowPasswordModal(true);
         } else {
+          await basicFetch.post(
+            "/chat/room/join",
+            {},
+            {
+              roomId: room.id,
+            }
+          );
           socket.emit("joinRoom", {
             roomId: room.id,
           });

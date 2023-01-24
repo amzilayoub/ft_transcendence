@@ -31,15 +31,18 @@ export class ChatController {
         private jwt: JwtService,
     ) {}
 
-    @Post('join-room')
+    @Post('room/join')
     async JoinRoom(
         @Req() request: RequestWithUser,
         @Body() joinRoomDto: JoinRoomDto,
     ) {
         const user = await this.authService.getMe(request.user.id);
         const userId = joinRoomDto.userId || user['id'];
-
-        return await this.chatService.joinRoom(joinRoomDto.roomId, userId);
+        const isJoined = (
+            await this.chatService.isJoined(user.id, joinRoomDto.roomId)
+        )[0];
+        if (!isJoined)
+            return await this.chatService.joinRoom(joinRoomDto.roomId, userId);
     }
 
     @Get('/room/types/all')

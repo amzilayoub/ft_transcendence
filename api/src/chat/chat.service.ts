@@ -128,6 +128,7 @@ export class ChatService {
 										-1
 									END
 			AND sender.user_id = ${userId}
+			AND receiver.user_id != ${userId}
 			${specificRoom}
 			ORDER BY room.updated_at DESC
 		`;
@@ -198,7 +199,6 @@ export class ChatService {
     }
 
     exploreRooms(roomName: string, userId: number) {
-        console.log(userId, roomName);
         let query = `%${roomName}%`;
         if (query == '') query = '%%';
         return this.prismaService.$queryRaw(Prisma.sql`
@@ -207,7 +207,7 @@ export class ChatService {
 					WHEN (
 							SELECT COUNT(*)
 							 FROM room_user_rel
-							  WHERE room_user_rel.user_id = 27
+							  WHERE room_user_rel.user_id = ${userId}
 							AND room_user_rel.room_id = room.id
 						 ) > 0
 						THEN true
