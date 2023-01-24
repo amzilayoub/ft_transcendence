@@ -110,7 +110,7 @@ export class ChatGateway {
          ** by default, the owner of the room, obviously
          ** is going to be part of it :)
          */
-        // await this.chatService.joinRoom(newRoom['id'], user['id']);
+        await this.chatService.joinRoom(newRoom['id'], user['id']);
         this.joinRoom(client, { roomId: newRoom.id, userId: user['id'] });
         this.notifyMembers(client, newRoom.id, user['id']);
         return { status: 200, data: newRoom };
@@ -166,21 +166,6 @@ export class ChatGateway {
     ) {
         const user = this.getUserInfo(client);
         if (user === null) return { status: 401 };
-        if (!(await this.isJoined(user, joinRoomDto.roomId))) {
-            await this.chatService.joinRoom(joinRoomDto.roomId, user['id']);
-            client.emit('updateListConversations', {
-                status: 200,
-                data: {
-                    room: (
-                        await this.chatService.getUserRooms(
-                            user['id'],
-                            joinRoomDto.roomId,
-                        )
-                    )[0],
-                    clientId: -1,
-                },
-            });
-        }
         client.join(NAMESPACE + joinRoomDto.roomId);
         /*
          ** Get the other client if included, otherwise,
@@ -275,8 +260,8 @@ export class ChatGateway {
         return null;
     }
 
-    async isJoined(user: user, roomId) {
-        const res = await this.chatService.isJoined(user.id, roomId);
+    async isJoined(userId: number, roomId: number) {
+        const res = await this.chatService.isJoined(userId, roomId);
         return res.length > 0;
     }
 }
