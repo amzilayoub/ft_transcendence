@@ -128,7 +128,6 @@ export class ChatService {
 										-1
 									END
 			AND sender.user_id = ${userId}
-			AND receiver.user_id = ${userId}
 			${specificRoom}
 			ORDER BY room.updated_at DESC
 		`;

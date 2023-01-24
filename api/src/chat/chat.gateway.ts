@@ -88,6 +88,9 @@ export class ChatGateway {
         }
 
         const newRoom = await this.chatService.createRoom(user, roomTypeId);
+        /*
+         ** Here we handle shared room
+         */
         if (defaultRoom.id != roomTypeId) {
             const roomData = await this.chatService.getRoomTypeById(roomTypeId);
             if (!roomData) return { status: 401 };
@@ -99,8 +102,8 @@ export class ChatGateway {
          ** the following user as well to the new created room
          */
         if (body.userId) {
-            // await this.chatService.joinRoom(newRoom['id'], body.userId);
-            this.joinRoom(client, { roomId: newRoom.id, userId: body.userId });
+            await this.chatService.joinRoom(newRoom['id'], body.userId);
+            // this.joinRoom(client, { roomId: newRoom.id, userId: body.userId });
         }
 
         /*
@@ -166,13 +169,16 @@ export class ChatGateway {
         if (!(await this.isJoined(user, joinRoomDto.roomId))) {
             await this.chatService.joinRoom(joinRoomDto.roomId, user['id']);
             client.emit('updateListConversations', {
-                room: (
-                    await this.chatService.getUserRooms(
-                        user['id'],
-                        joinRoomDto.roomId,
-                    )
-                )[0],
-                clientId: -1,
+                status: 200,
+                data: {
+                    room: (
+                        await this.chatService.getUserRooms(
+                            user['id'],
+                            joinRoomDto.roomId,
+                        )
+                    )[0],
+                    clientId: -1,
+                },
             });
         }
         client.join(NAMESPACE + joinRoomDto.roomId);
@@ -222,8 +228,11 @@ export class ChatGateway {
 
     async notifyMembers(client: any, roomId: number, userId: number) {
         this.server.to(NAMESPACE + roomId).emit('updateListConversations', {
-            room: (await this.chatService.getUserRooms(userId, roomId))[0],
-            clientId: client.id,
+            status: 200,
+            data: {
+                room: (await this.chatService.getUserRooms(userId, roomId))[0],
+                clientId: client.id,
+            },
         });
     }
 
