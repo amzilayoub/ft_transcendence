@@ -184,22 +184,6 @@ const ChatSidebar = ({
     throw new Error("Error In loadSearch");
   };
 
-  const conversationMetaDataSample: IConversationMetaData[] = [
-    {
-      id: "2",
-      name: "Michael Scott",
-      avatar_url: "https://martinfowler.com/mf.jpg",
-      lastMessage: "hey",
-      lastMessageTime: new Date(),
-      unreadMessagesCount: 1,
-      created_at: new Date(),
-      room_id: 1,
-      type: "private",
-      user_id: 1,
-      isActiveBox: true,
-    },
-  ];
-
   useEffect(() => {
     const setSearchData = async () => {
       // const data = await loadSearch();
@@ -299,7 +283,7 @@ const ChatSidebar = ({
               onNewConversationClick={onNewConversationClick}
             />
           ) : (
-            conversationMetaDataSample.map((item, idx) => (
+            conversationsMetadata.map((item, idx) => (
               <ConversationMetadata
                 key={idx}
                 avatar={item.avatar_url}
