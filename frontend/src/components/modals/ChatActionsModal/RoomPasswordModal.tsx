@@ -4,7 +4,15 @@ import BaseModal from "@ui/BaseModal";
 import Button from "@ui/Button";
 import TextInput from "@ui/TextInput";
 
-const PasswordModal = () => {
+const PasswordModal = ({
+  setCurrentOption,
+  showPasswordModal,
+  setShowPasswordModal,
+}: {
+  setCurrentOption: React.Dispatch<React.SetStateAction<any>>;
+  showPasswordModal: boolean;
+  setShowPasswordModal: React.Dispatch<React.SetStateAction<boolean>>;
+}) => {
   const [password, setPassword] = useState("");
   const [passwordConfirmation, setPasswordConfirmation] = useState("");
 

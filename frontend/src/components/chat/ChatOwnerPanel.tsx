@@ -175,8 +175,9 @@ const OwnerPanel = ({ roomData }: { roomData: IRoom }) => {
               Change Password
             </Button>
             <PasswordModal
-              currentOption={currentOption}
               setCurrentOption={setCurrentOption}
+              showPasswordModal={showPasswordModal}
+              setShowPasswordModal={setShowPasswordModal}
             />
           </div>
         </div>
