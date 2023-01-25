@@ -392,7 +392,7 @@ const ChatBox = ({
         <div>
           {ShowChatSettingModal && roomData.type != "direct" && (
             <ChatroomSettingsModal
-              roomData={roomData}
+              roomData={conversationMetaData}
               isOpen={ShowChatSettingModal}
               onClose={() => setShowChatSettingModal(false)}
             />

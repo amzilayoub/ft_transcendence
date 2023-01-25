@@ -1,10 +1,6 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 
-import {
-  OwnerPanel,
-  AdminPanel,
-  MemberPanel,
-} from "@components/chat/ChatSettingsPanel";
+import { RoomInfo } from "@components/chat/ChatSettingsPanel";
 import BaseModal from "@ui/BaseModal";
 import Button from "@ui/Button";
 import UserListItemLoading from "@ui/skeletons/UserSkeletons";
@@ -21,6 +17,7 @@ import Image from "next/image";
 import { BiBlock } from "react-icons/bi";
 import { IoPersonRemoveOutline, IoSearchOutline } from "react-icons/io5";
 import { RiVolumeMuteLine } from "react-icons/ri";
+import basicFetch from "@utils/basicFetch";
 
 const MemberListItem = ({ member }: { member: IRoomMember }) => {
   const CurrentUser: IRoomMember = {
@@ -62,7 +59,7 @@ const MemberListItem = ({ member }: { member: IRoomMember }) => {
             <div>
               <div className="ml-2 flex items-center gap-4 w-32">
                 <Image
-                  src={"/images/default-avatar.jpg"}
+                  src={member.avatar_url}
                   alt={member + " avatar"}
                   width={40}
                   height={40}
@@ -110,9 +107,7 @@ const ChatroomSettingsModal = ({
   const searchError = false;
   const searchLoading = false;
   const [searchQuery, setSearchQuery] = useState("");
-  const searchResults = roomData.members.filter((member: IRoomMember) =>
-    member.username.toLowerCase().includes(searchQuery.toLowerCase())
-  );
+  const [searchResults, setSearchResults] = useState([]);
   const CurrentUser: IRoomMember = {
     id: 1,
     username: "mbif",
@@ -129,6 +124,21 @@ const ChatroomSettingsModal = ({
     setSearchQuery(e.target.value);
     setShouldSearch(false);
   };
+
+  const getRoomMembers = async () => {
+    const resp = await basicFetch.get(`/chat/room/${roomData.room_id}/members`);
+
+    if (resp.status == 200) {
+      return await resp.json();
+    }
+    return [];
+  };
+
+  useEffect(() => {
+    getRoomMembers().then((data) => {
+      setSearchResults(data);
+    });
+  }, [true]);
 
   const RoomMembers = () => {
     return (
@@ -190,13 +200,7 @@ const ChatroomSettingsModal = ({
       <div className=" max-h-[1000px] w-[800px]">
         <div className="flex justify-between items-center h-1/3">
           {CurrentUser.membershipStatus === MembershipStatus.OWNER && (
-            <OwnerPanel roomData={roomData} />
-          )}
-          {CurrentUser.membershipStatus === MembershipStatus.MODERATOR && (
-            <AdminPanel roomData={roomData} />
-          )}
-          {CurrentUser.membershipStatus === MembershipStatus.MEMBER && (
-            <MemberPanel roomData={roomData} />
+            <RoomInfo roomData={roomData} />
           )}
         </div>
         <RoomMembers />
