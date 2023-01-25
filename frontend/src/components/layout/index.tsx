@@ -62,7 +62,7 @@ const MainLayout: React.FC<MainLayoutProps> = ({
       ) : (pageIsProtected && ctx?.isAuthenticated) || ctx.loadingUser ? (
         <>
           <Navbar />
-          <main className="flex w-full h-full min-h-screen">
+          <main className="flex h-full min-h-screen w-full">
             <div
               className={cn(
                 "pt-20 flex flex-col items-center w-full justify-center h-full relative pb-16", // pb-16 is for the chat stuff

@@ -65,7 +65,7 @@ const ChatStuff = () => {
   }, [setSocketIO]); // a hack to stop infinite rendering
 
   return (
-    <div className="fixed bottom-0 right-0 px-6 hidden md:block">
+    <div className="fixed bottom-0 right-0 hidden px-6 md:block">
       <ChatSidebar
         showChatSidebar={showChatSidebar}
         setShowChatSidebar={setShowChatSidebar}
@@ -74,7 +74,7 @@ const ChatStuff = () => {
         onNewConversationClick={() => console.log("new conversation")}
         socket={socketIO}
       />
-      <ul className="absolute bottom-0 flex right-[400px] gap-x-3">
+      <ul className="absolute bottom-0 right-[400px] flex gap-x-3">
         {activeBoxes?.map((item) => (
           <li key={item.id} className="w-full">
             <ChatBox

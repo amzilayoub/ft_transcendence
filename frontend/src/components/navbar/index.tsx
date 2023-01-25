@@ -23,7 +23,7 @@ export interface IUserData {
 
 // temporary
 const Logo = ({ ...props }) => (
-  <TmpLogo className="w-full h-full text-secondary" {...props} />
+  <TmpLogo className="h-full w-full text-secondary" {...props} />
 );
 
 const Navbar = () => {
@@ -48,17 +48,17 @@ const Navbar = () => {
   };
 
   return (
-    <nav className="fixed z-40 flex items-center justify-center w-full h-16 py-2 bg-white shadow-sm">
+    <nav className="fixed z-40 flex h-16 w-full items-center justify-center bg-white py-2 shadow-sm">
       {/* Normal Screen Width */}
-      <ul className="items-center justify-between hidden w-full grid-cols-12 px-3 md:grid xl:max-w-7xl xl:px-0">
+      <ul className="hidden w-full grid-cols-12 items-center justify-between px-3 md:grid xl:max-w-7xl xl:px-0">
         <li className="col-span-2 list-none md:col-span-3">
           <Link href="/home">
-            <div className="h-16 cursor-pointer w-14">
+            <div className="h-16 w-14 cursor-pointer">
               <Logo src={""} />
             </div>
           </Link>
         </li>
-        <li className="justify-center w-full col-span-3 list-none md:col-span-6 md:flex">
+        <li className="col-span-3 w-full list-none justify-center md:col-span-6 md:flex">
           {(ctx?.user || ctx?.loadingUser) && (
             <Searchbar
               searchResults={searchResults || []}
@@ -71,7 +71,7 @@ const Navbar = () => {
           )}
         </li>
 
-        <li className="flex justify-end col-span-7 list-none gap-x-2 md:col-span-3">
+        <li className="col-span-7 flex list-none justify-end gap-x-2 md:col-span-3">
           {(ctx?.user || ctx?.loadingUser) && (
             <ProfileNavMenu
               isLoading={ctx?.loadingUser}
@@ -85,10 +85,10 @@ const Navbar = () => {
         </li>
       </ul>
       {/* Mobile Screen Width */}
-      <ul className="flex items-center justify-between w-full h-full px-2 md:hidden">
+      <ul className="flex h-full w-full items-center justify-between px-2 md:hidden">
         <li className="list-none">
           <Link href="/home">
-            <div className="h-16 cursor-pointer w-14">
+            <div className="h-16 w-14 cursor-pointer">
               <Logo src={""} />
             </div>
           </Link>

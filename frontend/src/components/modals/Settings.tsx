@@ -48,17 +48,17 @@ const SettingsModal = ({
 
   return (
     <BaseModal isOpen={isOpen} onClose={onClose}>
-      <div className="p-8 min-h-[calc(60vh)]">
+      <div className="min-h-[calc(60vh)] p-8">
         <h2 className="text-2xl font-bold">Settings</h2>
         <div className="h-px bg-gray-200 " />
-        <div className="flex flex-col px-4 py-5 min-h-[400px] bg-white max-w-2xl">
+        <div className="flex min-h-[400px] max-w-2xl flex-col bg-white px-4 py-5">
           <h2 className="text-2xl text-gray-900">Personal info:</h2>
           <form>
-            <div className="flex flex-wrap mb-6">
-              <div className="flex flex-col px-4 py-5 rounded-xl border bg-white shadow-md mb-8">
-                <div className="flex flex-row justify-between items-center w-full">
-                  <div className="flex flex-col justify-center items-center gap-4">
-                    <div className="flex flex-row justify-around items-center gap-4">
+            <div className="mb-6 flex flex-wrap">
+              <div className="mb-8 flex flex-col rounded-xl border bg-white px-4 py-5 shadow-md">
+                <div className="flex w-full flex-row items-center justify-between">
+                  <div className="flex flex-col items-center justify-center gap-4">
+                    <div className="flex flex-row items-center justify-around gap-4">
                       <div>
                         <TextInput
                           label="First Name"
@@ -90,7 +90,7 @@ const SettingsModal = ({
                   </div>
 
                   <div
-                    className="group  w-1/4 bg-black transition rounded-full flex justify-center items-center cursor-pointer"
+                    className="group  flex w-1/4 cursor-pointer items-center justify-center rounded-full bg-black transition"
                     onClick={() => {
                       console.log("clicked");
                     }}
@@ -100,9 +100,9 @@ const SettingsModal = ({
                       width={500}
                       height={500}
                       alt={"ss"}
-                      className="rounded-full shadow-inner hover:opacity-50 duration-300"
+                      className="rounded-full shadow-inner duration-300 hover:opacity-50"
                     />
-                    <h1 className="text-white absolute hidden group-hover:block  duration-300 pointer-events-none">
+                    <h1 className="pointer-events-none absolute hidden text-white  duration-300 group-hover:block">
                       upload a photo
                     </h1>
                   </div>
@@ -119,10 +119,10 @@ const SettingsModal = ({
                 </div>
               </div>
 
-              <div className="flex flex-col w-full ">
+              <div className="flex w-full flex-col ">
                 <h2 className="text-2xl text-gray-900">Security Settings:</h2>
-                <div className="flex flex-col px-4 py-5  rounded-xl border bg-white shadow-md">
-                  <div className="flex flex-col w-full gap-4">
+                <div className="flex flex-col rounded-xl border  bg-white px-4 py-5 shadow-md">
+                  <div className="flex w-full flex-col gap-4">
                     <TextInput label="Old Password" type="password" />
 
                     <TextInput label="New Password" type="password" />
@@ -152,7 +152,7 @@ const SettingsModal = ({
                 </div>
               </div>
             </div>
-            <div className="w-full flex flex-row justify-around items-center">
+            <div className="flex w-full flex-row items-center justify-around">
               <Button variant="danger">Delete Account</Button>
               <Button
                 variant="primary"

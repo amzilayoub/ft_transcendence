@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 
 import cn from "classnames";
 import Image from "next/image";
@@ -87,7 +87,7 @@ const RoomListItem = ({ room, socket }: { room: IRoom; socket: any }) => {
           title="Enter password"
           onClose={() => setShowPasswordModal(false)}
         >
-          <div className="flex flex-col gap-y-4 p-6 justify-center items-center">
+          <div className="flex flex-col items-center justify-center gap-y-4 p-6">
             <TextInput
               label={`joining room ${room.name}`}
               name="password"
@@ -177,7 +177,7 @@ const ExploreRoomsTab = ({ socket }: { socket: any }) => {
     getRooms("").then((resp) => {
       setSearchResults(resp);
     });
-  }, [true]);
+  }, []);
 
   return (
     <div>

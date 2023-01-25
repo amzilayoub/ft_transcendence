@@ -63,19 +63,19 @@ const GamesHistoryModal = ({
       onClose={onClose}
       styles={{ modal: "md:min-w-[50vh] min-w-full" }}
     >
-      <div className="p-8 min-h-[calc(60vh)]">
+      <div className="min-h-[calc(60vh)] p-8">
         <div className="flex flex-col gap-y-4">
           <h2 className="text-2xl font-bold">All Games</h2>
           <div className="h-px bg-gray-200 " />
           {isLoading ? (
             <p>Loading...</p>
           ) : (
-            <div className="flex flex-col items-center w-full gap-y-2">
-              <ul className="flex flex-col w-full gap-y-2">
+            <div className="flex w-full flex-col items-center gap-y-2">
+              <ul className="flex w-full flex-col gap-y-2">
                 {data.slice(0, 10).map((game) => (
                   <li
                     key={game.gameId}
-                    className="border border-gray-100 rounded-md"
+                    className="rounded-md border border-gray-100"
                   >
                     <GameSummary {...game} />
                   </li>

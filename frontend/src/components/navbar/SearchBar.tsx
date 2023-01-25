@@ -65,8 +65,8 @@ const UserListItem = ({
 
   return (
     <li className="flex items-center justify-between p-4 hover:bg-gray-100">
-      <div className="flex items-center gap-x-2 justify-between w-full">
-        <Link href={`/u/${user.username}`} className="w-full flex gap-x-2">
+      <div className="flex w-full items-center justify-between gap-x-2">
+        <Link href={`/u/${user.username}`} className="flex w-full gap-x-2">
           <Image
             src={user.avatar_url || "/images/default-avatar.jpg"}
             alt={(user.first_name || user.username) + " avatar"}
@@ -95,10 +95,10 @@ const UserListItem = ({
               <>
                 {isFollowing ? (
                   <>
-                    <span className="group-hover/following:block hidden  text-sm font-medium">
+                    <span className="hidden text-sm  font-medium group-hover/following:block">
                       Unfollow
                     </span>
-                    <span className="group-hover/following:hidden text-sm font-medium  ml-2 block">
+                    <span className="ml-2 block text-sm  font-medium group-hover/following:hidden">
                       Following
                     </span>
                   </>
@@ -152,7 +152,7 @@ const Searchbar = (props: SearchbarProps) => {
     >
       <label className="absolute top-2 left-3 flex items-center justify-center text-gray-400">
         <button type="submit" className="h-full w-full cursor-default">
-          <IoSearchOutline className="group-focus-within:text-secondary group-hover:text-secondary h-6 w-6 text-gray-400" />
+          <IoSearchOutline className="h-6 w-6 text-gray-400 group-focus-within:text-secondary group-hover:text-secondary" />
         </button>
       </label>
       <input
@@ -171,11 +171,11 @@ const Searchbar = (props: SearchbarProps) => {
         }}
       />
       {searchQuery !== "" && (
-        <div className="z-10 rounded-b-xl shadow-xl border border-t-0 py-2 bg-white">
+        <div className="z-10 rounded-b-xl border border-t-0 bg-white py-2 shadow-xl">
           {props.searchLoading && (
-            <ul className="flex flex-col gap-y-2 px-2 w-full">
+            <ul className="flex w-full flex-col gap-y-2 px-2">
               {[...new Array(6)].map((i) => (
-                <li key={i} className=" py-1 border-b w-full">
+                <li key={i} className=" w-full border-b py-1">
                   <UserListItemLoading />
                 </li>
               ))}
@@ -193,9 +193,9 @@ const Searchbar = (props: SearchbarProps) => {
                   ))}
                 </ul>
               ) : (
-                <p className="p-10 flex flex-col text-center text-gray-400">
+                <p className="flex flex-col p-10 text-center text-gray-400">
                   <span>No results found for </span>
-                  <span className="font-bold break-all">{`"${searchQuery}"`}</span>
+                  <span className="break-all font-bold">{`"${searchQuery}"`}</span>
                 </p>
               )}
             </div>
@@ -227,11 +227,11 @@ export const SearchbarPopover = (props: SearchbarProps) => {
                     ? "ring-secondary"
                     : "text-secondary/70 ring-secondary/70"
                 }
-                group text-secondary hover:text-secondary hover:ring-secondary inline-flex items-center rounded-full bg-white p-3 text-base font-medium ring-1 focus:outline-none`}
+                group inline-flex items-center rounded-full bg-white p-3 text-base font-medium text-secondary ring-1 hover:text-secondary hover:ring-secondary focus:outline-none`}
             >
               <IoSearch
                 className={`${open ? "" : "text-secondary/70"}
-                   group-hover:text-secondary h-5 w-5 transition duration-150 ease-in-out`}
+                   h-5 w-5 transition duration-150 ease-in-out group-hover:text-secondary`}
                 aria-hidden="true"
               />
             </Popover.Button>

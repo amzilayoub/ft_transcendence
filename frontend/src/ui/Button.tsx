@@ -66,7 +66,7 @@ const Button: React.FC<ButtonProps> = ({
   >
     {isLoading && (
       <svg
-        className="w-5 h-5 mr-3 text-white animate-spin"
+        className="mr-3 h-5 w-5 animate-spin text-white"
         xmlns="http://www.w3.org/2000/svg"
         fill="none"
         viewBox="0 0 24 24"

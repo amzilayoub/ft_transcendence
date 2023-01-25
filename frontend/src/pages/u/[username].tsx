@@ -38,7 +38,7 @@ const SocialLink = ({
   return (
     <ExternalLink
       href={href}
-      className="group flex items-center h-8 overflow-hidden cursor-pointer"
+      className="group flex h-8 cursor-pointer items-center overflow-hidden"
     >
       {icon}
       <p className="w-56">
@@ -63,7 +63,7 @@ const UserInfo = ({
   };
 }) => {
   return (
-    <div className="flex items-start justify-between h-full p-5 sm:px-6">
+    <div className="flex h-full items-start justify-between p-5 sm:px-6">
       <header className="flex flex-col ">
         {fullName && (
           <p className="text-2xl font-bold text-gray-900">{fullName}</p>
@@ -73,13 +73,13 @@ const UserInfo = ({
       </header>
       {/* Socials */}
       <article className="hidden sm:flex">
-        <ul className="flex flex-col items-start px-4 gap-y-4">
+        <ul className="flex flex-col items-start gap-y-4 px-4">
           {links?.twitter && (
             <SocialLink
               href={`https://twitter.com/${links.twitter}`}
               title={`@${links.twitter}`}
               icon={
-                <FaTwitter className="w-6 h-6 mr-3 text-blue-500 group-hover:text-blue-400" />
+                <FaTwitter className="mr-3 h-6 w-6 text-blue-500 group-hover:text-blue-400" />
               }
             />
           )}
@@ -88,7 +88,7 @@ const UserInfo = ({
               href={`https://intra.42.fr/users/${links.intra}`}
               title={`@${links.intra}`}
               icon={
-                <FaGlobe className="w-6 h-6 mr-3 text-gray-700 group-hover:text-gray-500" />
+                <FaGlobe className="mr-3 h-6 w-6 text-gray-700 group-hover:text-gray-500" />
               }
             />
           )}
@@ -99,12 +99,12 @@ const UserInfo = ({
 };
 
 const UserNotFoundHeader = ({ username }: { username: string }) => (
-  <section className="w-full h-full py-2 bg-white shadow-md rounded-b-xl">
+  <section className="h-full w-full rounded-b-xl bg-white py-2 shadow-md">
     <div className="flex items-start justify-between px-10 pb-8 pt-14 sm:py-10">
       <p className="text-lg font-semibold text-gray-800">@{username}</p>
     </div>
     <div className="flex flex-col items-center justify-center pb-16">
-      <p className="text-4xl font-bold text-center text-gray-900 md:text-3xl lg:text-4xl sm:text-2xl">
+      <p className="text-center text-4xl font-bold text-gray-900 sm:text-2xl md:text-3xl lg:text-4xl">
         This account {"doesn't"} exist
       </p>
       <p className="text-base font-normal text-gray-600">
@@ -115,14 +115,14 @@ const UserNotFoundHeader = ({ username }: { username: string }) => (
 );
 
 const UserLoadingHeader = () => (
-  <section className="w-full h-full py-2 bg-white shadow-md rounded-b-xl">
+  <section className="h-full w-full rounded-b-xl bg-white py-2 shadow-md">
     <div className="flex items-start justify-between px-10 pb-8 pt-14 sm:py-10">
       <p className="text-lg font-semibold text-gray-800">
         <span className="animate-pulse">Loading...</span>
       </p>
     </div>
     <div className="flex flex-col items-center justify-center pb-16">
-      <p className="text-4xl font-bold text-center text-gray-900">
+      <p className="text-center text-4xl font-bold text-gray-900">
         <span className="animate-pulse">Loading...</span>
       </p>
     </div>
@@ -146,14 +146,14 @@ const UserInfoHeader = ({
 }) => {
   const { setIsSettingsOpen } = useUIContext();
   return (
-    <div className="flex flex-col w-full gap-y-2 ">
-      <div className="flex justify-between w-full shadow-lg gap-x-2">
+    <div className="flex w-full flex-col gap-y-2 ">
+      <div className="flex w-full justify-between gap-x-2 shadow-lg">
         {/* Cover and profile picture */}
         <div className="w-full">
-          <figure className="relative w-full h-[280px]">
+          <figure className="relative h-[280px] w-full">
             {user ? (
               !user.cover_url ? (
-                <div className="w-full h-full bg-gray-300 rounded-t-xl " />
+                <div className="h-full w-full rounded-t-xl bg-gray-300 " />
               ) : (
                 <Image
                   src={user?.cover_url || "/images/cover-placeholder.png"}
@@ -170,10 +170,10 @@ const UserInfoHeader = ({
                 />
               )
             ) : (
-              <div className="w-full h-full bg-gray-300 rounded-t-xl " />
+              <div className="h-full w-full rounded-t-xl bg-gray-300 " />
             )}
             <figure
-              className="w-[160px] h-[160px] absolute -bottom-14 left-8 rounded-full sm:-bottom-8 sm:left-10 ring-4 ring-white"
+              className="absolute -bottom-14 left-8 h-[160px] w-[160px] rounded-full ring-4 ring-white sm:-bottom-8 sm:left-10"
               onClick={() => setIsAvatarModalOpen(true)}
             >
               {user ? (
@@ -185,22 +185,22 @@ const UserInfoHeader = ({
                       : "avatar placeholder"
                   }
                   fill
-                  className="object-cover rounded-full cursor-pointer"
+                  className="cursor-pointer rounded-full object-cover"
                 />
               ) : (
-                <div className="w-full h-full bg-gray-200 rounded-full " />
+                <div className="h-full w-full rounded-full bg-gray-200 " />
               )}
             </figure>
           </figure>
           <section className="h-[220px]">
             {user ? (
-              <div className="w-full h-full py-2 bg-white shadow-md rounded-b-xl">
+              <div className="h-full w-full rounded-b-xl bg-white py-2 shadow-md">
                 {/* Action buttons */}
-                <div className="flex justify-end w-full h-12">
-                  <div className="flex justify-end w-1/2 px-6 py-1 ">
+                <div className="flex h-12 w-full justify-end">
+                  <div className="flex w-1/2 justify-end px-6 py-1 ">
                     {isMyProfile ? (
                       <IconButton
-                        icon={<BiEdit className="w-6 h-6" />}
+                        icon={<BiEdit className="h-6 w-6" />}
                         onClick={() => {
                           setIsSettingsOpen(true);
                         }}
@@ -269,7 +269,7 @@ export default function ProfilePage() {
       title={username ? username + " | " + APP_NAME : APP_NAME}
       backgroundColor="bg-gray-100"
     >
-      <div className="flex flex-col w-full gap-3 px-2 max-w-7xl xl:px-0">
+      <div className="flex w-full max-w-7xl flex-col gap-3 px-2 xl:px-0">
         <div className="flex flex-col gap-3 sm:flex-row">
           <UserInfoHeader
             isLoading={ctx.loadingUser || user.isLoading}
@@ -290,12 +290,12 @@ export default function ProfilePage() {
           isOpen={isAvatarModalOpen}
           onClose={() => setIsAvatarModalOpen(false)}
         >
-          <div className="w-[600px] h-[600px] flex flex-col items-center justify-center ">
+          <div className="flex h-[600px] w-[600px] flex-col items-center justify-center ">
             <Image
               src={user.data?.avatar_url || "/images/default-avatar.jpg"}
               alt={`avatar for ${username}`}
               fill
-              className="object-cover rounded-full"
+              className="rounded-full object-cover"
             />
           </div>
         </BaseModal>
@@ -305,7 +305,7 @@ export default function ProfilePage() {
           isOpen={isCoverModalOpen}
           onClose={() => setIsCoverModalOpen(false)}
         >
-          <div className="w-[900px] h-[220px] flex flex-col items-center justify-center">
+          <div className="flex h-[220px] w-[900px] flex-col items-center justify-center">
             <Image
               src={user.data?.cover_url || "/images/cover-placeholder.png"}
               alt={`cover for ${username}`}

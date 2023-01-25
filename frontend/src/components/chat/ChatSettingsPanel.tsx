@@ -1,11 +1,12 @@
 import React, { useState } from "react";
 
+import Image from "next/image";
+import Select from "react-select";
+
 import PasswordModal from "@components/modals/ChatActionsModal/RoomPasswordModal";
 import Button from "@ui/Button";
 import TextInput from "@ui/TextInput";
 import { IRoom, RoomType } from "global/types";
-import Image from "next/image";
-import Select from "react-select";
 
 export const RoomInfo = ({ roomData }: { roomData: IRoom }) => {
   const [roomCurrentData, setRoomCurrentData] = useState<IRoom>(roomData);
@@ -43,7 +44,7 @@ export const RoomInfo = ({ roomData }: { roomData: IRoom }) => {
   };
 
   return (
-    <div className="p-8 w-full">
+    <div className="w-full p-8">
       <div className="flex justify-between">
         <h2 className="text-2xl font-bold">Room info</h2>
         <Select
@@ -54,8 +55,8 @@ export const RoomInfo = ({ roomData }: { roomData: IRoom }) => {
         />
       </div>
       <div className="h-px bg-gray-200 " />
-      <div className="flex flex-row justify-between items-center w-full gap-4">
-        <div className="flex flex-col justify-center items-start gap-4 w-full">
+      <div className="flex w-full flex-row items-center justify-between gap-4">
+        <div className="flex w-full flex-col items-start justify-center gap-4">
           <div className="w-5/6">
             <TextInput
               label="Room Name"
@@ -73,7 +74,7 @@ export const RoomInfo = ({ roomData }: { roomData: IRoom }) => {
           </div>
         </div>
         <div
-          className="group  w-1/4 bg-black transition rounded-full flex justify-center items-center cursor-pointer"
+          className="group  flex w-1/4 cursor-pointer items-center justify-center rounded-full bg-black transition"
           onClick={() => {
             console.log("clicked");
           }}
@@ -83,15 +84,15 @@ export const RoomInfo = ({ roomData }: { roomData: IRoom }) => {
             width={150}
             height={150}
             alt={"ss"}
-            className="rounded-full shadow-inner hover:opacity-50 duration-300"
+            className="rounded-full shadow-inner duration-300 hover:opacity-50"
           />
-          <h1 className="text-white absolute hidden group-hover:block  duration-300 pointer-events-none">
+          <h1 className="pointer-events-none absolute hidden text-white  duration-300 group-hover:block">
             upload a photo
           </h1>
         </div>
       </div>
       <textarea
-        className="w-full h-24 mt-5 p-2 border border-gray-300 rounded-md focus:outline-none focus:ring-1 focus:ring-primary/90 focus:border-transparent"
+        className="mt-5 h-24 w-full rounded-md border border-gray-300 p-2 focus:border-transparent focus:outline-none focus:ring-1 focus:ring-primary/90"
         placeholder="Enter room description"
         value={roomCurrentData.description}
         onChange={(e) => {
@@ -104,9 +105,9 @@ export const RoomInfo = ({ roomData }: { roomData: IRoom }) => {
       />
       {roomCurrentData.type === RoomType.PROTECTED && showPasswordModal && (
         <div className="">
-          <h2 className="text-2xl font-bold mt-8">Security</h2>
+          <h2 className="mt-8 text-2xl font-bold">Security</h2>
           <div className="h-px bg-gray-200 " />
-          <div className="flex flex-col gap-4 mt-4 gap-4">
+          <div className="mt-4 flex flex-col gap-4">
             <TextInput
               label="New Password"
               type="password"

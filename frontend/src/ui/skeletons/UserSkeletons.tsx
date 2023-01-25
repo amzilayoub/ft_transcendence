@@ -1,11 +1,11 @@
 export const UserListItemLoading = () => (
   <li className="w-full animate-pulse p-4">
-    <div className="flex items-center gap-x-2 justify-between w-full">
-      <div className="w-full flex gap-x-2">
-        <div className="w-10 h-10 bg-gray-200 rounded-full"></div>
+    <div className="flex w-full items-center justify-between gap-x-2">
+      <div className="flex w-full gap-x-2">
+        <div className="h-10 w-10 rounded-full bg-gray-200"></div>
         <div className="ml-2">
-          <div className="text-sm font-medium bg-gray-200 rounded w-32 h-4"></div>
-          <div className="text-xs text-gray-400 bg-gray-200 rounded w-24 h-2 mt-4"></div>
+          <div className="h-4 w-32 rounded bg-gray-200 text-sm font-medium"></div>
+          <div className="mt-4 h-2 w-24 rounded bg-gray-200 text-xs text-gray-400"></div>
         </div>
       </div>
     </div>

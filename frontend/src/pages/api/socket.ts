@@ -1,5 +1,6 @@
-import { IGameState } from "@utils/game/IGameState";
 import { Server as IOServer } from "socket.io";
+
+import { IGameState } from "@utils/game/IGameState";
 
 const handler = (req, res) => {
   let p1!: string; // bad way to keep track

@@ -2,13 +2,15 @@ import { useEffect, useState } from "react";
 
 import { Tab } from "@headlessui/react";
 import cn from "classnames";
+
 import { useAuthContext } from "context/auth.context";
+
 import AsyncSelect from "react-select/async";
 
 const LoadingIndicator = () => {
   return (
     <div className="flex items-center justify-center">
-      <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-gray-900">
+      <div className="h-5 w-5 animate-spin rounded-full border-b-2 border-gray-900">
         {/* Loading */}
       </div>
     </div>
@@ -118,7 +120,7 @@ export const SearchchatTab = ({
         </div>
       </form>
       <button
-        className="bg-blue-500 duration-300 text-white py-1 px-2 w-full rounded-md space-y-5 hover:bg-blue-600"
+        className="w-full space-y-5 rounded-md bg-blue-500 py-1 px-2 text-white duration-300 hover:bg-blue-600"
         onClick={(e) => {
           e.preventDefault();
           createRoomEvent(e, roomTypes);
@@ -173,8 +175,8 @@ const CreateRoomTab = ({ createRoom }: { createRoom: any }) => {
   };
   return (
     <Tab.Group>
-      <Tab.List className="flex w-full h-8 justify-center items-center">
-        <div className="flex justify-center items-center rounded-lg h-8 w-2/3 bg-slate-200 ">
+      <Tab.List className="flex h-8 w-full items-center justify-center">
+        <div className="flex h-8 w-2/3 items-center justify-center rounded-lg bg-slate-200 ">
           {["public", "private", "protected"].map((tab) => (
             <Tab
               key={tab.id}

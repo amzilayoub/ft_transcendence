@@ -1,11 +1,17 @@
 import React, { useEffect, useState } from "react";
 
+import cn from "classnames";
+import Image from "next/image";
+import { BiBlock } from "react-icons/bi";
+import { IoPersonRemoveOutline, IoSearchOutline } from "react-icons/io5";
+import { RiVolumeMuteLine } from "react-icons/ri";
+
 import { RoomInfo } from "@components/chat/ChatSettingsPanel";
 import BaseModal from "@ui/BaseModal";
 import Button from "@ui/Button";
 import UserListItemLoading from "@ui/skeletons/UserSkeletons";
 import TextInput from "@ui/TextInput";
-import cn from "classnames";
+import basicFetch from "@utils/basicFetch";
 import {
   IConversation,
   IRoom,
@@ -13,11 +19,6 @@ import {
   MemberGameStatus,
   MembershipStatus,
 } from "global/types";
-import Image from "next/image";
-import { BiBlock } from "react-icons/bi";
-import { IoPersonRemoveOutline, IoSearchOutline } from "react-icons/io5";
-import { RiVolumeMuteLine } from "react-icons/ri";
-import basicFetch from "@utils/basicFetch";
 
 const MemberListItem = ({ member }: { member: IRoomMember }) => {
   const CurrentUser: IRoomMember = {
@@ -53,11 +54,11 @@ const MemberListItem = ({ member }: { member: IRoomMember }) => {
         }
       )}
     >
-      <div className="flex items-center gap-x-2 justify-between w-full">
-        <div className="w-full flex justify-between gap-x-2">
-          <div className="w-full ml-2 flex flex-row justify-between items-center ">
+      <div className="flex w-full items-center justify-between gap-x-2">
+        <div className="flex w-full justify-between gap-x-2">
+          <div className="ml-2 flex w-full flex-row items-center justify-between ">
             <div>
-              <div className="ml-2 flex items-center gap-4 w-32">
+              <div className="ml-2 flex w-32 items-center gap-4">
                 <Image
                   src={member.avatar_url}
                   alt={member + " avatar"}
@@ -74,16 +75,16 @@ const MemberListItem = ({ member }: { member: IRoomMember }) => {
             <div className="flex gap-2">
               <RiVolumeMuteLine
                 onClick={handleMute}
-                className="text-2xl text-red-800 bg-gray-200 hover:bg-gray-300 duration-300 rounded-full p-1 h-8 w-8"
+                className="h-8 w-8 rounded-full bg-gray-200 p-1 text-2xl text-red-800 duration-300 hover:bg-gray-300"
               />
               <BiBlock
                 onClick={handleBlock}
-                className="text-2xl text-red-800 bg-gray-200 hover:bg-gray-300 duration-300 rounded-full p-1 h-8 w-8"
+                className="h-8 w-8 rounded-full bg-gray-200 p-1 text-2xl text-red-800 duration-300 hover:bg-gray-300"
               />
               {CurrentUser.membershipStatus === MembershipStatus.OWNER && (
                 <IoPersonRemoveOutline
                   onClick={handleKick}
-                  className="text-2xl text-red-800 bg-gray-200 hover:bg-gray-300 duration-300 rounded-full p-1 h-8 w-8"
+                  className="h-8 w-8 rounded-full bg-gray-200 p-1 text-2xl text-red-800 duration-300 hover:bg-gray-300"
                 />
               )}
             </div>
@@ -142,7 +143,7 @@ const ChatroomSettingsModal = ({
 
   const RoomMembers = () => {
     return (
-      <div className="p-8 h-2/3">
+      <div className="h-2/3 p-8">
         <h2 className="text-2xl font-bold">Room Members</h2>
         <div className="h-px bg-gray-200 " />
         <form
@@ -154,7 +155,7 @@ const ChatroomSettingsModal = ({
         >
           <label className="absolute top-3 left-3 flex items-center justify-center text-gray-400">
             <button type="submit" className="h-full w-full cursor-default">
-              <IoSearchOutline className="group-focus-within:text-secondary group-hover:text-secondary h-6 w-6 text-gray-400" />
+              <IoSearchOutline className="h-6 w-6 text-gray-400 group-focus-within:text-secondary group-hover:text-secondary" />
             </button>
           </label>
           <TextInput
@@ -164,7 +165,7 @@ const ChatroomSettingsModal = ({
             inputClassName="pl-12 py-[8px] "
           />
         </form>
-        <ul className="no-scrollbar mt-4 gap-y-1 flex flex-col overflow-y-scroll h-[calc(60vh-160px)] scroll-smooth">
+        <ul className="no-scrollbar mt-4 flex h-[calc(60vh-160px)] flex-col gap-y-1 overflow-y-scroll scroll-smooth">
           {!searchError &&
             !searchLoading &&
             searchResults &&
@@ -198,14 +199,14 @@ const ChatroomSettingsModal = ({
   return (
     <BaseModal isOpen={isOpen} onClose={onClose}>
       <div className=" max-h-[1000px] w-[800px]">
-        <div className="flex justify-between items-center h-1/3">
+        <div className="flex h-1/3 items-center justify-between">
           {CurrentUser.membershipStatus === MembershipStatus.OWNER && (
             <RoomInfo roomData={roomData} />
           )}
         </div>
         <RoomMembers />
       </div>
-      <div className="w-full flex flex-row justify-around items-center pb-4">
+      <div className="flex w-full flex-row items-center justify-around pb-4">
         <Button variant="danger">Delete Room</Button>
         <Button
           variant="primary"

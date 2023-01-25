@@ -44,7 +44,7 @@ const GamePlayer = (props: {
         alt={props.username + " avatar"}
         width={64}
         height={64}
-        className="object-cover rounded-full w-14 h-14"
+        className="h-14 w-14 rounded-full object-cover"
       />
     </Link>
     <div
@@ -54,7 +54,7 @@ const GamePlayer = (props: {
     >
       <Link
         href={`/u/${props.username}`}
-        className="overflow-hidden whitespace-nowrap text-ellipsis"
+        className="overflow-hidden text-ellipsis whitespace-nowrap"
       >
         {truncateString(props.username, 10)}
       </Link>
@@ -64,7 +64,7 @@ const GamePlayer = (props: {
 );
 
 export const GameSummary = (props: GameSummaryProps) => (
-  <div className="flex w-full h-full">
+  <div className="flex h-full w-full">
     <div className="py-2">
       <div
         className={cn("w-px h-full", {
@@ -133,7 +133,7 @@ const LastGames = ({ username }: { username: string }) => {
 
   return (
     <>
-      <nav className="flex flex-col px-4 py-5 gap-y-4 min-h-[400px] rounded-xl border bg-white shadow-lg">
+      <nav className="flex min-h-[400px] flex-col gap-y-4 rounded-xl border bg-white px-4 py-5 shadow-lg">
         <div className="flex items-center justify-between">
           <p className="text-xl font-bold text-gray-900">Recent Games</p>
           <button
@@ -151,7 +151,7 @@ const LastGames = ({ username }: { username: string }) => {
             {data.slice(0, 10).map((game) => (
               <li
                 key={game.gameId}
-                className="border border-gray-100 rounded-md"
+                className="rounded-md border border-gray-100"
               >
                 <GameSummary {...game} />
               </li>
