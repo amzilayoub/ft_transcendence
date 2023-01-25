@@ -159,11 +159,13 @@ export class ChatService {
     }
 
     getRoomInfo(roomId: number) {
-        return this.prismaService.room.findFirst({
-            where: {
-                id: roomId,
-            },
-        });
+        return this.prismaService.$queryRaw(Prisma.sql`
+			SELECT room_details.name, room_type.type
+			FROM room
+			INNER JOIN room_details ON room.id = room_details.room_id
+			INNER JOIN room_type ON room_type.id = room.room_type_id
+			WHERE room.id = ${roomId}		
+		`);
     }
 
     createRoomRule(roomeId: number, rule?: string) {}
@@ -186,7 +188,7 @@ export class ChatService {
 
     getRoomMembers(roomId: number) {
         return this.prismaService.$queryRaw(Prisma.sql`
-				SELECT users.id, users.username AS name, users.avatar_url
+				SELECT users.id, users.username AS username, users.avatar_url
 				FROM room_user_rel
 				INNER JOIN users ON users.id = room_user_rel.user_id
 				WHERE room_user_rel.room_id = ${roomId}

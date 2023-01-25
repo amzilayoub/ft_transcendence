@@ -80,8 +80,6 @@ export class ChatController {
         @Req() request: RequestWithUser,
         @Param('roomId') roomId: number,
     ) {
-        const user = await this.authService.getMe(request.user.id);
-
         return await this.chatService.getRoomMembers(roomId);
     }
 
@@ -112,5 +110,10 @@ export class ChatController {
 
         if (isNaN(roomId)) return [];
         return await this.chatService.getUserRooms(user['id'], roomId);
+    }
+
+    @Get('room/info/:roomId')
+    async getRoomInfo(@Param('roomId') roomId: number) {
+        return await this.chatService.getRoomInfo(roomId);
     }
 }
