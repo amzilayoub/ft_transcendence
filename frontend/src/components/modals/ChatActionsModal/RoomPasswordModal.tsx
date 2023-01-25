@@ -48,7 +48,7 @@ const PasswordModal = ({
     >
       <div className="p-8">
         <form onSubmit={handlePasswordSubmit}>
-          <div className="flex flex-col justify-center items-center gap-4">
+          <div className="flex flex-col items-center justify-center gap-4">
             <h1 className="text-2xl font-bold">Set a password</h1>
             <TextInput
               label="Password"

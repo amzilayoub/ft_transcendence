@@ -58,16 +58,16 @@ const UserListItem = ({
         }
       )}
     >
-      <div className="flex items-center gap-x-2 justify-between w-full">
-        <div className="w-full flex gap-x-2">
+      <div className="flex w-full items-center justify-between gap-x-2">
+        <div className="flex w-full gap-x-2">
           <Image
             src={user.avatar_url || "/images/default-avatar.jpg"}
             alt={(user.first_name || user.username) + " avatar"}
-            width={32}
-            height={32}
+            width={48}
+            height={48}
             className="rounded-full"
           />
-          <div className="ml-2">
+          <div className="ml-2 flex flex-col justify-center">
             <p className="text-sm font-medium">{`${user.first_name} ${user.last_name}`}</p>
             <p className="text-xs text-gray-400">@{user.username}</p>
           </div>
@@ -142,7 +142,7 @@ const SearchPeopleTab = ({ createRoom }: { createRoom: any }) => {
       >
         <label className="absolute top-3 left-3 flex items-center justify-center text-gray-400">
           <button type="submit" className="h-full w-full cursor-default">
-            <IoSearchOutline className="group-focus-within:text-secondary group-hover:text-secondary h-6 w-6 text-gray-400" />
+            <IoSearchOutline className="h-6 w-6 text-gray-400 group-focus-within:text-secondary group-hover:text-secondary" />
           </button>
         </label>
         <TextInput
@@ -153,7 +153,7 @@ const SearchPeopleTab = ({ createRoom }: { createRoom: any }) => {
         />
       </form>
 
-      <ul className="no-scrollbar mt-4 gap-y-1 flex flex-col overflow-y-scroll h-[calc(60vh-160px)] scroll-smooth">
+      <ul className="no-scrollbar mt-4 flex h-[calc(60vh-160px)] flex-col gap-y-1 overflow-y-scroll scroll-smooth">
         {!searchError &&
           !searchLoading &&
           searchResults &&
@@ -164,11 +164,19 @@ const SearchPeopleTab = ({ createRoom }: { createRoom: any }) => {
               createRoom={createRoom}
             />
           ))}
-
         {searchLoading &&
-          [...new Array(6)].map((i) => <UserListItemLoading key={i} />)}
-        {!searchError && searchResults?.length === 0 && (
+          [...new Array(6)].map((i) => (
+            <li key={i} className="rounded-lg border border-gray-200/70 py-1 ">
+              <UserListItemLoading />
+            </li>
+          ))}
+        {searchError && searchResults?.length === 0 && (
           <p className="py-10 text-center text-gray-400">No results found</p>
+        )}
+        {!searchError && !searchLoading && searchResults?.length === 0 && (
+          <p className="py-10 text-center text-gray-400">
+            No results found for {`"${searchQuery}"`}
+          </p>
         )}
       </ul>
     </div>

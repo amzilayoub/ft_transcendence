@@ -1,7 +1,6 @@
 import React, { useState } from "react";
 
 import Pong from "@components/game/pong";
-import MainLayout from "@components/layout";
 import Button from "@ui/Button";
 import TextInput from "@ui/TextInput";
 

@@ -8,6 +8,7 @@ import { IoSearch, IoSearchOutline } from "react-icons/io5";
 
 import useClick from "@hooks/useClick";
 import Button from "@ui/Button";
+import UserListItemLoading from "@ui/skeletons/UserSkeletons";
 import basicFetch from "@utils/basicFetch";
 import { useAuthContext } from "context/auth.context";
 import { IUser, PartialWithRequired } from "global/types";
@@ -15,6 +16,7 @@ import { IUser, PartialWithRequired } from "global/types";
 interface SearchbarProps {
   searchResults: any[];
   searchLoading: boolean;
+  searchError: string | undefined;
   placeholder?: string;
   onChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
   onSubmit: (e: React.FormEvent<HTMLFormElement>) => void;
@@ -62,9 +64,9 @@ const UserListItem = ({
   }, [user.username, isLoading]);
 
   return (
-    <li className="flex items-center justify-between p-4 hover:bg-gray-100 ">
-      <div className="flex items-center gap-x-2 justify-between w-full">
-        <Link href={`/u/${user.username}`} className="w-full flex gap-x-2">
+    <li className="flex items-center justify-between p-4 hover:bg-gray-100">
+      <div className="flex w-full items-center justify-between gap-x-2">
+        <Link href={`/u/${user.username}`} className="flex w-full gap-x-2">
           <Image
             src={user.avatar_url || "/images/default-avatar.jpg"}
             alt={(user.first_name || user.username) + " avatar"}
@@ -93,10 +95,10 @@ const UserListItem = ({
               <>
                 {isFollowing ? (
                   <>
-                    <span className="group-hover/following:block hidden  text-sm font-medium">
+                    <span className="hidden text-sm  font-medium group-hover/following:block">
                       Unfollow
                     </span>
-                    <span className="group-hover/following:hidden text-sm font-medium  ml-2 block">
+                    <span className="ml-2 block text-sm  font-medium group-hover/following:hidden">
                       Following
                     </span>
                   </>
@@ -115,71 +117,90 @@ const UserListItem = ({
 };
 
 const Searchbar = (props: SearchbarProps) => {
+  const [searchQuery, setSearchQuery] = useState("");
   const [showResults, setShowResults] = useState(false);
-  const [hasInput, setHasInput] = useState(false);
+
   useClick(() => {
     setShowResults(false);
   });
 
-  useEffect(() => {}, [hasInput]);
+  useEffect(() => {
+    setShowResults(
+      !!(
+        props.searchResults.length > 0 ||
+        props.searchLoading ||
+        props.searchError
+      ) && searchQuery !== ""
+    );
+  }, [
+    props.searchResults,
+    props.searchLoading,
+    props.searchError,
+    searchQuery,
+  ]);
+
+  console.log({ searchQuery }, searchQuery !== "");
 
   return (
     <form
       onSubmit={(e) => {
         e.preventDefault();
         props.onSubmit(e);
-        setShowResults(props.searchResults.length > 0);
+        // setShowResults(props.searchResults.length > 0);
       }}
-      className="group relative h-10 w-full max-w-lg"
+      className={cn("group z-40 relative h-10 w-full max-w-lg")}
     >
       <label className="absolute top-2 left-3 flex items-center justify-center text-gray-400">
         <button type="submit" className="h-full w-full cursor-default">
-          <IoSearchOutline className="group-focus-within:text-secondary group-hover:text-secondary h-6  w-6 text-gray-400" />
+          <IoSearchOutline className="h-6 w-6 text-gray-400 group-focus-within:text-secondary group-hover:text-secondary" />
         </button>
       </label>
       <input
         type="search"
         className={cn(
-          "border focus:border-none h-full w-full rounded-xl py-2 pl-12 text-gray-500 list-none duration-150 outline-none focus-within:outline-primary/60",
+          "border z-50 h-full w-full rounded-xl py-2 pl-12 text-gray-500 list-none duration-150 outline-none",
           {
-            "pr-3": hasInput,
-            "rounded-b-none": showResults && props.searchResults.length > 0,
-            "focus-within:outline-primary/60": !(
-              showResults && props.searchResults.length > 0
-            ),
+            "rounded-b-none pr-3": searchQuery !== "",
           }
         )}
         placeholder={props.placeholder}
         spellCheck="false"
         onChange={(e) => {
-          setHasInput(e.target.value.length > 0);
+          setSearchQuery(e.target.value);
           props.onChange(e);
         }}
       />
-      {props.searchLoading && (
-        <div className="bg-white rounded-b-xl hover:rounded-b-xl shadow-xl border-secondary">
-          <div className="flex items-center justify-center h-10">
-            <p>
-              Loading <span className="animate-ping">...</span>
-            </p>
-          </div>
-        </div>
-      )}
-
-      {!props.searchLoading && showResults && (
-        <ul
-          className={cn(
-            "bg-white rounded-b-xl hover:rounded-b-xl shadow-xl border-secondary",
-            {
-              "focus-within:outline-primary/60":
-                showResults && props.searchResults.length > 0,
-            }
+      {searchQuery !== "" && (
+        <div className="z-10 rounded-b-xl border border-t-0 bg-white py-2 shadow-xl">
+          {props.searchLoading && (
+            <ul className="flex w-full flex-col gap-y-2 px-2">
+              {[...new Array(6)].map((i) => (
+                <li key={i} className=" w-full border-b py-1">
+                  <UserListItemLoading />
+                </li>
+              ))}
+            </ul>
           )}
-        >
-          {props.searchResults.map((result) => (
-            <UserListItem key={result.id} user={result} />
-          ))}
-        </ul>
+
+          {searchQuery !== "" && !props.searchError && !props.searchLoading && (
+            <div className="flex items-center justify-center">
+              {props.searchResults?.length > 0 ? (
+                <ul className="w-full">
+                  {props.searchResults.map((result) => (
+                    <li key={result.id}>
+                      <UserListItem key={result.id} user={result} />
+                    </li>
+                  ))}
+                </ul>
+              ) : (
+                <p className="flex flex-col p-10 text-center text-gray-400">
+                  <span>No results found for </span>
+                  <span className="break-all font-bold">{`"${searchQuery}"`}</span>
+                </p>
+              )}
+            </div>
+          )}
+        </div>
       )}
     </form>
   );
@@ -206,11 +227,11 @@ export const SearchbarPopover = (props: SearchbarProps) => {
                     ? "ring-secondary"
                     : "text-secondary/70 ring-secondary/70"
                 }
-                group text-secondary hover:text-secondary hover:ring-secondary inline-flex items-center rounded-full bg-white p-3 text-base font-medium ring-1 focus:outline-none`}
+                group inline-flex items-center rounded-full bg-white p-3 text-base font-medium text-secondary ring-1 hover:text-secondary hover:ring-secondary focus:outline-none`}
             >
               <IoSearch
                 className={`${open ? "" : "text-secondary/70"}
-                   group-hover:text-secondary h-5 w-5 transition duration-150 ease-in-out`}
+                   h-5 w-5 transition duration-150 ease-in-out group-hover:text-secondary`}
                 aria-hidden="true"
               />
             </Popover.Button>

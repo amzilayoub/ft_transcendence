@@ -1,15 +1,16 @@
 import { useEffect, useState } from "react";
 
+import cn from "classnames";
+import Image from "next/image";
+import { IoSearchOutline } from "react-icons/io5";
+
 import BaseModal from "@ui/BaseModal";
 import Button from "@ui/Button";
 import UserListItemLoading from "@ui/skeletons/UserSkeletons";
 import TextInput from "@ui/TextInput";
-import { truncateString } from "@utils/format";
-import cn from "classnames";
-import { IRoom } from "global/types";
-import Image from "next/image";
-import { IoSearchOutline } from "react-icons/io5";
 import basicFetch from "@utils/basicFetch";
+import { truncateString } from "@utils/format";
+import { IRoom } from "global/types";
 
 const handleJoinRoom = (room: IRoom) => {
   alert(`Joining room ${room.name}`);
@@ -44,8 +45,8 @@ const RoomListItem = ({ room, socket }: { room: IRoom; socket: any }) => {
         }
       }}
     >
-      <div className="flex items-center gap-x-2 justify-between w-full">
-        <div className="w-full flex justify-between gap-x-2">
+      <div className="flex w-full items-center justify-between gap-x-2">
+        <div className="flex w-full justify-between gap-x-2">
           <div className="ml-2 flex">
             <Image
               src={room.avatar_url || "/images/default-avatar.jpg"}
@@ -56,17 +57,17 @@ const RoomListItem = ({ room, socket }: { room: IRoom; socket: any }) => {
             />
             <div className="ml-2">
               <p className="text-sm font-medium">{room.name}</p>
-              <p className="text-xs text-gray-400 text-ellipsis">
+              <p className="text-ellipsis text-xs text-gray-400">
                 {truncateString(room.description, 20)}
               </p>
             </div>
           </div>
           <div>
             {room.type === "public" && (
-              <span className="text-xs text-green-500 font-semibold"></span>
+              <span className="text-xs font-semibold text-green-500"></span>
             )}
             {room.type === "protected" && (
-              <span className="text-xs text-red-500 font-semibold">
+              <span className="text-xs font-semibold text-red-500">
                 Protected
               </span>
             )}
@@ -74,7 +75,7 @@ const RoomListItem = ({ room, socket }: { room: IRoom; socket: any }) => {
               className="ml-2 w-12 items-center
             "
             >
-              <span className="text-xs text-gray-400 font-semibold">
+              <span className="text-xs font-semibold text-gray-400">
                 {room.am_i_member ? "Joined" : ""}
               </span>
             </button>
@@ -86,28 +87,23 @@ const RoomListItem = ({ room, socket }: { room: IRoom; socket: any }) => {
           title="Enter password"
           onClose={() => setShowPasswordModal(false)}
         >
-          <div className="p-8">
-            <h2 className="text-2xl font-bold">Password</h2>
-            <div className="h-px bg-gray-200 " />
-            <div className="w-full flex flex-col justify-center items-center gap-4 pt-4">
-              <TextInput
-                label={`joining room ${room.name}`}
-                name="password"
-                placeholder="Password"
-                inputClassName="pl-12 py-[8px] "
-              />
-              <Button
-                type="submit"
-                className="w-full"
-                size="large"
-                onClick={() => {
-                  handleJoinRoom(room);
-                  setShowPasswordModal(false);
-                }}
-              >
-                Join
-              </Button>
-            </div>
+          <div className="flex flex-col items-center justify-center gap-y-4 p-6">
+            <TextInput
+              label={`joining room ${room.name}`}
+              name="password"
+              placeholder="Password"
+              inputClassName="pl-12 py-[8px] "
+            />
+            <Button
+              type="submit"
+              className="w-full"
+              onClick={() => {
+                handleJoinRoom(room);
+                setShowPasswordModal(false);
+              }}
+            >
+              Join
+            </Button>
           </div>
         </BaseModal>
       )}
@@ -181,7 +177,7 @@ const ExploreRoomsTab = ({ socket }: { socket: any }) => {
     getRooms("").then((resp) => {
       setSearchResults(resp);
     });
-  }, [true]);
+  }, []);
 
   return (
     <div>
@@ -194,7 +190,7 @@ const ExploreRoomsTab = ({ socket }: { socket: any }) => {
       >
         <label className="absolute top-3 left-3 flex items-center justify-center text-gray-400">
           <button type="submit" className="h-full w-full cursor-default">
-            <IoSearchOutline className="group-focus-within:text-secondary group-hover:text-secondary h-6 w-6 text-gray-400" />
+            <IoSearchOutline className="h-6 w-6 text-gray-400 group-focus-within:text-secondary group-hover:text-secondary" />
           </button>
         </label>
         <TextInput
@@ -207,7 +203,7 @@ const ExploreRoomsTab = ({ socket }: { socket: any }) => {
         />
       </form>
 
-      <ul className="no-scrollbar mt-4 gap-y-1 flex flex-col overflow-y-scroll h-[calc(60vh-160px)] scroll-smooth">
+      <ul className="no-scrollbar mt-4 flex h-[calc(60vh-160px)] flex-col gap-y-1 overflow-y-scroll scroll-smooth">
         {!searchError &&
           !searchLoading &&
           searchResults &&

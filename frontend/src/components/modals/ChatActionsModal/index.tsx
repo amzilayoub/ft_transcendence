@@ -1,4 +1,4 @@
-import React, { useEffect } from "react";
+import React from "react";
 
 import { Tab } from "@headlessui/react";
 import cn from "classnames";
@@ -26,7 +26,7 @@ const ChatActionsModal = ({
 
   return (
     <BaseModal isOpen={isOpen} onClose={onClose}>
-      <div className="p-8 w-[420px] h-[calc(60vh)]">
+      <div className="h-[calc(60vh)] w-[420px] p-8">
         <Tab.Group>
           <Tab.List className="flex space-x-1 rounded-md border">
             {["People", "Explore", "Create"].map((tab) => (

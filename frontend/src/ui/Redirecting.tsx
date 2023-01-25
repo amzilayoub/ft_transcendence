@@ -8,15 +8,15 @@ const Redirecting = ({
   description?: string;
 }) => {
   return (
-    <div className="flex items-center flex-col justify-center w-full h-screen gap-y-4">
+    <div className="flex h-screen w-full flex-col items-center justify-center gap-y-4">
       <p>
         <span className="text-lg font-normal text-gray-600 ">
           {description}
         </span>
       </p>
-      <div className="flex border rounded-lg py-2 px-4">
+      <div className="flex rounded-lg border py-2 px-4">
         <svg
-          className="w-5 h-5 mr-3 animate-spin"
+          className="mr-3 h-5 w-5 animate-spin"
           xmlns="http://www.w3.org/2000/svg"
           fill="none"
           viewBox="0 0 24 24"

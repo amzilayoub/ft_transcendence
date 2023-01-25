@@ -12,8 +12,8 @@ import { LANDING_IMAGE } from "@utils/constants";
 const SiginFields = () => {
   const [showPassword, setShowPassword] = useState(false);
   return (
-    <section className="group w-full flex justify-center cursor-wait flex-col relative">
-      <div className="flex-col flex group-hover:blur-sm gap-y-4 cursor-wait w-full">
+    <section className="group relative flex w-full cursor-wait flex-col justify-center">
+      <div className="flex w-full cursor-wait flex-col gap-y-4 group-hover:blur-sm">
         <TextInput
           label="Username or Email"
           placeholder="Username or Email"
@@ -32,7 +32,7 @@ const SiginFields = () => {
           />
           <button
             onClick={() => setShowPassword(!showPassword)}
-            className="text-gray-500 hover:text-gray-700 absolute right-1 bottom-1.5 duration-300 hover:bg-gray-200 rounded-lg p-1.5"
+            className="absolute right-1 bottom-1.5 rounded-lg p-1.5 text-gray-500 duration-300 hover:bg-gray-200 hover:text-gray-700"
           >
             {showPassword ? <BiHide /> : <BiShowAlt />}
           </button>
@@ -41,7 +41,7 @@ const SiginFields = () => {
           Sign In
         </Button>
       </div>
-      <p className="group-hover:block hidden text-gray-800 text-3xl font-semibold text-center w-full cursor-wait absolute font-mono">
+      <p className="absolute hidden w-full cursor-wait text-center font-mono text-3xl font-semibold text-gray-800 group-hover:block">
         Soon...?
       </p>
     </section>
@@ -55,10 +55,10 @@ export default function LandingPage() {
 
   return (
     <MainLayout pageIsProtected={false} noLayout>
-      <div className="grid grid-cols-5 divide-x-2 min-h-screen">
-        <div className="grid xl:col-span-2 items-center justify-center col-span-5">
-          <section className="flex flex-col items-center px-14 py-24 gap-y-8 shadow-lg max-w-md border rounded-xl">
-            <header className="flex items-center flex-col gap-y-2">
+      <div className="grid min-h-screen grid-cols-5 divide-x-2">
+        <div className="col-span-5 grid items-center justify-center xl:col-span-2">
+          <section className="flex max-w-md flex-col items-center gap-y-8 rounded-xl border px-14 py-24 shadow-lg">
+            <header className="flex flex-col items-center gap-y-2">
               <h1 className="text-3xl font-bold">Sign in to Pong</h1>
               <p className="text-gray-500">
                 Login to play Pong with your friends
@@ -66,9 +66,9 @@ export default function LandingPage() {
             </header>
             <SiginFields />
             <p className="text-gray-500">
-              <span className="h-px mb-1 w-32 bg-gray-200 inline-block" />
+              <span className="mb-1 inline-block h-px w-32 bg-gray-200" />
               <span className="mx-2">OR</span>
-              <span className="h-px mb-1 w-32 bg-gray-200 inline-block" />
+              <span className="mb-1 inline-block h-px w-32 bg-gray-200" />
             </p>
             <button
               onClick={(e) => {
@@ -76,8 +76,8 @@ export default function LandingPage() {
                 handle42Login();
               }}
               type="button"
-              className="flex items-center justify-center gap-x-4 px-10 py-2 rounded-xl bg-orange-500
-              hover:scale-105 hover:bg-orange-600 transition duration-300 ease-in-out w-full"
+              className="flex w-full items-center justify-center gap-x-4 rounded-xl bg-orange-500 px-10
+              py-2 transition duration-300 ease-in-out hover:scale-105 hover:bg-orange-600"
             >
               <Image
                 src={"/42-logo.svg"}
@@ -85,18 +85,18 @@ export default function LandingPage() {
                 height={36}
                 alt="42 logo"
               />
-              <p className="pb-0.5 font-semibold text-black text-lg">
+              <p className="pb-0.5 text-lg font-semibold text-black">
                 Sign in with 42
               </p>
             </button>
           </section>
         </div>
-        <figure className="sm:col-span-3 hidden xl:block">
+        <figure className="hidden sm:col-span-3 xl:block">
           {/* eslint-disable-next-line @next/next/no-img-element */}
           <img
             src={LANDING_IMAGE}
             alt="Pong image"
-            className="object-cover w-full h-full max-h-screen"
+            className="h-full max-h-screen w-full object-cover"
           />
         </figure>
       </div>

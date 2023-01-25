@@ -1,6 +1,6 @@
 const LoadingCircle = () => (
   <svg
-    className="w-full h-full mr-3 animate-spin"
+    className="mr-3 h-full w-full animate-spin"
     xmlns="http://www.w3.org/2000/svg"
     fill="none"
     viewBox="0 0 24 24"
@@ -24,13 +24,13 @@ const LoadingCircle = () => (
 // diffrent loading[something] component
 export const LoadingDots = () => (
   <svg
-    className="w-5 h-5 mr-3 animate-spin"
+    className="mr-3 h-5 w-5 animate-spin"
     xmlns="http://www.w3.org/2000/svg"
     fill="none"
     viewBox="0 0 24 24"
   >
-    <span className="absolute inline-flex w-full h-full bg-purple-400 rounded-full opacity-75 animate-ping"></span>
-    <span className="relative inline-flex w-3 h-3 bg-purple-500 rounded-full"></span>
+    <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-purple-400 opacity-75"></span>
+    <span className="relative inline-flex h-3 w-3 rounded-full bg-purple-500"></span>
   </svg>
 );
 
