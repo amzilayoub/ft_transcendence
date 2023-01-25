@@ -17,6 +17,9 @@ import {
   MembershipStatus,
 } from "global/types";
 import Image from "next/image";
+
+import avatar from "/public/images/default-avatar.jpg";
+
 import { BiBlock } from "react-icons/bi";
 import { IoPersonRemoveOutline, IoSearchOutline } from "react-icons/io5";
 import { RiVolumeMuteLine } from "react-icons/ri";
@@ -224,13 +227,118 @@ export const ChatdmSettingsModal = ({
   isOpen: boolean;
   onClose: () => void;
 }) => {
+  const [roomCurrentData, setRoomCurrentData] = useState<IRoom>(roomData);
+
+  const handleMute = () => {
+    setRoomCurrentData({
+      ...roomCurrentData,
+      isMuted: !roomCurrentData.isMuted,
+    });
+  };
+
+  const handleBlock = () => {
+    setRoomCurrentData({
+      ...roomCurrentData,
+      isBlocked: !roomCurrentData.isBlocked,
+    });
+  };
+
+  const handleDelete = () => {
+    console.log("delete");
+  };
+
   return (
     <BaseModal isOpen={isOpen} onClose={onClose}>
-      <div className=" max-h-[1000px] w-[800px]">
-        <div className="flex justify-between items-center h-1/3">
-          <h1>
-            {roomData.members[0].username} and {roomData.members[1].username}
-          </h1>
+      <div className="p-8 max-h-[1000px] w-[500px]">
+        <div className="flex justify-between">
+          <h2 className="text-2xl font-bold">Contact info</h2>
+
+          {roomCurrentData.members[1].isOnline ? (
+            <p className="flex gap-2 items-center ">
+              <svg
+                className="h-4 w-4 inline-block text-green-500"
+                viewBox="0 0 20 20"
+                fill="currentColor"
+              >
+                <path
+                  fillRule="evenodd"
+                  d="M10 12a2 2 0 100-4 2 2 0 000 4z"
+                  clipRule="evenodd"
+                />
+                <path
+                  fillRule="evenodd"
+                  d="M10 18a8 8 0 100-16 8 8 0 000 16zm0 2a10 10 0 100-20 10 10 0 000 20z"
+                  clipRule="evenodd"
+                />
+              </svg>
+              <span className="text-gray-400">Online</span>
+            </p>
+          ) : (
+            <p className="flex gap-2 items-center">
+              <svg
+                className="h-4 w-4 inline-block text-red-800"
+                viewBox="0 0 20 20"
+                fill="currentColor"
+              >
+                <path
+                  fillRule="evenodd"
+                  d="M10 12a2 2 0 100-4 2 2 0 000 4z"
+                  clipRule="evenodd"
+                />
+                <path
+                  fillRule="evenodd"
+                  d="M10 18a8 8 0 100-16 8 8 0 000 16zm0 2a10 10 0 100-20 10 10 0 000 20z"
+                  clipRule="evenodd"
+                />
+              </svg>
+              <span className="text-red-800">Offline</span>
+            </p>
+          )}
+        </div>
+        <div className="h-px bg-gray-200 " />
+        <div className="flex flex-col justify-between items-center w-full gap-4 pb-4">
+          <div
+            className="group mt-4 bg-black transition rounded-full flex justify-center items-center cursor-pointer"
+            onClick={() => {
+              console.log("clicked");
+            }}
+          >
+            <Image
+              src={avatar}
+              width={100}
+              height={100}
+              alt={"ss"}
+              className="rounded-full shadow-inner hover:opacity-50 duration-300 "
+            />
+            <h1 className="text-white absolute hidden group-hover:block  duration-300 pointer-events-none">
+              View Profile
+            </h1>
+          </div>
+          <div className="flex flex-col justify-center items-start gap-4 w-full m-2">
+            <div className="w-full bg-slate-100 border rounded-lg p-2 text-center">
+              <h1 className="">
+                Full Name:
+                <span className="text-gray-400"> omar magoury</span>
+              </h1>
+            </div>
+            <div className="w-full bg-slate-100 border rounded-lg p-2 text-center">
+              <h1 className="">
+                Username
+                <span className="text-gray-400"> @ommagour</span>
+              </h1>
+            </div>
+          </div>
+        </div>
+        <div className="flex flex-row justify-around items-center">
+          <Button onClick={handleMute} variant="primary">
+            Mute
+          </Button>
+          <Button onclick={handleBlock} variant="danger">
+            Block
+          </Button>
+          <Button onClick={handleDelete} variant="danger">
+            Delete
+          </Button>
         </div>
       </div>
     </BaseModal>

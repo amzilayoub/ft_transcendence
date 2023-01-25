@@ -127,7 +127,7 @@ const ChatBox = ({
     id: 1,
     name: "Spagueeetti",
     description: "this is a testing room",
-    avatar_url: "/default_avatar.png",
+    avatar_url: "/public/images/default-avatar.jpg",
     type: RoomType.DIRECT,
     created_at: new Date(),
     members: [
@@ -145,7 +145,7 @@ const ChatBox = ({
       {
         id: 2,
         username: "tetetet",
-        avatar_url: "/default_avatar.png",
+        avatar_url: "/public/images/default_avatar.jpg",
         isOnline: true,
         gameStatus: MemberGameStatus.IDLE,
         membershipStatus: MembershipStatus.OWNER,
