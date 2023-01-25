@@ -23,7 +23,7 @@ export interface AuthState {
   isAuthenticated: boolean;
   loadingUser: boolean;
   logout: () => void;
-  error: string | null;
+  // error: string | null;
 }
 
 export const AuthContext = createContext<AuthState | undefined>(undefined);
@@ -41,7 +41,7 @@ const loadUserData = async () => {
       return data;
     }
   } catch (error) {
-    console.log(error);
+    console.error(error);
     router.push("/");
   }
   return null;
@@ -61,7 +61,7 @@ const AuthContextProvider = ({ children }: { children: React.ReactNode }) => {
         removeUser();
       }
     } catch (error) {
-      console.log(error);
+      console.error(error);
     }
   };
 
@@ -92,7 +92,7 @@ const AuthContextProvider = ({ children }: { children: React.ReactNode }) => {
           }
         })
         .catch((error) => {
-          console.log(error);
+          console.error(error);
           !isAuthenticated && setIsAuthenticated(false);
           removeLocalStorage("user");
           router.push("/");

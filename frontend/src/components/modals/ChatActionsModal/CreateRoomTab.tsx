@@ -1,8 +1,6 @@
 import { useEffect, useState } from "react";
 
 import { Tab } from "@headlessui/react";
-import TextInput from "@ui/TextInput";
-import basicFetch from "@utils/basicFetch";
 import cn from "classnames";
 import { useAuthContext } from "context/auth.context";
 import AsyncSelect from "react-select/async";
@@ -16,6 +14,9 @@ const LoadingIndicator = () => {
     </div>
   );
 };
+
+import TextInput from "@ui/TextInput";
+import basicFetch from "@utils/basicFetch";
 
 export const friends = [
   {

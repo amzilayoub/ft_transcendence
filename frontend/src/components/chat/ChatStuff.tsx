@@ -1,8 +1,9 @@
 import React, { useEffect, useState } from "react";
 
+import { io } from "socket.io-client";
+
 import basicFetch from "@utils/basicFetch";
 import { useChatContext } from "context/chat.context";
-import { io } from "socket.io-client";
 
 import ChatBox from "./ChatBox";
 import ChatSidebar from "./ChatSidebar";

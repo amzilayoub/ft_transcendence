@@ -48,7 +48,7 @@ const Navbar = () => {
   };
 
   return (
-    <nav className="fixed z-20 flex items-center justify-center w-full h-16 py-2 bg-white shadow-sm">
+    <nav className="fixed z-40 flex items-center justify-center w-full h-16 py-2 bg-white shadow-sm">
       {/* Normal Screen Width */}
       <ul className="items-center justify-between hidden w-full grid-cols-12 px-3 md:grid xl:max-w-7xl xl:px-0">
         <li className="col-span-2 list-none md:col-span-3">
@@ -64,8 +64,9 @@ const Navbar = () => {
               searchResults={searchResults || []}
               onChange={handleSearchChange}
               onSubmit={() => setShouldSearch(true)}
-              placeholder="Search..."
               searchLoading={searchLoading && searchQuery.length > 0}
+              searchError={searchError}
+              placeholder="Search..."
             />
           )}
         </li>
