@@ -132,17 +132,27 @@ export class ChatController {
     }
 
     @Post('room/block')
-    async blockUser(@Body() blockUserDto: BlockUserDto) {
+    async blockUser(
+        @Body() blockUserDto: BlockUserDto,
+        @Req() request: RequestWithUser,
+    ) {
+        console.log('blockUserDto = ', blockUserDto);
+        const user = await this.authService.getMe(request.user.id);
         return await this.chatService.blockUser(
-            blockUserDto.userId,
+            user.id,
             blockUserDto.blockedUserId,
         );
     }
 
     @Post('room/unblock')
-    async unblockUser(@Body() blockUserDto: BlockUserDto) {
+    async unblockUser(
+        @Body() blockUserDto: BlockUserDto,
+        @Req() request: RequestWithUser,
+    ) {
+        const user = await this.authService.getMe(request.user.id);
+
         return await this.chatService.unblockUser(
-            blockUserDto.userId,
+            user.id,
             blockUserDto.blockedUserId,
         );
     }

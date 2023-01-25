@@ -72,7 +72,4 @@ export class MuteUserDto {
 export class BlockUserDto {
     @IsInt()
     blockedUserId: number;
-
-    @IsInt()
-    userId: number;
 }

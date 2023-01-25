@@ -81,6 +81,7 @@ export interface IConversationMetaData {
   user_id: number;
   isActiveBox?: boolean;
   muted: boolean;
+  is_blocked: boolean;
 }
 
 export interface IMessageSender {

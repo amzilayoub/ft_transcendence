@@ -213,15 +213,23 @@ export class ChatService {
 
     getRoomMessages(roomId: number, userId = -1) {
         return this.prismaService.$queryRaw(Prisma.sql`
-				SELECT id, user_id AS "senderId", message, created_at as time,
+				SELECT messages.id, messages.user_id AS "senderId", messages.message, messages.created_at as "time",
 					CASE
-						WHEN user_id = ${userId}
+						WHEN messages.user_id = ${userId}
 							THEN true
 						ELSE
 							false
-					END AS "isMe"
+					END AS "isMe",
+					users.avatar_url
 				FROM messages
+				INNER JOIN users ON users.id = messages.user_id
 				WHERE room_id = ${roomId}
+				AND (
+					SELECT COUNT(*)
+					FROM blacklist
+					WHERE blacklist.user_id = ${userId}
+					AND blacklist.blocked_user_id = messages.user_id
+					) = 0
 				ORDER BY id ASC
 		`);
     }
@@ -320,4 +328,13 @@ export class ChatService {
 			AND blocked_user_id = ${blockedUserId}
 		`);
     }
+
+	getBlockedUsersByMe(userId: number)
+	{
+		return this.prismaService.$queryRaw(Prisma.sql`
+			SELECT blocked_user_id
+			FROM blacklist
+			WHERE user_id = ${userId}
+		`)
+	}
 }

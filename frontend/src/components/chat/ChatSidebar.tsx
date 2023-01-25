@@ -78,6 +78,7 @@ const ConversationMetadata = ({
   id,
   userId,
   muted,
+  isBlocked,
 }: {
   avatar: string;
   name: string;
@@ -92,6 +93,7 @@ const ConversationMetadata = ({
   id: number;
   userId: number;
   muted: boolean;
+  isBlocked: boolean;
 }) => {
   return (
     <div
@@ -130,14 +132,14 @@ const ConversationMetadata = ({
                         {muted ? "Unmute" : "Mute"}
                       </button>
                       <button
-                        onClick={(e) => {
+                        onClick={async (e) => {
                           e.stopPropagation();
-                          onBlockClick();
+                          await onBlockClick(isBlocked);
                         }}
                         className="flex items-center px-4 py-2 font-semibold text-red-600 gap-x-2 hover:text-white hover:bg-red-500 min-w-min"
                       >
                         <MdBlockFlipped />
-                        Block
+                        {isBlocked ? "Unblock" : "Block"}
                       </button>
                     </div>
                   </div>
@@ -220,20 +222,15 @@ const ChatSidebar = ({
   /*
    ** @param status true it means block, false unblock
    */
-  const changeBlockStatus = async (
-    userId: number,
-    blockedUserId: number,
-    status: boolean
-  ) => {
+  const changeBlockStatus = async (blockedUserId: number, status: boolean) => {
     let uri = "/chat/room/";
-    if (status == true) uri += "block";
+    if (status == false) uri += "block";
     else uri += "unblock";
     const resp = await basicFetch.post(
       uri,
       {},
       {
-        userId: userId,
-    	blockedUserId: blockedUserId,
+        blockedUserId: blockedUserId,
       }
     );
     if (resp.status == 200) {
@@ -331,7 +328,19 @@ const ChatSidebar = ({
                     return newState;
                   });
                 }}
-                onBlockClick={() => {}}
+                onBlockClick={async (status) => {
+                  await changeBlockStatus(item.user_id, status);
+                  setConversationsMetadata((state) => {
+                    let newState = [...state];
+
+                    newState.forEach((obj) => {
+                      if (obj.id == item.id) {
+                        obj.is_blocked = !status;
+                      }
+                    });
+                    return newState;
+                  });
+                }}
                 socket={socket}
                 type={item.type}
                 id={item.room_id}
@@ -369,11 +378,24 @@ const ChatSidebar = ({
                     return newState;
                   });
                 }}
-                onBlockClick={() => {}}
+                onBlockClick={async (status) => {
+                  await changeBlockStatus(item.user_id, status);
+                  setConversationsMetadata((state) => {
+                    let newState = [...state];
+
+                    newState.forEach((obj) => {
+                      if (obj.id == item.id) {
+                        obj.is_blocked = !status;
+                      }
+                    });
+                    return newState;
+                  });
+                }}
                 socket={socket}
                 type={item.type}
                 id={item.room_id}
                 userId={item.user_id}
+                isBlocked={item.is_blocked}
               />
             ))
           )}
