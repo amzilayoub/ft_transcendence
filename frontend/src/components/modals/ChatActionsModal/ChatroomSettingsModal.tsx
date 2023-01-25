@@ -11,7 +11,6 @@ import UserListItemLoading from "@ui/skeletons/UserSkeletons";
 import TextInput from "@ui/TextInput";
 import cn from "classnames";
 import {
-  IConversation,
   IRoom,
   IRoomMember,
   MemberGameStatus,
@@ -119,7 +118,7 @@ const ChatroomSettingsModal = ({
     avatar_url: "https://i.imgur.com/0y0tj9X.png",
     isOnline: true,
     gameStatus: MemberGameStatus.IDLE,
-    membershipStatus: MembershipStatus.OWNER,
+    membershipStatus: MembershipStatus.MEMBER,
     isBanned: false,
     isMuted: false,
     mutedUntil: new Date(),
@@ -217,19 +216,23 @@ const ChatroomSettingsModal = ({
 };
 
 export const ChatdmSettingsModal = ({
-  conversationData,
   roomData,
   isOpen = false,
   onClose = () => {},
 }: {
-  conversationData: IConversation;
   roomData: IRoom;
   isOpen: boolean;
   onClose: () => void;
 }) => {
   return (
     <BaseModal isOpen={isOpen} onClose={onClose}>
-      <h1>test</h1>
+      <div className=" max-h-[1000px] w-[800px]">
+        <div className="flex justify-between items-center h-1/3">
+          <h1>
+            {roomData.members[0].username} and {roomData.members[1].username}
+          </h1>
+        </div>
+      </div>
     </BaseModal>
   );
 };

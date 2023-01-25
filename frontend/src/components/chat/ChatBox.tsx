@@ -128,13 +128,13 @@ const ChatBox = ({
     name: "Spagueeetti",
     description: "this is a testing room",
     avatar_url: "/default_avatar.png",
-    type: RoomType.PRIVATE,
+    type: RoomType.DIRECT,
     created_at: new Date(),
     members: [
       {
         id: 1,
         username: "mbif",
-        avatar_url: "/default_avatar.png",
+        avatar_url: "/public/images/default_avatar.jpg",
         isOnline: true,
         gameStatus: MemberGameStatus.IDLE,
         membershipStatus: MembershipStatus.MODERATOR,
@@ -149,17 +149,6 @@ const ChatBox = ({
         isOnline: true,
         gameStatus: MemberGameStatus.IDLE,
         membershipStatus: MembershipStatus.OWNER,
-        isBanned: false,
-        isMuted: false,
-        mutedUntil: new Date(),
-      },
-      {
-        id: 3,
-        username: "wewewewewewe",
-        avatar_url: "/default_avatar.png",
-        isOnline: true,
-        gameStatus: MemberGameStatus.IDLE,
-        membershipStatus: MembershipStatus.MEMBER,
         isBanned: false,
         isMuted: false,
         mutedUntil: new Date(),
@@ -399,7 +388,7 @@ const ChatBox = ({
           )}
         </div>
         <div>
-          {ShowChatSettingModal && conversationMetaData.type === "direct" && (
+          {ShowChatSettingModal && roomData.type === RoomType.DIRECT && (
             <ChatdmSettingsModal
               roomData={roomData}
               isOpen={ShowChatSettingModal}

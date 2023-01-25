@@ -139,9 +139,11 @@ export const OwnerPanel = ({ roomData }: { roomData: IRoom }) => {
             {showPasswordModal && (
               <PasswordModal
                 setCurrentOption={setCurrentOption}
-                showPasswordModal={showPasswordModal}
                 defaultOption={defaultOption}
+                showPasswordModal={showPasswordModal}
                 setShowPasswordModal={setShowPasswordModal}
+                setRoomCurrentData={setRoomCurrentData}
+                roomCurrentData={roomCurrentData}
               />
             )}
           </div>
@@ -223,22 +225,13 @@ export const MemberPanel = ({ roomData }: { roomData: IRoom }) => {
         <p className="text-gray-400">{roomCurrentData.type}</p>
       </div>
       <div className="h-px bg-gray-200 " />
-      <div className="flex flex-row justify-between items-center w-full gap-4">
+      <div className="flex flex-row justify-between items-center w-full gap-4 pb-4">
         <div className="flex flex-col justify-center items-start gap-4 w-full">
-          <div className="w-5/6">
-            <TextInput
-              label="Room Name"
-              type="text"
-              value={roomCurrentData.name}
-              onChange={(e) => {
-                e.preventDefault();
-                setRoomCurrentData({
-                  ...roomCurrentData,
-                  name: e.target.value,
-                });
-              }}
-              required
-            />
+          <div className="w-5/6 bg-slate-100 border rounded-lg p-2">
+            <h1>
+              Room Name:{" "}
+              <span className="text-gray-400">{roomCurrentData.name}</span>
+            </h1>
           </div>
         </div>
         <div
@@ -252,25 +245,14 @@ export const MemberPanel = ({ roomData }: { roomData: IRoom }) => {
             width={150}
             height={150}
             alt={"ss"}
-            className="rounded-full shadow-inner hover:opacity-50 duration-300"
+            className="rounded-full shadow-inner "
           />
-          <h1 className="text-white absolute hidden group-hover:block  duration-300 pointer-events-none">
-            upload a photo
-          </h1>
         </div>
       </div>
-      <textarea
-        className="w-full h-24 mt-5 p-2 border border-gray-300 rounded-md focus:outline-none focus:ring-1 focus:ring-primary/90 focus:border-transparent"
-        placeholder="Enter room description"
-        value={roomCurrentData.description}
-        onChange={(e) => {
-          e.preventDefault();
-          setRoomCurrentData({
-            ...roomCurrentData,
-            description: e.target.value,
-          });
-        }}
-      />
+      <h1 className="rounded-lg bg-slate-100 p-2 items-start h-24">
+        Room Description:{" "}
+        <span className="text-gray-400 ">{roomCurrentData.description}</span>
+      </h1>
     </div>
   );
 };
