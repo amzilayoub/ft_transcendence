@@ -71,6 +71,7 @@ const ChatStuff = () => {
         onConversationClick={activateBox}
         conversationsMetadata={conversationsMetadata}
         onNewConversationClick={() => console.log("new conversation")}
+        setConversationsMetadata={setConversationsMetadata}
         socket={socketIO}
       />
       <ul className="absolute bottom-0 flex right-[400px] gap-x-3">

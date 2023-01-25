@@ -11,7 +11,12 @@ import {
 
 import { ApiTags } from '@nestjs/swagger';
 import { ChatService } from './chat.service';
-import { CreateRoomDto, JoinRoomDto } from './dto/chat_common.dto';
+import {
+    BlockUserDto,
+    CreateRoomDto,
+    JoinRoomDto,
+    MuteUserDto,
+} from './dto/chat_common.dto';
 import JwtGuard from 'src/common/guards/jwt_guard';
 import { AuthService } from 'src/auth/auth.service';
 import RequestWithUser from 'src/auth/inrefaces/requestWithUser.interface';
@@ -115,5 +120,30 @@ export class ChatController {
     @Get('room/info/:roomId')
     async getRoomInfo(@Param('roomId') roomId: number) {
         return await this.chatService.getRoomInfo(roomId);
+    }
+
+    @Post('room/mute')
+    async muteUser(@Body() muteUserDto: MuteUserDto) {
+        await this.chatService.muteUser(
+            muteUserDto.userId,
+            muteUserDto.roomId,
+            muteUserDto.muted,
+        );
+    }
+
+    @Post('room/block')
+    async blockUser(@Body() blockUserDto: BlockUserDto) {
+        return await this.chatService.blockUser(
+            blockUserDto.userId,
+            blockUserDto.blockedUserId,
+        );
+    }
+
+    @Post('room/unblock')
+    async unblockUser(@Body() blockUserDto: BlockUserDto) {
+        return await this.chatService.unblockUser(
+            blockUserDto.userId,
+            blockUserDto.blockedUserId,
+        );
     }
 }

@@ -74,6 +74,10 @@ const ConversationMetadata = ({
   onMuteClick,
   onBlockClick,
   socket,
+  type,
+  id,
+  userId,
+  muted,
 }: {
   avatar: string;
   name: string;
@@ -84,9 +88,11 @@ const ConversationMetadata = ({
   onMuteClick: () => void;
   onBlockClick: () => void;
   socket: any;
+  type: string;
+  id: number;
+  userId: number;
+  muted: boolean;
 }) => {
-  // const today = new Date();
-
   return (
     <div
       onClick={onConversationClick}
@@ -109,31 +115,33 @@ const ConversationMetadata = ({
                   {new Date(lastMessageTime).toDateString()}
                 </h1>
                 {/* eslint-disable-next-line tailwindcss/no-custom-classname */}
-                <div className="group/dots relative items-center justify-center hidden text-xs duration-200 w-7 h-7 hover:bg-gray-300 group-hover:flex">
-                  <BsThreeDots />
-                  <div className="absolute top-0 right-0 flex-col hidden w-full overflow-hidden bg-white rounded-l-lg min-w-min group-hover/dots:flex">
-                    <button
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        onMuteClick();
-                      }}
-                      className="flex items-center w-full px-4 py-2 font-semibold text-red-500 bg-white gap-x-2 hover:text-red-500 hover:bg-gray-100 min-w-min"
-                    >
-                      <BsVolumeMute />
-                      Mute
-                    </button>
-                    <button
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        onBlockClick();
-                      }}
-                      className="flex items-center px-4 py-2 font-semibold text-red-600 gap-x-2 hover:text-white hover:bg-red-500 min-w-min"
-                    >
-                      <MdBlockFlipped />
-                      Block
-                    </button>
+                {type == "dm" ? (
+                  <div className="group/dots relative items-center justify-center hidden text-xs duration-200 w-7 h-7 hover:bg-gray-300 group-hover:flex">
+                    <BsThreeDots />
+                    <div className="absolute top-0 right-0 flex-col hidden w-full overflow-hidden bg-white rounded-l-lg min-w-min group-hover/dots:flex">
+                      <button
+                        onClick={async (e) => {
+                          e.stopPropagation();
+                          await onMuteClick(!muted);
+                        }}
+                        className="flex items-center w-full px-4 py-2 font-semibold text-red-500 bg-white gap-x-2 hover:text-red-500 hover:bg-gray-100 min-w-min"
+                      >
+                        <BsVolumeMute />
+                        {muted ? "Unmute" : "Mute"}
+                      </button>
+                      <button
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          onBlockClick();
+                        }}
+                        className="flex items-center px-4 py-2 font-semibold text-red-600 gap-x-2 hover:text-white hover:bg-red-500 min-w-min"
+                      >
+                        <MdBlockFlipped />
+                        Block
+                      </button>
+                    </div>
                   </div>
-                </div>
+                ) : null}
               </div>
             </div>
             <p className="text-xs text-gray-500">
@@ -160,6 +168,7 @@ const ChatSidebar = ({
   onNewConversationClick,
   setShowChatSidebar,
   socket,
+  setConversationsMetadata,
 }: {
   showChatSidebar: boolean;
   conversationsMetadata: IConversationMetaData[];
@@ -167,6 +176,7 @@ const ChatSidebar = ({
   onNewConversationClick: () => void;
   setShowChatSidebar: (showChatSidebar: boolean) => void;
   socket: any;
+  setConversationsMetadata: () => void;
 }) => {
   const [searchQuery, setsearchQuery] = useState("");
   const [searchResults, setSearchResults] = useState<
@@ -192,6 +202,44 @@ const ChatSidebar = ({
     setSearchData();
   }, [searchQuery, conversationsMetadata]);
 
+  const muteUser = async (roomId: number, userId: number, muted: boolean) => {
+    const resp = await basicFetch.post(
+      "/chat/room/mute",
+      {},
+      {
+        roomId: roomId,
+        userId: userId,
+        muted,
+      }
+    );
+    if (resp.status == 200) {
+      const data = await resp.json();
+    }
+  };
+
+  /*
+   ** @param status true it means block, false unblock
+   */
+  const changeBlockStatus = async (
+    userId: number,
+    blockedUserId: number,
+    status: boolean
+  ) => {
+    let uri = "/chat/room/";
+    if (status == true) uri += "block";
+    else uri += "unblock";
+    const resp = await basicFetch.post(
+      uri,
+      {},
+      {
+        userId: userId,
+    	blockedUserId: blockedUserId,
+      }
+    );
+    if (resp.status == 200) {
+      const data = await resp.json();
+    }
+  };
   const allUnreadMessages = 0;
   return (
     <>
@@ -270,9 +318,24 @@ const ChatSidebar = ({
                 lastMessage={item.lastMessage}
                 lastMessageTime={item.lastMessageTime}
                 unreadMessages={item.unreadMessagesCount}
-                onMuteClick={() => {}}
+                onMuteClick={async (muted) => {
+                  await muteUser(item.room_id, item.user_id, muted);
+                  setConversationsMetadata((state) => {
+                    let newState = [...state];
+
+                    newState.forEach((obj) => {
+                      if (obj.id == item.id) {
+                        obj.muted = muted;
+                      }
+                    });
+                    return newState;
+                  });
+                }}
                 onBlockClick={() => {}}
                 socket={socket}
+                type={item.type}
+                id={item.room_id}
+                userId={item.user_id}
               />
             ))
           ) : searchQuery.length > 0 ? (
@@ -292,9 +355,25 @@ const ChatSidebar = ({
                 lastMessage={item.lastMessage}
                 lastMessageTime={item.lastMessageTime}
                 unreadMessages={item.unreadMessagesCount}
-                onMuteClick={() => {}}
+                muted={item.muted}
+                onMuteClick={async (muted) => {
+                  await muteUser(item.room_id, item.user_id, muted);
+                  setConversationsMetadata((state) => {
+                    let newState = [...state];
+
+                    newState.forEach((obj) => {
+                      if (obj.id == item.id) {
+                        obj.muted = muted;
+                      }
+                    });
+                    return newState;
+                  });
+                }}
                 onBlockClick={() => {}}
                 socket={socket}
+                type={item.type}
+                id={item.room_id}
+                userId={item.user_id}
               />
             ))
           )}
