@@ -1,6 +1,7 @@
-import React, { ReactNode } from "react";
+import React, { ReactElement, ReactNode } from "react";
 
 import cn from "classnames";
+import { IconType } from "react-icons";
 
 export interface ButtonProps
   extends React.ButtonHTMLAttributes<HTMLButtonElement> {
@@ -65,7 +66,7 @@ const Button: React.FC<ButtonProps> = ({
   >
     {isLoading && (
       <svg
-        className="animate-spin mr-3 text-white h-5 w-5"
+        className="w-5 h-5 mr-3 text-white animate-spin"
         xmlns="http://www.w3.org/2000/svg"
         fill="none"
         viewBox="0 0 24 24"
@@ -88,5 +89,30 @@ const Button: React.FC<ButtonProps> = ({
     {children}
   </button>
 );
+
+export const IconButton = ({
+  icon,
+  title,
+  onClick,
+  className,
+}: {
+  icon: ReactElement<IconType>;
+  title?: string;
+  onClick: () => void;
+  className?: string;
+}) => {
+  return (
+    <button
+      className={cn(
+        "flex items-center justify-center p-2 rounded-full",
+        className
+      )}
+      onClick={onClick}
+    >
+      {icon}
+      {title && <span className="ml-2">{title}</span>}
+    </button>
+  );
+};
 
 export default Button;

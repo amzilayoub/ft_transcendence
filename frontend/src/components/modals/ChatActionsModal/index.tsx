@@ -1,4 +1,4 @@
-import React, { useEffect } from "react";
+import React from "react";
 
 import { Tab } from "@headlessui/react";
 import cn from "classnames";

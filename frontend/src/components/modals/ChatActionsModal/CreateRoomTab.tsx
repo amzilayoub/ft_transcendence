@@ -1,11 +1,12 @@
 import { useEffect, useState } from "react";
 
 import { Tab } from "@headlessui/react";
-import TextInput from "@ui/TextInput";
-import basicFetch from "@utils/basicFetch";
 import cn from "classnames";
 import Image from "next/image";
 import Creatable from "react-select/creatable";
+
+import TextInput from "@ui/TextInput";
+import basicFetch from "@utils/basicFetch";
 
 export const friends = [
   {

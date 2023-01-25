@@ -1,14 +1,15 @@
 import { useState } from "react";
 
+import cn from "classnames";
+import Image from "next/image";
+import { IoSearchOutline } from "react-icons/io5";
+
 import BaseModal from "@ui/BaseModal";
 import Button from "@ui/Button";
 import UserListItemLoading from "@ui/skeletons/UserSkeletons";
 import TextInput from "@ui/TextInput";
 import { truncateString } from "@utils/format";
-import cn from "classnames";
 import { IRoom } from "global/types";
-import Image from "next/image";
-import { IoSearchOutline } from "react-icons/io5";
 
 const handleJoinRoom = (room: IRoom) => {
   alert(`Joining room ${room.name}`);

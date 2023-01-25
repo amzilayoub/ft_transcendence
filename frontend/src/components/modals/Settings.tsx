@@ -1,12 +1,13 @@
 import React, { useState } from "react";
 
 import { Switch } from "@headlessui/react";
+import Image from "next/image";
+
 import BaseModal from "@ui/BaseModal";
 
 import Avatar from "/public/images/default-avatar.jpg";
 
 import TextInput from "@ui/TextInput";
-import Image from "next/image";
 
 import Button from "../../ui/Button";
 
