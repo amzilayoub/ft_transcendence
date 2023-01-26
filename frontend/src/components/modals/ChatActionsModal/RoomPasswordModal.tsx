@@ -3,17 +3,22 @@ import React, { useState } from "react";
 import BaseModal from "@ui/BaseModal";
 import Button from "@ui/Button";
 import TextInput from "@ui/TextInput";
+import { IRoom, RoomType } from "global/types";
 
 const PasswordModal = ({
   setCurrentOption,
   defaultOption,
   showPasswordModal,
   setShowPasswordModal,
+  setRoomCurrentData,
+  roomCurrentData,
 }: {
+  defaultOption: any;
   setCurrentOption: React.Dispatch<React.SetStateAction<any>>;
   showPasswordModal: boolean;
-  defaultOption: any;
   setShowPasswordModal: React.Dispatch<React.SetStateAction<boolean>>;
+  setRoomCurrentData: React.Dispatch<React.SetStateAction<IRoom>>;
+  roomCurrentData: IRoom;
 }) => {
   const [password, setPassword] = useState("");
   const [passwordConfirmation, setPasswordConfirmation] = useState("");
@@ -35,6 +40,10 @@ const PasswordModal = ({
     } else {
       console.log("passwords match");
       setShowPasswordModal(false);
+      setRoomCurrentData({
+        ...roomCurrentData,
+        type: RoomType.PROTECTED,
+      });
     }
   };
 

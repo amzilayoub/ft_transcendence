@@ -23,7 +23,7 @@ const conversationsMetadataSample: IConversationMetaData[] = [
     lastMessage: "Hello",
     lastMessageTime: new Date(),
     unreadMessages: 0,
-    type: "dm",
+    type: "group",
     userId: 1,
     muted: false,
     isBlocked: false,
@@ -212,6 +212,22 @@ const ChatSidebar = ({
     throw new Error("Error In loadSearch");
   };
 
+  const conversationMetaDataSample: IConversationMetaData[] = [
+    {
+      id: "2",
+      name: "Michael Scott",
+      avatar_url: "https://martinfowler.com/mf.jpg",
+      lastMessage: "hey",
+      lastMessageTime: new Date(),
+      unreadMessagesCount: 1,
+      created_at: new Date(),
+      room_id: 1,
+      type: "private",
+      user_id: 1,
+      isActiveBox: true,
+    },
+  ];
+
   useEffect(() => {
     const setSearchData = async () => {
       // const data = await loadSearch();
@@ -319,10 +335,10 @@ const ChatSidebar = ({
               />
             </div>
           </div>
-          {searchResults &&
-          searchResults.length > 0 &&
-          searchQuery.length > 0 ? (
-            searchResults.map((item) => (
+          {conversationMetaDataSample &&
+          conversationMetaDataSample.length > 0 &&
+          conversationMetaDataSample.length > 0 ? (
+            conversationMetaDataSample.map((item) => (
               <ConversationMetadata
                 key={item.id}
                 avatar={item.avatar_url}
