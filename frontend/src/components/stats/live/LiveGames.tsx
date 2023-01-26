@@ -7,6 +7,7 @@ import Link from "next/link";
 import { RiRefreshLine } from "react-icons/ri";
 
 import useLiveGames, { ILiveGame } from "@hooks/useLiveGames";
+import TitledCard from "@ui/TitledCard";
 import { truncateString } from "@utils/format";
 
 // import { GameSummary } from "../History";
@@ -73,31 +74,31 @@ const LiveGames = () => {
   const games = new Array(5).fill(MOCK_GAMES).flat();
 
   return (
-    <div className="rounded-lg border p-3 shadow-sm duration-200 hover:shadow-md">
-      <header className=" px-2 pb-4 ">
-        <div className="flex items-center justify-between gap-x-4">
-          <p className="text-2xl font-bold">Current Games</p>
+    <div className="max-w-max">
+      <TitledCard
+        title="Current Games"
+        actions={
           <button
             onClick={refresh}
             className="text-2xl font-bold text-primary hover:text-primary/80"
           >
             <RiRefreshLine className={cn({ "animate-spin": isRefetching })} />
           </button>
-        </div>
-        {/* <div className="h-px bg-gray-200" /> */}
-      </header>
-      <ul className="flex flex-col gap-y-3">
-        {games.map((game) => (
-          <Link
-            key={game.id}
-            href={`/game/${game.id}`}
-            className="flex flex-col gap-y-3 rounded-lg border duration-200"
-          >
-            {/* <LiveGame game={game} /> */}
-            <GameSummary {...game} />
-          </Link>
-        ))}
-      </ul>
+        }
+      >
+        <ul className="flex flex-col gap-y-3">
+          {games.map((game) => (
+            <Link
+              key={game.id}
+              href={`/game/${game.id}`}
+              className="flex flex-col gap-y-3 rounded-lg border duration-200"
+            >
+              {/* <LiveGame game={game} /> */}
+              <GameSummary {...game} />
+            </Link>
+          ))}
+        </ul>
+      </TitledCard>
     </div>
   );
 };

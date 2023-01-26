@@ -16,7 +16,7 @@ import { IUser, PartialWithRequired } from "global/types";
 interface SearchbarProps {
   searchResults: any[];
   searchLoading: boolean;
-  searchError: string | undefined;
+  searchError?: string | undefined;
   placeholder?: string;
   onChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
   onSubmit: (e: React.FormEvent<HTMLFormElement>) => void;

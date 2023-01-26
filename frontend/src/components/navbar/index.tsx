@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 
+import Image from "next/image";
 import Link from "next/link";
-import { AiOutlineCode as TmpLogo } from "react-icons/ai";
 import useSWR from "swr";
 
 import ProfileNavMenu from "@components/menus/dropdowns/ProfileNavMenu";
@@ -20,11 +20,6 @@ export interface IUserData {
   created_at: string;
   updated_at: string;
 }
-
-// temporary
-const Logo = ({ ...props }) => (
-  <TmpLogo className="h-full w-full text-secondary" {...props} />
-);
 
 const Navbar = () => {
   const ctx = useAuthContext();
@@ -54,7 +49,13 @@ const Navbar = () => {
         <li className="col-span-2 list-none md:col-span-3">
           <Link href="/home">
             <div className="h-16 w-14 cursor-pointer">
-              <Logo src={""} />
+              <Image
+                src="/ping-pong-logo.png"
+                alt="Ping Pong Logo"
+                width={100}
+                height={100}
+                className="h-full w-full"
+              />
             </div>
           </Link>
         </li>
@@ -89,7 +90,14 @@ const Navbar = () => {
         <li className="list-none">
           <Link href="/home">
             <div className="h-16 w-14 cursor-pointer">
-              <Logo src={""} />
+              <Image
+                src="/ping-pong-logo.png"
+                alt="Ping Pong Logo"
+                width={100}
+                height={100}
+                className="h-full w-full"
+              />
+              {/* <Logo src={""} /> */}
             </div>
           </Link>
         </li>
