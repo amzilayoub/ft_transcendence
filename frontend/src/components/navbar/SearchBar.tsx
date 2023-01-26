@@ -139,8 +139,6 @@ const Searchbar = (props: SearchbarProps) => {
     searchQuery,
   ]);
 
-  console.log({ searchQuery }, searchQuery !== "");
-
   return (
     <form
       onSubmit={(e) => {
