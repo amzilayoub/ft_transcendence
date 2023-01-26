@@ -22,6 +22,7 @@ export interface AuthState {
   user: ICurrentUser | null;
   isAuthenticated: boolean;
   loadingUser: boolean;
+  loadUserData: () => Promise<ICurrentUser | null>;
   logout: () => void;
   // error: string | null;
 }
@@ -70,9 +71,10 @@ const AuthContextProvider = ({ children }: { children: React.ReactNode }) => {
       isAuthenticated,
       user,
       loadingUser,
+      loadUserData,
       logout,
     }),
-    [user, loadingUser, isAuthenticated]
+    [user, isAuthenticated, loadingUser]
   );
 
   useEffect(() => {
