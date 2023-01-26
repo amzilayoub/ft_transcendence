@@ -15,6 +15,21 @@ import basicFetch from "@utils/basicFetch";
 import { truncateString } from "@utils/format";
 import { IConversationMetaData, IFriendMetaData } from "global/types";
 
+const conversationsMetadataSample: IConversationMetaData[] = [
+  {
+    id: 1,
+    avatar_url: "https://martinfowler.com/mf.jpg",
+    name: "Michael Scott",
+    lastMessage: "Hello",
+    lastMessageTime: new Date(),
+    unreadMessages: 0,
+    type: "dm",
+    userId: 1,
+    muted: false,
+    isBlocked: false,
+  },
+];
+
 const SeekNewConversation = ({
   searchQuery,
   searchResults,
@@ -119,15 +134,15 @@ const ConversationMetadata = ({
                 </h1>
                 {/* eslint-disable-next-line tailwindcss/no-custom-classname */}
                 {type == "dm" ? (
-                  <div className="group/dots relative items-center justify-center hidden text-xs duration-200 w-7 h-7 hover:bg-gray-300 group-hover:flex">
+                  <div className="group/dots relative hidden h-7 w-7 items-center justify-center text-xs duration-200 hover:bg-gray-300 group-hover:flex">
                     <BsThreeDots />
-                    <div className="absolute top-0 right-0 flex-col hidden w-full overflow-hidden bg-white rounded-l-lg min-w-min group-hover/dots:flex">
+                    <div className="absolute top-0 right-0 hidden w-full min-w-min flex-col overflow-hidden rounded-l-lg bg-white group-hover/dots:flex">
                       <button
                         onClick={async (e) => {
                           e.stopPropagation();
                           await onMuteClick(!muted);
                         }}
-                        className="flex items-center w-full px-4 py-2 font-semibold text-red-500 bg-white gap-x-2 hover:text-red-500 hover:bg-gray-100 min-w-min"
+                        className="flex w-full min-w-min items-center gap-x-2 bg-white px-4 py-2 font-semibold text-red-500 hover:bg-gray-100 hover:text-red-500"
                       >
                         <BsVolumeMute />
                         {muted ? "Unmute" : "Mute"}
@@ -137,7 +152,7 @@ const ConversationMetadata = ({
                           e.stopPropagation();
                           await onBlockClick(isBlocked);
                         }}
-                        className="flex items-center px-4 py-2 font-semibold text-red-600 gap-x-2 hover:text-white hover:bg-red-500 min-w-min"
+                        className="flex min-w-min items-center gap-x-2 px-4 py-2 font-semibold text-red-600 hover:bg-red-500 hover:text-white"
                       >
                         <MdBlockFlipped />
                         {isBlocked ? "Unblock" : "Block"}
@@ -356,7 +371,7 @@ const ChatSidebar = ({
               onNewConversationClick={onNewConversationClick}
             />
           ) : (
-            conversationsMetadata.map((item, idx) => (
+            conversationsMetadataSample.map((item, idx) => (
               <ConversationMetadata
                 key={idx}
                 avatar={item.avatar_url}

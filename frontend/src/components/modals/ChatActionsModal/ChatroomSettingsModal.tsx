@@ -13,26 +13,73 @@ import UserListItemLoading from "@ui/skeletons/UserSkeletons";
 import TextInput from "@ui/TextInput";
 import basicFetch from "@utils/basicFetch";
 import {
-  IConversation,
   IRoom,
   IRoomMember,
   MemberGameStatus,
   MembershipStatus,
 } from "global/types";
 
-const MemberListItem = ({ member }: { member: IRoomMember }) => {
-  const CurrentUser: IRoomMember = {
+import avatar from "/public/images/default-avatar.jpg";
+const CurrentUser: IRoomMember = {
+  id: 1,
+  username: "mbif",
+  avatar_url: "/public/images/default-avatar.jpg",
+  isOnline: true,
+  gameStatus: MemberGameStatus.IDLE,
+  membershipStatus: MembershipStatus.MEMBER,
+  isBanned: false,
+  isMuted: false,
+  mutedUntil: new Date(),
+};
+
+const RoomParticipant: IRoomMember[] = [
+  {
     id: 1,
     username: "mbif",
-    avatar_url: "https://i.imgur.com/0y0tj9X.png",
+    avatar_url: avatar.src,
+    isOnline: true,
+    gameStatus: MemberGameStatus.IDLE,
+    membershipStatus: MembershipStatus.OWNER,
+    isBanned: false,
+    isMuted: false,
+    mutedUntil: new Date(),
+  },
+  {
+    id: 2,
+    username: "folio",
+    avatar_url: avatar.src,
     isOnline: true,
     gameStatus: MemberGameStatus.IDLE,
     membershipStatus: MembershipStatus.MEMBER,
     isBanned: false,
     isMuted: false,
     mutedUntil: new Date(),
-  };
+  },
+  {
+    id: 2,
+    username: "pronto",
+    avatar_url: avatar.src,
+    isOnline: true,
+    gameStatus: MemberGameStatus.IDLE,
+    membershipStatus: MembershipStatus.MEMBER,
+    isBanned: false,
+    isMuted: false,
+    mutedUntil: new Date(),
+  },
+  {
+    id: 2,
+    username: "sisisisi",
+    avatar_url: avatar.src,
+    isOnline: true,
+    gameStatus: MemberGameStatus.IDLE,
+    membershipStatus: MembershipStatus.MEMBER,
+    isBanned: false,
+    isMuted: false,
+    mutedUntil: new Date(),
+  },
+];
 
+const MemberListItem = ({ member }: { member: IRoomMember }) => {
   const handleMute = () => {
     console.log("mute");
   };
@@ -112,18 +159,13 @@ const ChatroomSettingsModal = ({
   const CurrentUser: IRoomMember = {
     id: 1,
     username: "mbif",
-    avatar_url: "https://i.imgur.com/0y0tj9X.png",
+    avatar_url: avatar.src,
     isOnline: true,
     gameStatus: MemberGameStatus.IDLE,
     membershipStatus: MembershipStatus.OWNER,
     isBanned: false,
     isMuted: false,
     mutedUntil: new Date(),
-  };
-
-  const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setSearchQuery(e.target.value);
-    setShouldSearch(false);
   };
 
   const getRoomMembers = async () => {
@@ -140,47 +182,6 @@ const ChatroomSettingsModal = ({
       setSearchResults(data);
     });
   }, [true]);
-
-  const RoomMembers = () => {
-    return (
-      <div className="h-2/3 p-8">
-        <h2 className="text-2xl font-bold">Room Members</h2>
-        <div className="h-px bg-gray-200 " />
-        <form
-          onSubmit={(e) => {
-            e.preventDefault();
-            console.log("search");
-          }}
-          className="group relative h-10 w-full"
-        >
-          <label className="absolute top-3 left-3 flex items-center justify-center text-gray-400">
-            <button type="submit" className="h-full w-full cursor-default">
-              <IoSearchOutline className="h-6 w-6 text-gray-400 group-focus-within:text-secondary group-hover:text-secondary" />
-            </button>
-          </label>
-          <TextInput
-            name="search"
-            placeholder="Search for a member"
-            onChange={(e) => handleSearchChange(e)}
-            inputClassName="pl-12 py-[8px] "
-          />
-        </form>
-        <ul className="no-scrollbar mt-4 flex h-[calc(60vh-160px)] flex-col gap-y-1 overflow-y-scroll scroll-smooth">
-          {!searchError &&
-            !searchLoading &&
-            searchResults &&
-            searchResults?.map((member: IRoomMember, index: number) => (
-              <MemberListItem key={index} member={member} />
-            ))}
-          {searchLoading &&
-            [...new Array(6)].map((i) => <UserListItemLoading key={i} />)}
-          {!searchError && searchResults?.length === 0 && (
-            <p className="py-10 text-center text-gray-400">No results found</p>
-          )}
-        </ul>
-      </div>
-    );
-  };
 
   const [isLoading, setIsLoading] = useState(false);
   const [buttonText, setButtonText] = useState("Save");
@@ -222,21 +223,185 @@ const ChatroomSettingsModal = ({
 };
 
 export const ChatdmSettingsModal = ({
-  conversationData,
   roomData,
   isOpen = false,
   onClose = () => {},
 }: {
-  conversationData: IConversation;
   roomData: IRoom;
   isOpen: boolean;
   onClose: () => void;
 }) => {
+  const [roomCurrentData, setRoomCurrentData] = useState<IRoom>(roomData);
+
+  const handleMute = () => {
+    setRoomCurrentData({
+      ...roomCurrentData,
+      isMuted: !roomCurrentData.isMuted,
+    });
+  };
+
+  const handleBlock = () => {
+    setRoomCurrentData({
+      ...roomCurrentData,
+      isBlocked: !roomCurrentData.isBlocked,
+    });
+  };
+
+  const handleDelete = () => {
+    console.log("delete");
+  };
+
   return (
     <BaseModal isOpen={isOpen} onClose={onClose}>
-      <h1>test</h1>
+      <div className="max-h-[1000px] w-[500px] p-8">
+        <div className="flex justify-between">
+          <h2 className="text-2xl font-bold">Contact info</h2>
+
+          {roomCurrentData.members[1].isOnline ? (
+            <p className="flex items-center gap-2 ">
+              <svg
+                className="inline-block h-4 w-4 text-green-500"
+                viewBox="0 0 20 20"
+                fill="currentColor"
+              >
+                <path
+                  fillRule="evenodd"
+                  d="M10 12a2 2 0 100-4 2 2 0 000 4z"
+                  clipRule="evenodd"
+                />
+                <path
+                  fillRule="evenodd"
+                  d="M10 18a8 8 0 100-16 8 8 0 000 16zm0 2a10 10 0 100-20 10 10 0 000 20z"
+                  clipRule="evenodd"
+                />
+              </svg>
+              <span className="text-gray-400">Online</span>
+            </p>
+          ) : (
+            <p className="flex items-center gap-2">
+              <svg
+                className="inline-block h-4 w-4 text-red-800"
+                viewBox="0 0 20 20"
+                fill="currentColor"
+              >
+                <path
+                  fillRule="evenodd"
+                  d="M10 12a2 2 0 100-4 2 2 0 000 4z"
+                  clipRule="evenodd"
+                />
+                <path
+                  fillRule="evenodd"
+                  d="M10 18a8 8 0 100-16 8 8 0 000 16zm0 2a10 10 0 100-20 10 10 0 000 20z"
+                  clipRule="evenodd"
+                />
+              </svg>
+              <span className="text-red-800">Offline</span>
+            </p>
+          )}
+        </div>
+        <div className="h-px bg-gray-200 " />
+        <div className="flex w-full flex-col items-center justify-between gap-4 pb-4">
+          <div
+            className="group mt-4 flex cursor-pointer items-center justify-center rounded-full bg-black transition"
+            onClick={() => {
+              console.log("clicked");
+            }}
+          >
+            <Image
+              src={roomCurrentData.members[1].avatar_url}
+              width={100}
+              height={100}
+              alt={"ss"}
+              className="rounded-full shadow-inner duration-300 hover:opacity-50 "
+            />
+            <h1 className="pointer-events-none absolute hidden text-white  duration-300 group-hover:block">
+              View Profile
+            </h1>
+          </div>
+          <div className="m-2 flex w-full flex-col items-start justify-center gap-4">
+            <div className="w-full rounded-lg border bg-slate-100 p-2 text-center">
+              <h1 className="">
+                Full Name:
+                <span className="text-gray-400"> omar magoury</span>
+              </h1>
+            </div>
+            <div className="w-full rounded-lg border bg-slate-100 p-2 text-center">
+              <h1 className="">
+                Username
+                <span className="text-gray-400"> @ommagour</span>
+              </h1>
+            </div>
+          </div>
+        </div>
+        <div className="flex flex-row items-center justify-around">
+          <Button onClick={handleMute} variant="primary">
+            Mute
+          </Button>
+          <Button onClick={handleBlock} variant="danger">
+            Block
+          </Button>
+          <Button onClick={handleDelete} variant="danger">
+            Delete
+          </Button>
+        </div>
+      </div>
     </BaseModal>
   );
 };
 
 export default ChatroomSettingsModal;
+
+const RoomMembers = () => {
+  const searchError = false;
+  const searchLoading = false;
+  const [searchQuery, setSearchQuery] = useState("");
+  const [searchResults, setSearchResults] =
+    useState<IRoomMember[]>(RoomParticipant);
+  const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setSearchQuery(e.target.value);
+    const results = RoomParticipant.filter((member) =>
+      member.username.toLowerCase().includes(e.target.value.toLowerCase())
+    );
+    console.log(results);
+    setSearchResults(results);
+  };
+
+  return (
+    <div className="h-2/3 p-8">
+      <h2 className="text-2xl font-bold">Room Members</h2>
+      <div className="h-px bg-gray-200 " />
+      <form
+        onSubmit={(e) => {
+          e.preventDefault();
+          console.log("search");
+        }}
+        className="group relative h-10 w-full"
+      >
+        <label className="absolute top-3 left-3 flex items-center justify-center text-gray-400">
+          <button type="submit" className="h-full w-full cursor-default">
+            <IoSearchOutline className="h-6 w-6 text-gray-400 group-focus-within:text-secondary group-hover:text-secondary" />
+          </button>
+        </label>
+        <TextInput
+          name="search"
+          placeholder="Search for a member"
+          onChange={(e) => handleSearchChange(e)}
+          inputClassName="pl-12 py-[8px] "
+        />
+      </form>
+      <ul className="no-scrollbar mt-4 flex h-[calc(60vh-160px)] flex-col gap-y-1 overflow-y-scroll scroll-smooth">
+        {!searchError &&
+          !searchLoading &&
+          searchResults &&
+          searchResults?.map((member: IRoomMember, index: number) => (
+            <MemberListItem key={index} member={member} />
+          ))}
+        {searchLoading &&
+          [...new Array(6)].map((i) => <UserListItemLoading key={i} />)}
+        {!searchError && searchResults?.length === 0 && (
+          <p className="py-10 text-center text-gray-400">No results found</p>
+        )}
+      </ul>
+    </div>
+  );
+};
