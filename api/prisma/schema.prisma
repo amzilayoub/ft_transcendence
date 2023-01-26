@@ -35,7 +35,6 @@ model user {
     userLink2     blacklist[]     @relation("userLink2")
     friends       friends[]       @relation("userLink")
     friends2      friends[]       @relation("userLink2")
-    room_admin    room_admin[]
     notifications notifications[]
 
     @@map("users")
@@ -58,7 +57,6 @@ model room {
     room_user_rel room_user_rel[]
     messages      messages[]
     room_details  room_details[]
-    room_admin    room_admin[]
     room_rules    room_rules[]
 }
 
@@ -81,7 +79,9 @@ model room_user_rel {
     userLink user? @relation(fields: [user_id], references: [id], onDelete: SetNull)
     user_id  Int?
 
-    unread_message_count Int @default(0)
+    unread_message_count Int      @default(0)
+    role                 String?  @default("Member")
+    muted                Boolean? @default(false)
 
     created_at DateTime @default(now())
     updated_at DateTime @updatedAt
@@ -138,19 +138,6 @@ model room_details {
 
     name       String
     avatar_url String?
-
-    created_at DateTime @default(now())
-    updated_at DateTime @updatedAt
-}
-
-model room_admin {
-    id Int @id @default(autoincrement())
-
-    roomLink1 room @relation(fields: [room_id], references: [id], onDelete: Cascade)
-    room_id   Int
-
-    userLink user @relation(fields: [user_id], references: [id], onDelete: Cascade)
-    user_id  Int
 
     created_at DateTime @default(now())
     updated_at DateTime @updatedAt

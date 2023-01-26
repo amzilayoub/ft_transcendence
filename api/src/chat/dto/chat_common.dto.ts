@@ -1,5 +1,6 @@
 import {
     IsArray,
+    IsBoolean,
     IsIn,
     isIn,
     isInt,
@@ -56,4 +57,19 @@ export class CreateMessageDto {
 
     @IsString()
     message: string;
+}
+export class MuteUserDto {
+    @IsInt()
+    roomId: number;
+
+    @IsInt()
+    userId: number;
+
+    @IsBoolean()
+    muted: boolean;
+}
+
+export class BlockUserDto {
+    @IsInt()
+    blockedUserId: number;
 }

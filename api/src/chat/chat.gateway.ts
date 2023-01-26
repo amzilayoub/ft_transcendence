@@ -143,6 +143,7 @@ export class ChatGateway {
             time: message.created_at,
             roomId: message.room_id,
             isMe: false,
+            avatar_url: user.avatar_url,
         };
         // client.to(createMessage.roomId).emit('createMessage', msgObject);
         /*
@@ -155,7 +156,16 @@ export class ChatGateway {
         /*
          ** and this one to update the list of conversations
          */
-        this.notifyMembers(client, message.room_id, user['id']);
+
+        const listOfBlockedUsers = Array<any>(
+            await this.getBlockedUsersByMe(user),
+        );
+        this.notifyMembers(
+            client,
+            message.room_id,
+            user['id'],
+            listOfBlockedUsers,
+        );
         return { status: 200, data: msgObject };
     }
 
@@ -222,7 +232,15 @@ export class ChatGateway {
      ** Helper functions
      */
 
-    async notifyMembers(client: any, roomId: number, userId: number) {
+    async notifyMembers(
+        client: any,
+        roomId: number,
+        userId: number,
+        listOfBlockedUsers = [],
+    ) {
+		listOfBlockedUsers.forEach((item) => {
+			
+		})
         const room = await this.chatService.getUserRooms(userId, roomId);
         this.server.to(NAMESPACE + roomId).emit('updateListConversations', {
             status: 200,
@@ -275,5 +293,9 @@ export class ChatGateway {
     async isJoined(userId: number, roomId: number) {
         const res = await this.chatService.isJoined(userId, roomId);
         return res.length > 0;
+    }
+
+    async getBlockedUsersByMe(user: user) {
+        return await this.chatService.getBlockedUsersByMe(user['id']);
     }
 }

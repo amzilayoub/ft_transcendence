@@ -94,7 +94,8 @@ export class ChatService {
 				sender.unread_message_count AS "unreadMessagesCount",
 				room.updated_at AS "last_message_time",
 				users.username AS name,
-				users.id AS user_id
+				users.id AS user_id,
+				receiver.muted
 				FROM room_user_rel as sender, room_user_rel as receiver, room, room_type, users
 				-- here is inner join
 				WHERE sender.room_id = room.id
@@ -129,7 +130,8 @@ export class ChatService {
 				WHERE room.id = room_details.room_id
 				)
 			AS name,
-			-1 AS user_id
+			-1 AS user_id,
+			receiver.muted
 			FROM room_user_rel as receiver, room, room_type, users
 			-- here is inner join
 			WHERE receiver.room_id = room.id
@@ -188,24 +190,46 @@ export class ChatService {
 
     getRoomMembers(roomId: number) {
         return this.prismaService.$queryRaw(Prisma.sql`
-				SELECT users.id, users.username AS username, users.avatar_url
+			(
+				SELECT users.id, users.username AS username, users.avatar_url,'Owner' AS "membershipStatus"
 				FROM room_user_rel
+				INNER JOIN room ON room.id = room_user_rel.room_id
 				INNER JOIN users ON users.id = room_user_rel.user_id
 				WHERE room_user_rel.room_id = ${roomId}
+				AND room.owner_id = room_user_rel.user_id
+			)
+			UNION
+			(
+				SELECT users.id, users.username AS username, users.avatar_url,room_user_rel.role AS "membershipStatus"
+				FROM room_user_rel
+				INNER JOIN room ON room.id = room_user_rel.room_id
+				INNER JOIN users ON users.id = room_user_rel.user_id
+				WHERE room_user_rel.room_id = ${roomId}
+				AND room.owner_id != room_user_rel.user_id
+				ORDER BY room_user_rel.role ASC
+			)
 		`);
     }
 
     getRoomMessages(roomId: number, userId = -1) {
         return this.prismaService.$queryRaw(Prisma.sql`
-				SELECT id, user_id AS "senderId", message, created_at as time,
+				SELECT messages.id, messages.user_id AS "senderId", messages.message, messages.created_at as "time",
 					CASE
-						WHEN user_id = ${userId}
+						WHEN messages.user_id = ${userId}
 							THEN true
 						ELSE
 							false
-					END AS "isMe"
+					END AS "isMe",
+					users.avatar_url
 				FROM messages
+				INNER JOIN users ON users.id = messages.user_id
 				WHERE room_id = ${roomId}
+				AND (
+					SELECT COUNT(*)
+					FROM blacklist
+					WHERE blacklist.user_id = ${userId}
+					AND blacklist.blocked_user_id = messages.user_id
+					) = 0
 				ORDER BY id ASC
 		`);
     }
@@ -278,4 +302,39 @@ export class ChatService {
 			AND room_id = ${roomId}
 		`);
     }
+
+    muteUser(userId: number, roomId: number, muted: boolean) {
+        return this.prismaService.$queryRaw(Prisma.sql`
+			UPDATE room_user_rel
+			SET muted = ${muted}
+			WHERE room_id = ${roomId}
+			AND user_id = ${userId}
+		`);
+    }
+
+    blockUser(userId: number, blockedUserId: number) {
+        return this.prismaService.blacklist.create({
+            data: {
+                user_id: userId,
+                blocked_user_id: blockedUserId,
+            },
+        });
+    }
+
+    unblockUser(userId: number, blockedUserId: number) {
+        return this.prismaService.$queryRaw(Prisma.sql`
+			DELETE FROM blacklist
+			WHERE user_id = ${userId}
+			AND blocked_user_id = ${blockedUserId}
+		`);
+    }
+
+	getBlockedUsersByMe(userId: number)
+	{
+		return this.prismaService.$queryRaw(Prisma.sql`
+			SELECT blocked_user_id
+			FROM blacklist
+			WHERE user_id = ${userId}
+		`)
+	}
 }
