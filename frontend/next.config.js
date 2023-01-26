@@ -5,14 +5,15 @@ const nextConfig = {
   images: {
     // all these domains are temporary, for testing purposes.
     domains: [
+      "localhost",
+      "cdn.intra.42.fr",
       "images.unsplash.com",
       "martinfowler.com",
-      "localhost",
       "variety.com",
-      "cdn.intra.42.fr",
       "img.freepik.com",
-      "miro.medium.com",
+      "images.saymedia-content.com",
       "encrypted-tbn0.gstatic.com",
+      "miro.medium.com",
     ],
   },
 };

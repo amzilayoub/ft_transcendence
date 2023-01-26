@@ -54,18 +54,18 @@ const Convo = () => {
   }, [id]);
   const myMessage = (msg: string, timestamp: string) => {
     return (
-      <div className={`w-full flex flex-col justify-around`}>
-        <p className="text-white text-xl p-2 rounded-lg text-right bg-[#36404A] w-fit">
+      <div className={`flex w-full flex-col justify-around`}>
+        <p className="w-fit rounded-lg bg-[#36404A] p-2 text-right text-xl text-white">
           {msg}
         </p>
-        <p className="text-xs text-white text-right">{timestamp}</p>
+        <p className="text-right text-xs text-white">{timestamp}</p>
       </div>
     );
   };
   const friendMessage = (msg: string, timestamp: string) => {
     return (
-      <div className={`w-full flex flex-col justify-around`}>
-        <p className="text-white text-xl p-2 rounded-lg text-left bg-[#7269EF] w-fit">
+      <div className={`flex w-full flex-col justify-around`}>
+        <p className="w-fit rounded-lg bg-[#7269EF] p-2 text-left text-xl text-white">
           {msg}
         </p>
         <p className=" text-xs text-white">{timestamp}</p>
@@ -73,22 +73,22 @@ const Convo = () => {
     );
   };
   return (
-    <div className="w-full h-[100vh] bg-[#262E35] ">
-      <h1 className="text-white text-3xl w-full text-center bg-slate-500 h-[3vh] flex flex-col justify-center items-center">
+    <div className="h-[100vh] w-full bg-[#262E35] ">
+      <h1 className="flex h-[3vh] w-full flex-col items-center justify-center bg-slate-500 text-center text-3xl text-white">
         {id}
       </h1>
-      <div className="w-full h-[97vh] flex flex-col justify-between">
+      <div className="flex h-[97vh] w-full flex-col justify-between">
         <div className="">
           {chatData.map((message) => (
             <div
               key={message.id}
-              className={`w-full flex flex-col  ${
+              className={`flex w-full flex-col  ${
                 message.sender === "me"
-                  ? "justify-end items-end"
-                  : "justify-start items-start"
+                  ? "items-end justify-end"
+                  : "items-start justify-start"
               }`}
             >
-              <div className="flex flex-col justify-center items-center">
+              <div className="flex flex-col items-center justify-center">
                 {message.sender === "me"
                   ? myMessage(message.message, message.time)
                   : friendMessage(message.message, message.time)}
@@ -98,19 +98,19 @@ const Convo = () => {
         </div>
         <form
           action=""
-          className="w-full p-2 flex justify-around text-[#A6B0CF]"
+          className="flex w-full justify-around p-2 text-[#A6B0CF]"
           onSubmit={handleSendMessage}
         >
           <input
             type="text"
             placeholder="type your message"
-            className="w-4/5 h-10 rounded-lg bg-[#36404A]"
+            className="h-10 w-4/5 rounded-lg bg-[#36404A]"
             value={messageInput}
             onChange={(e) => setMessageInput(e.target.value)}
           />
           <button
             type="submit"
-            className="rounded-lg w-1/6 bg-[#7269EF] hover:bg-[#6159CB] h-10 transition duration-300 text-slate-200"
+            className="h-10 w-1/6 rounded-lg bg-[#7269EF] text-slate-200 transition duration-300 hover:bg-[#6159CB]"
           >
             Send
           </button>

@@ -42,9 +42,9 @@ const UserStats = ({ username }: { username: string }) => {
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const _stats = useUserStats(username, false);
   return (
-    <nav className="flex flex-col px-4 py-5 gap-y-4 max-h-[500px] rounded-xl border bg-white shadow-lg">
-      <div className="flex justify-between items-center">
-        <p className="text-gray-900 text-xl font-bold">Stats</p>
+    <nav className="flex max-h-[500px] flex-col gap-y-4 rounded-xl border bg-white px-4 py-5 shadow-lg">
+      <div className="flex items-center justify-between">
+        <p className="text-xl font-bold text-gray-900">Stats</p>
       </div>
       <div className="h-px bg-gray-200 " />
       <ul className="flex flex-col gap-y-2 ">

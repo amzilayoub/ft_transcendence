@@ -32,6 +32,7 @@ const GamesHistoryModal = ({
       gameTime: "2021-09-01T12:00:00.000Z",
     },
   ];
+
   const isLoading = false && !!username;
 
   const data = Array.from(
@@ -55,25 +56,26 @@ const GamesHistoryModal = ({
         Math.random().toString(36).substring(2, 15),
     };
   });
+
   return (
     <BaseModal
       isOpen={isOpen}
       onClose={onClose}
-      styles={{ modal: "xl:w-[60vw] w-[90vw] max-w-6xl" }}
+      styles={{ modal: "md:min-w-[50vh] min-w-full" }}
     >
-      <div className="p-8 min-h-[calc(60vh)]">
+      <div className="min-h-[calc(60vh)] p-8">
         <div className="flex flex-col gap-y-4">
           <h2 className="text-2xl font-bold">All Games</h2>
           <div className="h-px bg-gray-200 " />
           {isLoading ? (
             <p>Loading...</p>
           ) : (
-            <div className="flex flex-col gap-y-2 w-full items-center">
-              <ul className="flex flex-col gap-y-2 w-full">
+            <div className="flex w-full flex-col items-center gap-y-2">
+              <ul className="flex w-full flex-col gap-y-2">
                 {data.slice(0, 10).map((game) => (
                   <li
                     key={game.gameId}
-                    className="border border-gray-100 rounded-md"
+                    className="rounded-md border border-gray-100"
                   >
                     <GameSummary {...game} />
                   </li>

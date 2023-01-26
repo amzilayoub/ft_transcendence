@@ -5,9 +5,12 @@ import Head from "next/head";
 import { useRouter } from "next/router";
 
 import ChatStuff from "@components/chat/ChatStuff";
-import LoadingPage from "@ui/LoadingPage";
+import SettingsModal from "@components/modals/Settings";
 import Navbar from "@components/navbar";
+import LoadingPage from "@ui/LoadingPage";
+import { APP_NAME } from "@utils/constants";
 import { useAuthContext } from "context/auth.context";
+import { useUIContext } from "context/ui.context";
 
 interface MainLayoutProps {
   children: React.ReactNode;
@@ -21,11 +24,12 @@ const MainLayout: React.FC<MainLayoutProps> = ({
   children,
   pageIsProtected = true,
   noLayout = false,
-  title = "Transcendence",
+  title = APP_NAME,
   backgroundColor,
 }) => {
-  const ctx = useAuthContext();
   const router = useRouter();
+  const ctx = useAuthContext();
+  const { isSettingsOpen, setIsSettingsOpen } = useUIContext(); //
 
   useEffect(() => {
     // console.log(
@@ -58,7 +62,7 @@ const MainLayout: React.FC<MainLayoutProps> = ({
       ) : (pageIsProtected && ctx?.isAuthenticated) || ctx.loadingUser ? (
         <>
           <Navbar />
-          <main className="flex w-full h-full min-h-screen">
+          <main className="flex h-full min-h-screen w-full">
             <div
               className={cn(
                 "pt-20 flex flex-col items-center w-full justify-center h-full relative pb-16", // pb-16 is for the chat stuff
@@ -68,6 +72,12 @@ const MainLayout: React.FC<MainLayoutProps> = ({
               {children}
             </div>
             {ctx?.isAuthenticated && <ChatStuff />}
+            {isSettingsOpen && (
+              <SettingsModal
+                isOpen={isSettingsOpen}
+                onClose={() => setIsSettingsOpen(false)}
+              />
+            )}
           </main>
         </>
       ) : (

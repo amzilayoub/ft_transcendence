@@ -1,9 +1,13 @@
 import React, { useCallback, useEffect, useRef, useState } from "react";
 
-import { ChatdmSettingsModal } from "@components/modals/ChatActionsModal/ChatroomSettingsModal";
-import ChatroomSettingsModal from "@components/modals/ChatActionsModal/ChatroomSettingsModal";
-import basicFetch from "@utils/basicFetch";
 import cn from "classnames";
+import Image from "next/image";
+import { BsThreeDots } from "react-icons/bs";
+import { RxCross2 } from "react-icons/rx";
+
+import ChatroomSettingsModal from "@components/modals/ChatActionsModal/ChatroomSettingsModal";
+import { ChatdmSettingsModal } from "@components/modals/ChatActionsModal/ChatroomSettingsModal";
+import basicFetch from "@utils/basicFetch";
 import {
   IConversation,
   IMessage,
@@ -12,9 +16,6 @@ import {
   MembershipStatus,
   RoomType,
 } from "global/types";
-import Image from "next/image";
-import { BsThreeDots } from "react-icons/bs";
-import { RxCross2 } from "react-icons/rx";
 
 const Message = ({
   message,
@@ -282,8 +283,8 @@ const ChatBox = ({
   }, [handleKeyDown, conversationMetaData.room_id, loadMessages, loadMembers]);
 
   return (
-    <section className="relative flex flex-col bg-white border border-gray-200 h-[500px] rounded-t-xl w-[340px]">
-      <div className="flex justify-between p-3 border-b-2 border-gray-200 sm:items-center">
+    <section className="relative flex h-[500px] w-[340px] flex-col rounded-t-xl border border-gray-200 bg-white">
+      <div className="flex justify-between border-b-2 border-gray-200 p-3 sm:items-center">
         <div className="relative flex items-center space-x-4">
           <div className="relative">
             <span className="absolute bottom-0 right-0 text-green-500">
@@ -296,11 +297,11 @@ const ChatBox = ({
               alt={`${conversationMetaData?.name || "User"}'s avatar`}
               width={40}
               height={40}
-              className="rounded-full sm:w-16 sm:h-16"
+              className="rounded-full sm:h-16 sm:w-16"
             />
           </div>
           <div className="flex flex-col leading-tight">
-            <div className="flex items-center mt-1 text-2xl">
+            <div className="mt-1 flex items-center text-2xl">
               <span className="mr-3 text-gray-700">
                 {conversationMetaData.name}
               </span>
@@ -309,9 +310,9 @@ const ChatBox = ({
         </div>
         <span
           onClick={onClose}
-          className="absolute p-1 text-gray-400 duration-300 rounded-full cursor-pointer hover:text-slate-600 top-3 right-3 hover:bg-gray-200"
+          className="absolute top-3 right-3 cursor-pointer rounded-full p-1 text-gray-400 duration-300 hover:bg-gray-200 hover:text-slate-600"
         >
-          <RxCross2 className="w-5 h-5" />
+          <RxCross2 className="h-5 w-5" />
         </span>
         <span
           onClick={(e) => {
@@ -319,16 +320,26 @@ const ChatBox = ({
             setShowChatSettingModal(true);
             console.log("clicked");
           }}
-          className="absolute p-1 text-gray-400 duration-300 rounded-full cursor-pointer hover:text-slate-600 top-3 right-10 hover:bg-gray-200"
+          className="absolute top-3 right-10 cursor-pointer rounded-full p-1 text-gray-400 duration-300 hover:bg-gray-200 hover:text-slate-600"
         >
-          <BsThreeDots className="w-5 h-5" />
+          <BsThreeDots className="h-5 w-5" />
+        </span>
+        <span
+          onClick={(e) => {
+            e.stopPropagation();
+            setShowChatSettingModal(true);
+            console.log("clicked");
+          }}
+          className="absolute top-3 right-10 cursor-pointer rounded-full p-1 text-gray-400 duration-300 hover:bg-gray-200 hover:text-slate-600"
+        >
+          <BsThreeDots className="h-5 w-5" />
         </span>
       </div>
-      <div className="justify-items-stretch flex flex-col h-full overflow-hidden">
+      <div className="flex h-full flex-col justify-items-stretch overflow-hidden">
         <ul
           id="messages"
           // eslint-disable-next-line tailwindcss/no-custom-classname
-          className="scrolling-touch scrollbar-thumb scrollbar-thumb-rounded scrollbar-track scrollbar-w-2 flex flex-col h-full p-3 space-y-4 overflow-y-scroll"
+          className="scrolling-touch scrollbar-thumb scrollbar-thumb-rounded scrollbar-track scrollbar-w-2 flex h-full flex-col space-y-4 overflow-y-scroll p-3"
         >
           {conversation?.messages?.map((message: IMessage, index: number) => (
             <Message
@@ -344,7 +355,7 @@ const ChatBox = ({
           <div ref={bottomDiv}></div>
         </ul>
         {/* inputa */}
-        <div className="w-full p-3 border-gray-200 sm:mb-0">
+        <div className="w-full border-gray-200 p-3 sm:mb-0">
           <form className="relative flex" onSubmit={handleSendMessage}>
             {conversationMetaData.isBlocked ||
             conversationMetaData.amIBlocked ? (
@@ -357,7 +368,7 @@ const ChatBox = ({
                   setInput(e.target.value);
                 }}
                 placeholder="Write your message!"
-                className="w-full py-3 pl-3 text-gray-600 bg-gray-200 rounded-md placeholder:text-gray-600 focus:outline-none focus:placeholder:text-gray-400 resize-none"
+                className="w-full resize-none rounded-md bg-gray-200 py-3 pl-3 text-gray-600 placeholder:text-gray-600 focus:outline-none focus:placeholder:text-gray-400"
               />
             )}
             <div>
@@ -367,7 +378,7 @@ const ChatBox = ({
               {conversationMetaData.isBlocked ? "You blocked this user" : ""}
             </div>
           </form>
-          <div className="justify-end flex py-1">
+          <div className="flex justify-end py-1">
             {conversationMetaData.isBlocked ||
             conversationMetaData.amIBlocked ? (
               ""
@@ -375,13 +386,13 @@ const ChatBox = ({
               <button
                 onClick={handleSendMessage}
                 type="button"
-                className="inline-flex items-center justify-center px-3 py-1 text-white transition duration-500 ease-in-out bg-blue-500 rounded-lg hover:bg-blue-400 focus:outline-none"
+                className="inline-flex items-center justify-center rounded-lg bg-blue-500 px-3 py-1 text-white transition duration-500 ease-in-out hover:bg-blue-400 focus:outline-none"
               >
                 <svg
                   xmlns="http://www.w3.org/2000/svg"
                   viewBox="0 0 20 20"
                   fill="currentColor"
-                  className="w-6 h-6 ml-2 rotate-90"
+                  className="ml-2 h-6 w-6 rotate-90"
                 >
                   <path d="M10.894 2.553a1 1 0 00-1.788 0l-7 14a1 1 0 001.169 1.409l5-1.429A1 1 0 009 15.571V11a1 1 0 112 0v4.571a1 1 0 00.725.962l5 1.428a1 1 0 001.17-1.408l-7-14z"></path>
                 </svg>

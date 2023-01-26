@@ -38,13 +38,13 @@ const GamePlayer = (props: {
       }
     )}
   >
-    <Link href={`/u/${props.username}`} className="  flex items-center ">
+    <Link href={`/u/${props.username}`} className="flex items-center ">
       <Image
         src={props.avatar}
         alt={props.username + " avatar"}
         width={64}
         height={64}
-        className="rounded-full object-cover w-14 h-14"
+        className="h-14 w-14 rounded-full object-cover"
       />
     </Link>
     <div
@@ -54,7 +54,7 @@ const GamePlayer = (props: {
     >
       <Link
         href={`/u/${props.username}`}
-        className="whitespace-nowrap overflow-hidden text-ellipsis"
+        className="overflow-hidden text-ellipsis whitespace-nowrap"
       >
         {truncateString(props.username, 10)}
       </Link>
@@ -64,7 +64,7 @@ const GamePlayer = (props: {
 );
 
 export const GameSummary = (props: GameSummaryProps) => (
-  <div className="flex w-full h-full">
+  <div className="flex h-full w-full">
     <div className="py-2">
       <div
         className={cn("w-px h-full", {
@@ -92,13 +92,14 @@ const LastGames = ({ username }: { username: string }) => {
     {
       player1: {
         username: "Aristotle",
-        avatar: "https://miro.medium.com/max/750/1*js7p_khAWKrKVQpwT1pxjQ.jpeg",
+        avatar:
+          "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSZpSv4PVhx_Bc7QOyklw0fNTpHr6K1px9Rzw&usqp=CAU",
         score: 5,
       },
       player2: {
         username: "Plato",
         avatar:
-          "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQkV4LJG_3TQbtEor3nN-FTlBwpDJC6F6KVSg&usqp=CAU",
+          "https://images.saymedia-content.com/.image/c_limit%2Ccs_srgb%2Cq_auto:eco%2Cw_700/MTgwMDE1OTM1MjA4NjI5Mzcw/the-ancient-greek-philosopher-plato-his-life-and-works.webp",
         score: 4,
       },
       gameId: "123",
@@ -132,9 +133,9 @@ const LastGames = ({ username }: { username: string }) => {
 
   return (
     <>
-      <nav className="flex flex-col px-4 py-5 gap-y-4 min-h-[400px] rounded-xl border bg-white shadow-lg">
-        <div className="flex justify-between items-center">
-          <p className="text-gray-900 text-xl font-bold">Recent Games</p>
+      <nav className="flex min-h-[400px] flex-col gap-y-4 rounded-xl border bg-white px-4 py-5 shadow-lg">
+        <div className="flex items-center justify-between">
+          <p className="text-xl font-bold text-gray-900">Recent Games</p>
           <button
             onClick={() => setSeeAll(true)}
             className="text-sm font-semibold text-primary"
@@ -150,7 +151,7 @@ const LastGames = ({ username }: { username: string }) => {
             {data.slice(0, 10).map((game) => (
               <li
                 key={game.gameId}
-                className="border border-gray-100 rounded-md"
+                className="rounded-md border border-gray-100"
               >
                 <GameSummary {...game} />
               </li>

@@ -1,12 +1,11 @@
-import { useState } from "react";
-
-import SettingsModal from "@components/modals/Settings";
-import DropDown from "@ui/DropDown";
 import Image from "next/image";
 import Link from "next/link";
 import { CgProfile } from "react-icons/cg";
 import { IoLogOutOutline } from "react-icons/io5";
 import { IoSettingsOutline } from "react-icons/io5";
+
+import DropDown from "@ui/DropDown";
+import { useUIContext } from "context/ui.context";
 
 /**
  * TODO:
@@ -23,12 +22,13 @@ interface Props {
 }
 
 const ProfileNavMenu: React.FC<Props> = (props) => {
-  const [isSettingsOpen, setIsSettingsOpen] = useState(false);
+  const { setIsSettingsOpen } = useUIContext();
+
   if (props.isLoading) {
     return (
-      <div className="hover:ring-secondary flex items-center justify-center overflow-hidden rounded-full outline-none cursor-wait h-11 w-11 hover:ring-1">
-        <div className="animate-pulse flex space-x-4">
-          <div className="rounded-full bg-gray-300 h-10 w-10"></div>
+      <div className="flex h-11 w-11 cursor-wait items-center justify-center overflow-hidden rounded-full outline-none hover:ring-1 hover:ring-secondary">
+        <div className="flex animate-pulse space-x-4">
+          <div className="h-10 w-10 rounded-full bg-gray-300"></div>
         </div>
       </div>
     );
@@ -37,7 +37,7 @@ const ProfileNavMenu: React.FC<Props> = (props) => {
     <>
       <DropDown
         menuButton={
-          <div className="hover:ring-secondary relative flex justify-center p-1 overflow-hidden rounded-full outline-none h-11 w-11 hover:bg-gray-100 hover:ring-1">
+          <div className="relative flex h-11 w-11 justify-center overflow-hidden rounded-full p-1 outline-none hover:bg-gray-100 hover:ring-1 hover:ring-secondary">
             <Image
               src={props.avatar_url || "/images/default-avatar.jpg"}
               alt={props.username}
@@ -49,11 +49,11 @@ const ProfileNavMenu: React.FC<Props> = (props) => {
       >
         <Link
           href={`/u/${props.username}`}
-          className="group hover:bg-secondary flex items-center w-full p-2 text-sm text-gray-700 rounded-md cursor-pointer hover:text-white"
+          className="group flex w-full cursor-pointer items-center rounded-md p-2 text-sm text-gray-700 hover:bg-secondary hover:text-white"
         >
           <CgProfile
             aria-hidden="true"
-            className="text-secondary w-5 h-5 mr-3 group-hover:text-white"
+            className="mr-3 h-5 w-5 text-secondary group-hover:text-white"
           />
           <div className="flex flex-col">
             <p className="flex items-center font-semibold ">
@@ -67,30 +67,25 @@ const ProfileNavMenu: React.FC<Props> = (props) => {
         </Link>
         <button
           onClick={() => setIsSettingsOpen(true)}
-          className="group hover:bg-secondary flex items-center w-full p-2 text-sm text-gray-900 rounded-md hover:text-white"
+          className="group flex w-full items-center rounded-md p-2 text-sm text-gray-900 hover:bg-secondary hover:text-white"
         >
           <IoSettingsOutline
             aria-hidden="true"
-            className="text-secondary w-5 h-5 mr-3 group-hover:text-white"
+            className="mr-3 h-5 w-5 text-secondary group-hover:text-white"
           />
           Settings
         </button>
         <div
           onClick={props.onLogout}
-          className="group flex items-center w-full p-2 text-sm text-red-500 rounded-md cursor-pointer hover:bg-red-500 hover:text-white"
+          className="group flex w-full cursor-pointer items-center rounded-md p-2 text-sm text-red-500 hover:bg-red-500 hover:text-white"
         >
           <IoLogOutOutline
             aria-hidden="true"
-            className="w-5 h-5 mr-3 text-red-500 group-hover:text-white"
+            className="mr-3 h-5 w-5 text-red-500 group-hover:text-white"
           />
           Logout
         </div>
       </DropDown>
-      {isSettingsOpen && (
-        <SettingsModal
-        isOpen={isSettingsOpen}
-        onClose={() => setIsSettingsOpen(false)} />
-      )}
     </>
   );
 };

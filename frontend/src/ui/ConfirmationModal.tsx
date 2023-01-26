@@ -1,4 +1,5 @@
 import { Dialog } from "@headlessui/react";
+
 import Button from "@ui/Button";
 
 import BaseModal from "./BaseModal";
@@ -65,7 +66,7 @@ const ConfirmationModal = ({
         <Button
           onClick={onCancel}
           variant="none"
-          className=" text-gray-700 hover:text-black hover:bg-gray-50"
+          className=" text-gray-700 hover:bg-gray-50 hover:text-black"
         >
           {cancelText}
         </Button>
