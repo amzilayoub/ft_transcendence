@@ -118,7 +118,6 @@ const ConversationMetadata = ({
                   {new Date(lastMessageTime).toDateString()}
                 </h1>
                 {/* eslint-disable-next-line tailwindcss/no-custom-classname */}
-<<<<<<< HEAD
                 {type == "dm" ? (
                   <div className="group/dots relative items-center justify-center hidden text-xs duration-200 w-7 h-7 hover:bg-gray-300 group-hover:flex">
                     <BsThreeDots />
@@ -144,31 +143,6 @@ const ConversationMetadata = ({
                         {isBlocked ? "Unblock" : "Block"}
                       </button>
                     </div>
-=======
-                <div className="group/dots relative hidden h-7 w-7 items-center justify-center text-xs duration-200 hover:bg-gray-300 group-hover:flex">
-                  <BsThreeDots />
-                  <div className="absolute top-0 right-0 hidden w-full min-w-min flex-col overflow-hidden rounded-l-lg bg-white group-hover/dots:flex">
-                    <button
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        onMuteClick();
-                      }}
-                      className="flex w-full min-w-min items-center gap-x-2 bg-white px-4 py-2 font-semibold text-red-500 hover:bg-gray-100 hover:text-red-500"
-                    >
-                      <BsVolumeMute />
-                      Mute
-                    </button>
-                    <button
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        onBlockClick();
-                      }}
-                      className="flex min-w-min items-center gap-x-2 px-4 py-2 font-semibold text-red-600 hover:bg-red-500 hover:text-white"
-                    >
-                      <MdBlockFlipped />
-                      Block
-                    </button>
->>>>>>> 8f25f7726c053e9e5ada18c12d82cfc7bd35da88
                   </div>
                 ) : null}
               </div>
