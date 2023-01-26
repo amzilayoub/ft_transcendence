@@ -3,7 +3,7 @@ import React, { useState } from "react";
 import Image from "next/image";
 import Select from "react-select";
 
-import PasswordModal from "@components/modals/ChatActionsModal/RoomPasswordModal";
+import PasswordModal from "@components/modals/chat/RoomPasswordModal";
 import Button from "@ui/Button";
 import TextInput from "@ui/TextInput";
 import { IRoom, RoomType } from "global/types";

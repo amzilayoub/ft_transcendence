@@ -9,7 +9,7 @@ import { MdBlockFlipped } from "react-icons/md";
 import { RiMailAddLine } from "react-icons/ri";
 import { SlArrowDown } from "react-icons/sl";
 
-import ChatActionsModal from "@components/modals/ChatActionsModal";
+import ChatActionsModal from "@components/modals/chat";
 import TextInput from "@ui/TextInput";
 import basicFetch from "@utils/basicFetch";
 import { truncateString } from "@utils/format";

@@ -10,12 +10,12 @@ import { truncateString } from "@utils/format";
 interface GameSummaryProps {
   player1: {
     username: string;
-    avatar: string;
+    avatar_url: string;
     score: number;
   };
   player2: {
     username: string;
-    avatar: string;
+    avatar_url: string;
     score: number;
   };
   gameId: string;
@@ -25,7 +25,7 @@ interface GameSummaryProps {
 
 const GamePlayer = (props: {
   username: string;
-  avatar: string;
+  avatar_url: string;
   score: number;
   isPlayer1: boolean;
 }) => (
@@ -39,13 +39,16 @@ const GamePlayer = (props: {
     )}
   >
     <Link href={`/u/${props.username}`} className="flex items-center ">
-      <Image
-        src={props.avatar}
-        alt={props.username + " avatar"}
-        width={64}
-        height={64}
-        className="h-14 w-14 rounded-full object-cover"
-      />
+      <div className="relative h-[60px] w-[60px] gap-4">
+        <figure className="group absolute flex h-[60px] w-[60px] cursor-pointer items-center justify-center rounded-full bg-black transition">
+          <Image
+            src={props.avatar_url}
+            alt={props.username + " avatar"}
+            fill
+            className="h-14 w-14 rounded-full object-cover"
+          />
+        </figure>
+      </div>
     </Link>
     <div
       className={cn("flex w-full justify-between gap-x-2", {
@@ -74,7 +77,7 @@ export const GameSummary = (props: GameSummaryProps) => (
       />
     </div>
     <div
-      className={cn("grid grid-cols-2 w-full hover:shadow", {
+      className={cn("grid grid-cols-2 w-full hover:shadow duration-200", {
         "shadow-green-300": props.player1.score > props.player2.score,
         "shadow-red-300": props.player1.score < props.player2.score,
       })}
@@ -92,13 +95,13 @@ const LastGames = ({ username }: { username: string }) => {
     {
       player1: {
         username: "Aristotle",
-        avatar:
+        avatar_url:
           "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSZpSv4PVhx_Bc7QOyklw0fNTpHr6K1px9Rzw&usqp=CAU",
         score: 5,
       },
       player2: {
         username: "Plato",
-        avatar:
+        avatar_url:
           "https://images.saymedia-content.com/.image/c_limit%2Ccs_srgb%2Cq_auto:eco%2Cw_700/MTgwMDE1OTM1MjA4NjI5Mzcw/the-ancient-greek-philosopher-plato-his-life-and-works.webp",
         score: 4,
       },
