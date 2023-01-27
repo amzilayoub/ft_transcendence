@@ -377,6 +377,8 @@ const ChatSidebar = ({
                 type={item.type}
                 id={item.room_id}
                 userId={item.user_id}
+                isBlocked={item.is_blocked}
+                muted={item.muted}
               />
             ))
           ) : searchQuery.length > 0 ? (
@@ -428,6 +430,7 @@ const ChatSidebar = ({
                 id={item.room_id}
                 userId={item.user_id}
                 isBlocked={item.is_blocked}
+                muted={item.muted}
               />
             ))
           )}

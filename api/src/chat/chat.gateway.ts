@@ -158,7 +158,20 @@ export class ChatGateway {
          */
 
         const listOfBlockedUsers = await this.getBlockedUsersByMe(user);
-        this.notifyMembers(
+        let leftSockets = [];
+        const targetedSocketRoom = NAMESPACE + message.room_id;
+        listOfBlockedUsers.forEach((item) => {
+            const socketId = this.connectedClient[item.user_id];
+            const blockedUserSocket = this.server.sockets.get(socketId);
+            if (blockedUserSocket) {
+                blockedUserSocket.leave(targetedSocketRoom);
+                leftSockets.push(blockedUserSocket);
+            }
+        });
+        leftSockets.forEach((item) => {
+            console.log('rooms = ', item.rooms);
+        });
+        await this.notifyMembers(
             client,
             message.room_id,
             user['id'],
@@ -236,22 +249,21 @@ export class ChatGateway {
         userId: number,
         listOfBlockedUsers = [],
     ) {
-        let leftSockets = [];
-        const targetedSocketRoom = NAMESPACE + roomId;
-        listOfBlockedUsers.forEach((item) => {
-            const socketId = this.connectedClient[item.blocked_user_id];
-            const blockedUserSocket = this.server.sockets.get(socketId);
-            if (blockedUserSocket) {
-                blockedUserSocket.leave(targetedSocketRoom);
-                leftSockets.push(blockedUserSocket);
-            }
-        });
-        console.log('targetedSocketRoom = ', targetedSocketRoom);
-        leftSockets.forEach((item) => {
-            console.log(item.rooms);
-        });
+        // let leftSockets = [];
+        // const targetedSocketRoom = NAMESPACE + roomId;
+        // listOfBlockedUsers.forEach((item) => {
+        //     const socketId = this.connectedClient[item.blocked_user_id];
+        //     const blockedUserSocket = this.server.sockets.get(socketId);
+        //     if (blockedUserSocket) {
+        //         blockedUserSocket.leave(targetedSocketRoom);
+        //         leftSockets.push(blockedUserSocket);
+        //     }
+        // });
+        // leftSockets.forEach((item) => {
+        //     console.log('rooms = ', item.rooms);
+        // });
         const room = await this.chatService.getUserRooms(userId, roomId);
-        this.server.to(targetedSocketRoom).emit('updateListConversations', {
+        this.server.to(NAMESPACE + roomId).emit('updateListConversations', {
             status: 200,
             data: {
                 room: room[0],
