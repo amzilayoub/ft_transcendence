@@ -13,7 +13,7 @@ services:
             - ${SERVER_PORT}:${SERVER_PORT}
             - 5555:5555 # for prisma studio
             - 9229:9229 # for debugging
-        command: yarn start:debug
+        command: ./init_script.sh
         networks:
             - webnet
         depends_on:
