@@ -123,7 +123,7 @@ const ChatBox = ({
       },
     ],
   });
-// --------------- room data sample ----------------
+  // --------------- room data sample ----------------
   const [roomData, setRoomData] = useState<IRoom>({
     id: 1,
     name: "Spagueeetti",
