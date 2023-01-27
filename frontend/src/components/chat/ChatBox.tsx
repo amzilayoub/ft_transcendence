@@ -123,19 +123,19 @@ const ChatBox = ({
       },
     ],
   });
-
+// --------------- room data sample ----------------
   const [roomData, setRoomData] = useState<IRoom>({
     id: 1,
     name: "Spagueeetti",
     description: "this is a testing room",
-    avatar_url: "/default_avatar.png",
-    type: RoomType.PRIVATE,
+    avatar_url: "/public/images/default-avatar.jpg",
+    type: RoomType.PUBLIC,
     created_at: new Date(),
     members: [
       {
         id: 1,
         username: "mbif",
-        avatar_url: "/default_avatar.png",
+        avatar_url: "/public/images/default_avatar.jpg",
         isOnline: true,
         gameStatus: MemberGameStatus.IDLE,
         membershipStatus: MembershipStatus.MODERATOR,
@@ -146,7 +146,7 @@ const ChatBox = ({
       {
         id: 2,
         username: "tetetet",
-        avatar_url: "/default_avatar.png",
+        avatar_url: "/public/images/default_avatar.jpg",
         isOnline: true,
         gameStatus: MemberGameStatus.IDLE,
         membershipStatus: MembershipStatus.OWNER,
@@ -154,20 +154,10 @@ const ChatBox = ({
         isMuted: false,
         mutedUntil: new Date(),
       },
-      {
-        id: 3,
-        username: "wewewewewewe",
-        avatar_url: "/default_avatar.png",
-        isOnline: true,
-        gameStatus: MemberGameStatus.IDLE,
-        membershipStatus: MembershipStatus.MEMBER,
-        isBanned: false,
-        isMuted: false,
-        mutedUntil: new Date(),
-      },
     ],
     // updated_at: Date;
   });
+  // ------------------------------ // ------------------------------ //
   const handleSendMessage = React.useCallback(
     (e: any) => {
       e.preventDefault();
@@ -410,7 +400,7 @@ const ChatBox = ({
           )}
         </div>
         <div>
-          {ShowChatSettingModal && conversationMetaData.type === "direct" && (
+          {ShowChatSettingModal && roomData.type === RoomType.DIRECT && (
             <ChatdmSettingsModal
               roomData={roomData}
               isOpen={ShowChatSettingModal}

@@ -140,9 +140,11 @@ export const RoomInfo = ({ roomData }: { roomData: IRoom }) => {
             {showPasswordModal && (
               <PasswordModal
                 setCurrentOption={setCurrentOption}
-                showPasswordModal={showPasswordModal}
                 defaultOption={defaultOption}
+                showPasswordModal={showPasswordModal}
                 setShowPasswordModal={setShowPasswordModal}
+                setRoomCurrentData={setRoomCurrentData}
+                roomCurrentData={roomCurrentData}
               />
             )}
           </div>
