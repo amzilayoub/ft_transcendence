@@ -63,13 +63,18 @@ export class ChatService {
 			SELECT *
 			FROM (
 				(
-					SELECT receiver.id, receiver.room_id, receiver.updated_at AS "lastMessageTime", room_type.type,
+					SELECT receiver.id, receiver.room_id, room.updated_at AS "lastMessageTime", room_type.type,
 					users.id as user_id,
 					users.avatar_url,
 					(
 						SELECT message
 						FROM messages
 						WHERE room_id = receiver.room_id
+						AND receiver.user_id NOT IN (
+							SELECT blacklist.user_id
+							FROM blacklist
+							WHERE blacklist.blocked_user_id = messages.user_id
+						)
 						ORDER BY id DESC
 						LIMIT 1
 					) AS "lastMessage",
@@ -111,13 +116,18 @@ export class ChatService {
 				)
 				UNION
 				(
-				SELECT receiver.id, receiver.room_id, receiver.updated_at AS "lastMessageTime", room_type.type,
+				SELECT receiver.id, receiver.room_id, room.updated_at AS "lastMessageTime", room_type.type,
 				users.id as user_id,
 				users.avatar_url,
 				(
 					SELECT message
 					FROM messages
 					WHERE room_id = receiver.room_id
+					AND receiver.user_id NOT IN (
+						SELECT blacklist.user_id
+						FROM blacklist
+						WHERE blacklist.blocked_user_id = messages.user_id
+					)
 					ORDER BY id DESC
 					LIMIT 1
 				) AS "lastMessage",

@@ -145,37 +145,36 @@ export class ChatGateway {
             isMe: false,
             avatar_url: user.avatar_url,
         };
-        // client.to(createMessage.roomId).emit('createMessage', msgObject);
+
+        /*
+         ** Get the users now
+         */
+        const listOfBlockedUsers = await this.getBlockedUsersByMe(user);
+        const exceptRoom = NAMESPACE + '/blacklist/' + user['id'];
+        listOfBlockedUsers.forEach((item) => {
+            const socketId = this.connectedClient[item.user_id];
+            if (socketId) {
+                const clientSocket = this.server.sockets.get(socketId);
+                if (clientSocket) clientSocket.join(exceptRoom);
+            }
+        });
         /*
          ** This one to update the chatbox
          */
         client
             .to(NAMESPACE + createMessage.roomId)
+            .except(exceptRoom)
             .emit('createMessage', msgObject);
 
         /*
          ** and this one to update the list of conversations
          */
 
-        const listOfBlockedUsers = await this.getBlockedUsersByMe(user);
-        let leftSockets = [];
-        const targetedSocketRoom = NAMESPACE + message.room_id;
-        listOfBlockedUsers.forEach((item) => {
-            const socketId = this.connectedClient[item.user_id];
-            const blockedUserSocket = this.server.sockets.get(socketId);
-            if (blockedUserSocket) {
-                blockedUserSocket.leave(targetedSocketRoom);
-                leftSockets.push(blockedUserSocket);
-            }
-        });
-        leftSockets.forEach((item) => {
-            console.log('rooms = ', item.rooms);
-        });
         await this.notifyMembers(
             client,
             message.room_id,
             user['id'],
-            listOfBlockedUsers,
+            exceptRoom,
         );
         return { status: 200, data: msgObject };
     }
@@ -247,29 +246,19 @@ export class ChatGateway {
         client: any,
         roomId: number,
         userId: number,
-        listOfBlockedUsers = [],
+        exceptRoom = '',
     ) {
-        // let leftSockets = [];
-        // const targetedSocketRoom = NAMESPACE + roomId;
-        // listOfBlockedUsers.forEach((item) => {
-        //     const socketId = this.connectedClient[item.blocked_user_id];
-        //     const blockedUserSocket = this.server.sockets.get(socketId);
-        //     if (blockedUserSocket) {
-        //         blockedUserSocket.leave(targetedSocketRoom);
-        //         leftSockets.push(blockedUserSocket);
-        //     }
-        // });
-        // leftSockets.forEach((item) => {
-        //     console.log('rooms = ', item.rooms);
-        // });
         const room = await this.chatService.getUserRooms(userId, roomId);
-        this.server.to(NAMESPACE + roomId).emit('updateListConversations', {
-            status: 200,
-            data: {
-                room: room[0],
-                clientId: client.id,
-            },
-        });
+        this.server
+            .to(NAMESPACE + roomId)
+            .except(exceptRoom)
+            .emit('updateListConversations', {
+                status: 200,
+                data: {
+                    room: room[0],
+                    clientId: client.id,
+                },
+            });
     }
 
     async handleSharedRoom(
