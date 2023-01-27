@@ -150,12 +150,16 @@ export class ChatGateway {
          ** Get the users now
          */
         const listOfBlockedUsers = await this.getBlockedUsersByMe(user);
-        const exceptRoom = NAMESPACE + '/blacklist/' + user['id'];
+        const exceptRoomName = NAMESPACE + '/blacklist/' + user['id'];
+        const exceptSockets = [];
         listOfBlockedUsers.forEach((item) => {
             const socketId = this.connectedClient[item.user_id];
             if (socketId) {
                 const clientSocket = this.server.sockets.get(socketId);
-                if (clientSocket) clientSocket.join(exceptRoom);
+                if (clientSocket) {
+                    exceptSockets.push(clientSocket);
+                    clientSocket.join(exceptRoomName);
+                }
             }
         });
         /*
@@ -163,7 +167,7 @@ export class ChatGateway {
          */
         client
             .to(NAMESPACE + createMessage.roomId)
-            .except(exceptRoom)
+            .except(exceptRoomName)
             .emit('createMessage', msgObject);
 
         /*
@@ -174,8 +178,11 @@ export class ChatGateway {
             client,
             message.room_id,
             user['id'],
-            exceptRoom,
+            exceptRoomName,
         );
+        exceptSockets.forEach((item) => {
+            item.leave(exceptRoomName);
+        });
         return { status: 200, data: msgObject };
     }
 
