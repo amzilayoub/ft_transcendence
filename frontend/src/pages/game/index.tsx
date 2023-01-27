@@ -3,13 +3,18 @@ import React, { useState } from "react";
 import Pong from "@components/game/pong";
 import Button from "@ui/Button";
 import TextInput from "@ui/TextInput";
+import { io, Socket } from "socket.io-client";
 
-const GamePrompts = ({
+let socket!: Socket;
+let games!: Socket;
+
+const GameSettings = ({
   setRoomID,
 }: {
   setRoomID: React.Dispatch<React.SetStateAction<string>>;
 }) => {
   const [input, setInput] = useState("");
+
 
   const onChangeHandler = (e: React.ChangeEvent<HTMLInputElement>) => {
     setInput(e.target.value);
@@ -41,13 +46,33 @@ const Game = () => {
 
   const [roomID, setRoomID] = useState("");
 
+  // const func = async () => {
+  //   // fetch(`/api/socket`);
+  //   socket = io("ws://localhost:3000/api/socket");
+
+  //   socket.on("get_info", (info) => {
+  //     games = info;
+  //   });
+  // };
+
+  // func();
+
+  // console.log(games);
+
   return (
     <>
       {roomID ? (
         <Pong roomID={roomID} />
       ) : (
-        <GamePrompts setRoomID={setRoomID} />
+        <GameSettings setRoomID={setRoomID} />
       )}
+      <Button
+        onClick={() => {
+          debugger;
+        }}
+      >
+        Debugger
+      </Button>
     </>
   );
 };

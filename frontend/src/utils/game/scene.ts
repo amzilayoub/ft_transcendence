@@ -1,3 +1,5 @@
+// TODO: move game logic to server and send controls only
+
 import { Scene } from "phaser";
 import { io, Socket } from "socket.io-client";
 
@@ -10,6 +12,7 @@ let ball!: Phaser.Physics.Arcade.Sprite;
 let startText!: Phaser.GameObjects.Text;
 
 let gameStarted: boolean = false;
+let T0!: number;
 let p1!: boolean;
 let p2!: boolean;
 
@@ -65,6 +68,7 @@ export default class pongScene extends Scene {
           p1 = state === "wait";
           p2 = state === "gaming";
         }
+        if (!startText) return;
         switch (state) {
           case "wait":
             startText.text = "Waiting for Opponent";
@@ -118,31 +122,35 @@ export default class pongScene extends Scene {
         // startText.text = "Press Space\nto Start Game";
       });
 
-      socket.on("game_state", (gameState) => {
-        // console.log(gameState);
-
+      socket.on("moved", (movement) => {
         if (p2 === false) {
           //p1 && spectator
-          if (gameState.p2.pos.y) {
-            paddle2.y = gameState.p2.pos.y;
-            paddle2.body.velocity.y = gameState.p2.vel.y;
-          }
+          if (movement.p1 !== undefined)
+            paddle1.body.velocity.y = movement.p1 * 650;
+          if (movement.p2 !== undefined)
+            paddle2.body.velocity.y = movement.p2 * 650;
         }
         if (p2 === true) {
-          if (gameState.p1.pos.y) {
-            paddle2.y = gameState.p1.pos.y;
-            paddle2.body.velocity.y = gameState.p1.vel.y;
-          }
+          if (movement.p1 !== undefined)
+            paddle2.body.velocity.y = movement.p1 * 650;
+          if (movement.p2 !== undefined)
+            paddle1.body.velocity.y = movement.p2 * 650;
         }
-        if (p1 === p2) {
-          if (gameState.p2.pos.y) {
-            paddle1.y = gameState.p1.pos.y;
-            paddle1.body.velocity.y = gameState.p1.vel.y;
-          }
+
+        if (p1 === true && movement.p1 === 0) {
+          socket.emit("sync", paddle1.y, 1);
+        }
+        if (p2 === true && movement.p2 === 0) {
+          socket.emit("sync", paddle1.y, 2);
         }
       });
-      // socket.on("roomsCount", (res) => console.log("roomsCount: ", res));
-      // socket.on("clientsCount", (res) => console.log("clientsCount: ", res));
+
+      socket.on("sync", (py, idx) => {
+        if (p2 === true) idx = idx === 1 ? 2 : 1;
+
+        if (idx === 1) paddle1.y = py;
+        else if (idx === 2) paddle2.y = py;
+      });
     };
 
     socketInitializer();
@@ -184,43 +192,18 @@ export default class pongScene extends Scene {
   controlPaddle = (paddle: Phaser.Physics.Arcade.Sprite, dir: number) => {
     // console.log("befro return", dir, paddle.body.velocity.y, state);
 
-    if (state !== "gaming" || (!paddle.body.velocity.y && !dir)) return;
+    if (!paddle.body.velocity.y && !dir) return;
 
-    paddle.setVelocityY(dir * 650);
+    // paddle.setVelocityY(dir * 650);
 
-    // console.log("from mover", paddle.y);
-
-    socket.emit("move", paddle.y, paddle.body.velocity.y);
+    socket.emit("move", dir);
   };
 
   startGame = () => {
     // first player side only
     if (!p1 || state !== "gaming") return;
-    gameStarted = true;
 
-    ball.setVelocity(500, 500);
-    gameState = {
-      p1: {
-        pos: { y: paddle1.y },
-        vel: { y: paddle1.body.velocity.y },
-      },
-      p2: {
-        pos: { y: paddle2.y },
-        vel: { y: paddle2.body.velocity.y },
-      },
-      ball: {
-        pos: {
-          x: ball.x,
-          y: ball.y,
-        },
-        vel: {
-          x: ball.body.velocity.x,
-          y: ball.body.velocity.y,
-        },
-      },
-    };
-
-    socket.emit("start_game", gameState);
+    socket.emit("start_game");
     startText.visible = false;
   };
 
@@ -245,12 +228,6 @@ export default class pongScene extends Scene {
       // if (this.escKey.isDown) this.stopGame();
       // console.log(pressedKeys);
 
-      this.controlPaddle(
-        paddle1,
-        Number(pressedKeys.has("ArrowDown")) -
-          Number(pressedKeys.has("ArrowUp"))
-      );
-
       // if (ball.body.velocity.x > 0 && ball.x > width / 2) { // npc
       //   this.controlPaddle(
       //     paddle2,
@@ -260,13 +237,19 @@ export default class pongScene extends Scene {
       // } else this.controlPaddle(paddle2, 0);
 
       if (ball.x < 32) {
-        startText.text = "you lost";
+        if (!(p1 || p2)) startText.text = "p2 won";
+        else startText.text = "you lost";
         this.stopGame();
       } else if (ball.x > width - 32) {
-        startText.text = "you won";
+        if (!(p1 || p2)) startText.text = "p1 won";
+        else startText.text = "you won";
         this.stopGame();
       }
-      // socket.emit("game_state", gameState);
+      this.controlPaddle(
+        paddle1,
+        Number(pressedKeys.has("ArrowDown")) -
+          Number(pressedKeys.has("ArrowUp"))
+      );
     }
   }
 }
