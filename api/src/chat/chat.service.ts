@@ -330,9 +330,9 @@ export class ChatService {
 
     getBlockedUsersByMe(userId: number) {
         return this.prismaService.$queryRaw(Prisma.sql`
-			SELECT blocked_user_id
+			SELECT user_id
 			FROM blacklist
-			WHERE user_id = ${userId}
+			WHERE blocked_user_id = ${userId}
 		`);
     }
 }

@@ -15,6 +15,8 @@ RUN apt-get update && apt-get -y install openssl && apt-get install -y procps
 
 COPY ./prisma ./prisma
 
+# RUN yarn prisma migrate dev
+
 RUN yarn prisma generate
 
 CMD [ "yarn", "start:dev" ]
