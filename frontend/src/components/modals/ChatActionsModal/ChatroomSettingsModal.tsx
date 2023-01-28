@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 
 import cn from "classnames";
 import Image from "next/image";
@@ -94,34 +94,40 @@ const MembershipStatusOptions = [
 const MemberListItem = ({ member }: { member: IRoomMember }) => {
   const [muted, setMuted] = useState(member.isMuted);
   const [isBlocked, setIsBlocked] = useState(member.isBanned);
+  const [isKicked, setIsKicked] = useState(false);
   const [showDropDown, setShowDropDown] = useState(false);
 
-  const onMuteClick = () => {
+  const handleMute = () => {
     setMuted(!muted);
   };
 
-  const onBlockClick = () => {
+  const handleBlock = () => {
     setIsBlocked(!isBlocked);
   };
 
-  const onKickClick = () => {
-    alert("kick");
+  const handleKick = () => {
+    setIsKicked(!isKicked);
+    console.log("kick");
   };
 
   const getDefaultOption = (value: string) => {
     return MembershipStatusOptions.find((option) => option.value === value);
   };
+
+  const dropdownRef = useRef(null);
+
   useEffect(() => {
-    const handleClick = (e: any) => {
-      if (!e.target.closest(".dropdown-menu")) {
+    const handleClick = (e) => {
+      if (dropdownRef.current && !dropdownRef.current.contains(e.target)) {
         setShowDropDown(false);
       }
     };
+
     document.addEventListener("click", handleClick);
     return () => {
       document.removeEventListener("click", handleClick);
     };
-  }, [showDropDown]);
+  }, [dropdownRef, setShowDropDown]);
 
   return (
     <li
@@ -154,46 +160,39 @@ const MemberListItem = ({ member }: { member: IRoomMember }) => {
               />
             </div>
             {CurrentUser.membershipStatus === MembershipStatus.OWNER && (
-              <div className=" group/dots relative flex h-9 w-9 items-center justify-center rounded-full text-xs duration-200 hover:bg-gray-300">
+              <div className=" group/dots relative flex h-9 w-9 items-center justify-center rounded-full text-xs">
                 <BsThreeDots
                   onClick={() => {
                     setShowDropDown(!showDropDown);
                   }}
+                  className="h-7 w-7 rounded-full bg-gray-200 p-1 text-2xl text-red-800 duration-300 hover:bg-gray-300"
                 />
                 <div
                   className={`absolute top-5 right-5  w-28 flex-col overflow-hidden rounded-l-lg bg-white ${
                     showDropDown ? "group-hover/dots:flex " : "hidden"
                   }`}
+                  ref={dropdownRef}
                 >
                   <button
-                    onClick={async (e) => {
-                      e.stopPropagation();
-                      onMuteClick();
-                    }}
+                    onClick={handleMute}
                     className="flex w-full min-w-min items-center gap-x-2 bg-white px-4 py-2 font-semibold text-red-500 hover:bg-gray-100 hover:text-red-500"
                   >
                     <BsVolumeMute />
                     {muted ? "Unmute" : "Mute"}
                   </button>
                   <button
-                    onClick={async (e) => {
-                      e.stopPropagation();
-                      onBlockClick();
-                    }}
+                    onClick={handleBlock}
                     className="flex min-w-min items-center gap-x-2 px-4 py-2 font-semibold text-red-600 hover:bg-red-500 hover:text-white"
                   >
                     <MdBlockFlipped />
                     {isBlocked ? "Unblock" : "Block"}
                   </button>
                   <button
-                    onClick={async (e) => {
-                      e.stopPropagation();
-                      onKickClick();
-                    }}
+                    onClick={handleKick}
                     className="flex min-w-min items-center gap-x-2 px-4 py-2 font-semibold text-red-600 hover:bg-red-500 hover:text-white"
                   >
                     <MdBlockFlipped />
-                    {isBlocked ? "Unblock" : "Block"}
+                    {isKicked ? "reinvite" : "kick"}
                   </button>
                 </div>
               </div>
