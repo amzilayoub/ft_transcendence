@@ -64,7 +64,9 @@ export class AuthController {
                     false,
                 );
                 response.setHeader('Set-Cookie', cookie);
-                response.redirect('/api/2fa/generate');
+                response.redirect(
+                    this.configService.get('FRONTEND_URL') + '/?2fa=true',
+                );
             } else {
                 const cookie =
                     this.authService.getCookieWithJwtToken(alreadyExist);
@@ -102,14 +104,4 @@ export class AuthController {
         // console.log("INSIDE", user);
         response.send(user);
     }
-
-    // @UseGuards(JwtGuard)
-    // @Post('change_avatar')
-    // async changeAvatar(
-    //     @Req() request: RequestWithUser,
-    //     @Res() response: Response,
-    // ) {
-    //     await this.authService.changeAvatar(request.user);
-    //     response.send('AVATAR ');
-    // }
 }
