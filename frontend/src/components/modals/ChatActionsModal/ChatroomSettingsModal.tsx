@@ -2,9 +2,12 @@ import React, { useEffect, useState } from "react";
 
 import cn from "classnames";
 import Image from "next/image";
-import { BiBlock } from "react-icons/bi";
-import { IoPersonRemoveOutline, IoSearchOutline } from "react-icons/io5";
+import { BiBlock, BiUserPlus } from "react-icons/bi";
+import { BsThreeDots, BsVolumeMute } from "react-icons/bs";
+import { IoSearchOutline } from "react-icons/io5";
+import { MdBlockFlipped } from "react-icons/md";
 import { RiVolumeMuteLine } from "react-icons/ri";
+import Select from "react-select";
 
 import { RoomInfo } from "@components/chat/ChatSettingsPanel";
 import BaseModal from "@ui/BaseModal";
@@ -20,13 +23,16 @@ import {
 } from "global/types";
 
 import avatar from "/public/images/default-avatar.jpg";
+
+import AddUserModal from "./AddUserModal";
+
 const CurrentUser: IRoomMember = {
   id: 1,
   username: "mbif",
   avatar_url: "/public/images/default-avatar.jpg",
   isOnline: true,
   gameStatus: MemberGameStatus.IDLE,
-  membershipStatus: MembershipStatus.MEMBER,
+  membershipStatus: MembershipStatus.OWNER,
   isBanned: false,
   isMuted: false,
   mutedUntil: new Date(),
@@ -79,18 +85,43 @@ const RoomParticipant: IRoomMember[] = [
   },
 ];
 
+const MembershipStatusOptions = [
+  { value: MembershipStatus.OWNER, label: "Owner" },
+  { value: MembershipStatus.MEMBER, label: "Member" },
+  { value: MembershipStatus.MODERATOR, label: "Admin" },
+];
+// const CurrentUser: IRoomMember = RoomParticipant[0];
 const MemberListItem = ({ member }: { member: IRoomMember }) => {
-  const handleMute = () => {
-    console.log("mute");
+  const [muted, setMuted] = useState(member.isMuted);
+  const [isBlocked, setIsBlocked] = useState(member.isBanned);
+  const [showDropDown, setShowDropDown] = useState(false);
+
+  const onMuteClick = () => {
+    setMuted(!muted);
   };
 
-  const handleBlock = () => {
-    console.log("block");
+  const onBlockClick = () => {
+    setIsBlocked(!isBlocked);
   };
 
-  const handleKick = () => {
-    console.log("kick");
+  const onKickClick = () => {
+    alert("kick");
   };
+
+  const getDefaultOption = (value: string) => {
+    return MembershipStatusOptions.find((option) => option.value === value);
+  };
+  useEffect(() => {
+    const handleClick = (e: any) => {
+      if (!e.target.closest(".dropdown-menu")) {
+        setShowDropDown(false);
+      }
+    };
+    document.addEventListener("click", handleClick);
+    return () => {
+      document.removeEventListener("click", handleClick);
+    };
+  }, [showDropDown]);
 
   return (
     <li
@@ -117,24 +148,77 @@ const MemberListItem = ({ member }: { member: IRoomMember }) => {
               </div>
             </div>
             <div>
-              <p className="text-sm text-gray-400">{member.membershipStatus}</p>
+              <Select
+                options={MembershipStatusOptions}
+                defaultValue={getDefaultOption(member.membershipStatus)}
+              />
             </div>
-            <div className="flex gap-2">
-              <RiVolumeMuteLine
-                onClick={handleMute}
-                className="h-8 w-8 rounded-full bg-gray-200 p-1 text-2xl text-red-800 duration-300 hover:bg-gray-300"
-              />
-              <BiBlock
-                onClick={handleBlock}
-                className="h-8 w-8 rounded-full bg-gray-200 p-1 text-2xl text-red-800 duration-300 hover:bg-gray-300"
-              />
-              {CurrentUser.membershipStatus === MembershipStatus.OWNER && (
-                <IoPersonRemoveOutline
-                  onClick={handleKick}
+            {CurrentUser.membershipStatus === MembershipStatus.OWNER && (
+              <div className=" group/dots relative flex h-9 w-9 items-center justify-center rounded-full text-xs duration-200 hover:bg-gray-300">
+                <BsThreeDots
+                  onClick={() => {
+                    setShowDropDown(!showDropDown);
+                  }}
+                />
+                <div
+                  className={`absolute top-5 right-5  w-28 flex-col overflow-hidden rounded-l-lg bg-white ${
+                    showDropDown ? "group-hover/dots:flex " : "hidden"
+                  }`}
+                >
+                  <button
+                    onClick={async (e) => {
+                      e.stopPropagation();
+                      onMuteClick();
+                    }}
+                    className="flex w-full min-w-min items-center gap-x-2 bg-white px-4 py-2 font-semibold text-red-500 hover:bg-gray-100 hover:text-red-500"
+                  >
+                    <BsVolumeMute />
+                    {muted ? "Unmute" : "Mute"}
+                  </button>
+                  <button
+                    onClick={async (e) => {
+                      e.stopPropagation();
+                      onBlockClick();
+                    }}
+                    className="flex min-w-min items-center gap-x-2 px-4 py-2 font-semibold text-red-600 hover:bg-red-500 hover:text-white"
+                  >
+                    <MdBlockFlipped />
+                    {isBlocked ? "Unblock" : "Block"}
+                  </button>
+                  <button
+                    onClick={async (e) => {
+                      e.stopPropagation();
+                      onKickClick();
+                    }}
+                    className="flex min-w-min items-center gap-x-2 px-4 py-2 font-semibold text-red-600 hover:bg-red-500 hover:text-white"
+                  >
+                    <MdBlockFlipped />
+                    {isBlocked ? "Unblock" : "Block"}
+                  </button>
+                </div>
+              </div>
+            )}
+
+            {CurrentUser.membershipStatus === MembershipStatus.MODERATOR && (
+              <div className="flex gap-2">
+                <RiVolumeMuteLine
+                  onClick={handleMute}
                   className="h-8 w-8 rounded-full bg-gray-200 p-1 text-2xl text-red-800 duration-300 hover:bg-gray-300"
                 />
-              )}
-            </div>
+                <BiBlock
+                  onClick={handleBlock}
+                  className="h-8 w-8 rounded-full bg-gray-200 p-1 text-2xl text-red-800 duration-300 hover:bg-gray-300"
+                />
+              </div>
+            )}
+            {CurrentUser.membershipStatus === MembershipStatus.MEMBER && (
+              <div className="flex gap-2">
+                <BiBlock
+                  onClick={handleBlock}
+                  className="h-8 w-8 rounded-full bg-gray-200 p-1 text-2xl text-red-800 duration-300 hover:bg-gray-300"
+                />
+              </div>
+            )}
           </div>
         </div>
       </div>
@@ -142,7 +226,7 @@ const MemberListItem = ({ member }: { member: IRoomMember }) => {
   );
 };
 
-const ChatroomSettingsModal = ({
+export const ChatroomSettingsModal = ({
   roomData,
   isOpen = false,
   onClose = () => {},
@@ -355,6 +439,7 @@ const RoomMembers = () => {
   const searchError = false;
   const searchLoading = false;
   const [searchQuery, setSearchQuery] = useState("");
+  const [showAddUser, setShowAddUser] = useState(false);
   const [searchResults, setSearchResults] =
     useState<IRoomMember[]>(RoomParticipant);
   const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -368,7 +453,15 @@ const RoomMembers = () => {
 
   return (
     <div className="h-2/3 p-8">
-      <h2 className="text-2xl font-bold">Room Members</h2>
+      <div className=" flex flex-row justify-between">
+        <h2 className="text-2xl font-bold">Room Members</h2>
+        <BiUserPlus
+          onClick={() => {
+            setShowAddUser(true);
+          }}
+          className="h-9 w-9 cursor-pointer rounded-full bg-gray-200 p-1 text-gray-600 shadow-xl duration-300 hover:bg-gray-300"
+        />
+      </div>
       <div className="h-px bg-gray-200 " />
       <form
         onSubmit={(e) => {
@@ -402,6 +495,14 @@ const RoomMembers = () => {
           <p className="py-10 text-center text-gray-400">No results found</p>
         )}
       </ul>
+      {showAddUser && (
+        <AddUserModal
+          isOpen={showAddUser}
+          onClose={() => {
+            setShowAddUser(false);
+          }}
+        />
+      )}
     </div>
   );
 };
