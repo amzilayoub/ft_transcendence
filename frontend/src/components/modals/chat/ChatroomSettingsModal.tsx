@@ -1,4 +1,4 @@
-import React, { useEffect, useRef, useState } from "react";
+import React, { useEffect, useState } from "react";
 
 import cn from "classnames";
 import Image from "next/image";
@@ -97,6 +97,9 @@ const MemberListItem = ({ member }: { member: IRoomMember }) => {
   const [isKicked, setIsKicked] = useState(false);
   const [showDropDown, setShowDropDown] = useState(false);
 
+  const getDefaultOption = (value: string) => {
+    return MembershipStatusOptions.find((option) => option.value === value);
+  };
   const handleMute = () => {
     setMuted(!muted);
   };
@@ -107,27 +110,7 @@ const MemberListItem = ({ member }: { member: IRoomMember }) => {
 
   const handleKick = () => {
     setIsKicked(!isKicked);
-    console.log("kick");
   };
-
-  const getDefaultOption = (value: string) => {
-    return MembershipStatusOptions.find((option) => option.value === value);
-  };
-
-  const dropdownRef = useRef(null);
-
-  useEffect(() => {
-    const handleClick = (e) => {
-      if (dropdownRef.current && !dropdownRef.current.contains(e.target)) {
-        setShowDropDown(false);
-      }
-    };
-
-    document.addEventListener("click", handleClick);
-    return () => {
-      document.removeEventListener("click", handleClick);
-    };
-  }, [dropdownRef, setShowDropDown]);
 
   return (
     <li
@@ -157,21 +140,21 @@ const MemberListItem = ({ member }: { member: IRoomMember }) => {
               <Select
                 options={MembershipStatusOptions}
                 defaultValue={getDefaultOption(member.membershipStatus)}
+                isSearchable={false}
               />
             </div>
             {CurrentUser.membershipStatus === MembershipStatus.OWNER && (
-              <div className=" group/dots relative flex h-9 w-9 items-center justify-center rounded-full text-xs">
+              <div className=" group/dots relative flex  items-center justify-center rounded-full text-xs duration-200 hover:bg-gray-300">
                 <BsThreeDots
                   onClick={() => {
                     setShowDropDown(!showDropDown);
                   }}
-                  className="h-7 w-7 rounded-full bg-gray-200 p-1 text-2xl text-red-800 duration-300 hover:bg-gray-300"
+                  className="h-8 w-8 rounded-full bg-gray-200 p-2 text-2xl text-red-800 duration-300 hover:bg-gray-300"
                 />
                 <div
                   className={`absolute top-5 right-5  w-28 flex-col overflow-hidden rounded-l-lg bg-white ${
                     showDropDown ? "group-hover/dots:flex " : "hidden"
                   }`}
-                  ref={dropdownRef}
                 >
                   <button
                     onClick={handleMute}
@@ -192,7 +175,7 @@ const MemberListItem = ({ member }: { member: IRoomMember }) => {
                     className="flex min-w-min items-center gap-x-2 px-4 py-2 font-semibold text-red-600 hover:bg-red-500 hover:text-white"
                   >
                     <MdBlockFlipped />
-                    {isKicked ? "reinvite" : "kick"}
+                    {isKicked ? "unkick" : "kick"}
                   </button>
                 </div>
               </div>
