@@ -119,28 +119,28 @@ const handler = (req, res) => {
 
       socket.on("get_info", () => socket.emit("get_info", games));
 
-      socket.on("disconnecting", () => {
+      socket.on("disconnecting", (client) => {
         const roomID = Array.from(socket.rooms.values()).find(
           (id) => id !== socket.id
         );
-        if (game.p1 == socket.id) game.p1 = undefined;
-        else if (game.p2 == socket.id) game.p2 = undefined;
+        if (game.p1 == socket.id) {
+          game.p1 = game.p2;
+          game.p2 = undefined;
+        } 
+        else if (game.p2 == socket.id) {
+          game.p2 = undefined;
+        }
 
-        console.log(socket.id, "disconnected from room ", roomID, game);
+        io.to(roomID).emit("stop_game");
+        // console.log(`sending to ${game.p1} state wait`);
+        
+        console.log("io.sockets.sockets.get(game.p1) = ", io.sockets.sockets.get(game.p1))
+        io.sockets.sockets.get(game.p1).emit("state", "wait")
+        // io.sockets.sockets.get(game.p1).client.emit("state", "wait2")
+        // socket.emit('leave')
+        // console.log(socket.id, "disconnected from room ", roomID, game);
+        // console.log("io.sockets.get(game.p1) = ", io.sockets.sockets.get(game.p1))
 
-        io.to(roomID).emit(
-          "broadcast",
-          `player 1: ${game.p1} -- player 2: ${game.p2}`
-        );
-
-        const connectedSockets = io.sockets.adapter.rooms.get(roomID);
-
-        io.to(roomID).emit(
-          "broadcast",
-          `spectators: \n${Array.from(connectedSockets.values()).filter(
-            (socket) => socket !== game.p1 && socket !== game.p2
-          )}\n`
-        );
       });
     });
   }

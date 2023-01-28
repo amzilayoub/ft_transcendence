@@ -4,6 +4,7 @@ import Pong from "@components/game/pong";
 import Button from "@ui/Button";
 import TextInput from "@ui/TextInput";
 import { io, Socket } from "socket.io-client";
+import MainLayout from "@components/layout";
 
 let socket!: Socket;
 let games!: Socket;
@@ -28,6 +29,7 @@ const GameSettings = ({
     <>
       <form onSubmit={onSubmitHandler}>
         <TextInput
+        autoComplete="off"
           label=""
           placeholder="Enter a Room ID to join"
           name="room"
@@ -58,21 +60,14 @@ const Game = () => {
   // func();
 
   // console.log(games);
+  let form;
+  if (!roomID)
+    form = <GameSettings setRoomID={setRoomID} />
 
   return (
     <>
-      {roomID ? (
-        <Pong roomID={roomID} />
-      ) : (
-        <GameSettings setRoomID={setRoomID} />
-      )}
-      <Button
-        onClick={() => {
-          debugger;
-        }}
-      >
-        Debugger
-      </Button>
+      {roomID ? <Pong roomID={roomID} /> : null}
+      {form}
     </>
   );
 };
