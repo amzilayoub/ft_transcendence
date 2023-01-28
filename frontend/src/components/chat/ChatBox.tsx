@@ -54,7 +54,7 @@ const Message = ({
         </div>
       </div>
       <Image
-        src={senderAvatar}
+        src={senderAvatar || "/public/images/default_avatar.jpg"}
         alt="Sender Avatar"
         width={24}
         height={24}
@@ -93,36 +93,21 @@ const ChatBox = ({
   conversationMetaData,
   onClose,
   socket,
+  setConversationsMetadata,
+  allConversation,
 }: {
   conversationMetaData: any;
   onClose: any;
   socket: any;
+  setConversationsMetadata: () => void;
+  allConversation: any;
 }) => {
   const [conversation, setConversation] = useState<IConversation | null>(null);
   const [input, setInput] = useState("");
   const bottomDiv = useRef<HTMLDivElement>(null);
   const [ShowChatSettingModal, setShowChatSettingModal] = useState(false);
 
-  const [conversationData, setConversationData] = useState<IConversation>({
-    id: "1",
-    members: ["mbif", "folfol", "yheb", "apex"],
-    messages: [
-      {
-        id: 1,
-        is_read: true,
-        message: "hey",
-        room_id: 1,
-        updated_at: new Date(),
-        userLink: {
-          id: 1,
-          username: "mbif",
-          avatar_url: "https://i.imgur.com/0y0XG5Y.jpg",
-        },
-        user_id: 1, // duplicate of userLink.id
-        created_at: new Date(),
-      },
-    ],
-  });
+  const [conversationData, setConversationData] = useState<IConversation>();
   // --------------- room data sample ----------------
   const [roomData, setRoomData] = useState<IRoom>({
     id: 1,
@@ -271,7 +256,18 @@ const ChatBox = ({
       //   socket.off("createMessage");
     };
   }, [handleKeyDown, conversationMetaData.room_id, loadMessages, loadMembers]);
+  socket.on("block", (resp) => {
+    const newState = [...allConversation];
 
+    console.log({ resp });
+    newState.forEach((item) => {
+      if (item.user_id == conversationMetaData.user_id) {
+        item.amIBlocked = resp.data.value;
+      }
+      console.log({ newState });
+      setConversationsMetadata(newState);
+    });
+  });
   return (
     <section className="relative flex h-[500px] w-[340px] flex-col rounded-t-xl border border-gray-200 bg-white">
       <div className="flex justify-between border-b-2 border-gray-200 p-3 sm:items-center">
@@ -283,7 +279,10 @@ const ChatBox = ({
               </svg>
             </span>
             <Image
-              src={`${conversationMetaData?.avatar_url}`}
+              src={
+                conversationMetaData?.avatar_url ||
+                "/public/images/default_avatar.jpg"
+              }
               alt={`${conversationMetaData?.name || "User"}'s avatar`}
               width={40}
               height={40}
@@ -362,10 +361,11 @@ const ChatBox = ({
               />
             )}
             <div>
-              {conversationMetaData.amIBlocked
-                ? "You are blocked by this user"
+              {conversationMetaData.isBlocked
+                ? "You blocked this user"
+                : conversationMetaData.amIBlocked
+                ? "You cannot contact this user"
                 : ""}
-              {conversationMetaData.isBlocked ? "You blocked this user" : ""}
             </div>
           </form>
           <div className="flex justify-end py-1">

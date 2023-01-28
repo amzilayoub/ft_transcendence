@@ -50,15 +50,12 @@ export class ChatService {
         roomName = '',
     ): Promise<Array<any>> {
         let specificRoom: string =
-            roomId == -1 ? '' : `AND receiver.room_id = ${roomId}`;
-        if (roomName != '')
-            specificRoom = `AND (CASE
-								WHEN room_type.type = 'dm'
-									THEN users.username
-								ELSE
-								--Here I should return the name of the room
-									'shared room'
-							END) LIKE '%${roomName}%'`;
+            roomId == -1 ? '' : `WHERE room_id = ${roomId}`;
+        if (roomName != '') {
+            if (specificRoom == '')
+                specificRoom = `WHERE name LIKE '%${roomName}%'`;
+            else specificRoom = `AND name LIKE '%${roomName}%'`;
+        }
         const query = `
 			SELECT *
 			FROM (
@@ -87,7 +84,7 @@ export class ChatService {
 							THEN true
 						ELSE
 							false
-					END AS "is_blocked",
+					END AS "isBlocked",
 					CASE
 						WHEN
 						(SELECT COUNT(*)
@@ -97,7 +94,7 @@ export class ChatService {
 							THEN true
 						ELSE
 							false
-					END AS "am_i_blocked",
+					END AS "amIBlocked",
 					sender.unread_message_count AS "unreadMessagesCount",
 					users.username AS name,
 					users.id AS user_id,
@@ -112,7 +109,6 @@ export class ChatService {
 					AND sender.user_id != receiver.user_id
 					AND room_type.type = 'dm'
 					AND sender.user_id = ${userId}
-					${specificRoom}
 				)
 				UNION
 				(
@@ -131,8 +127,8 @@ export class ChatService {
 					ORDER BY id DESC
 					LIMIT 1
 				) AS "lastMessage",
-				false AS "is_blocked",
-				false AS "am_i_blocked",
+				false AS "isBlocked",
+				false AS "amIBlocked",
 				receiver.unread_message_count AS "unreadMessagesCount",
 				(	SELECT room_details.name
 					FROM room_details
@@ -148,9 +144,9 @@ export class ChatService {
 				AND users.id = receiver.user_id
 				AND room_type.type != 'dm'
 				AND receiver.user_id = ${userId}
-				${specificRoom}
 				)
 			) AS tbl
+			${specificRoom}
 			ORDER BY "lastMessageTime" DESC
 		`;
         return this.prismaService.$queryRaw(Prisma.raw(query));
@@ -197,8 +193,13 @@ export class ChatService {
         });
     }
 
-    getRoomMembers(roomId: number) {
-        return this.prismaService.$queryRaw(Prisma.sql`
+    getRoomMembers(roomId: number, username?: string) {
+        let additionalCond = '';
+        if (username)
+            additionalCond = `AND users.username LIKE '%${username}%'`;
+
+        const query = `
+			-- Here we get firs the owner
 			(
 				SELECT users.id, users.username AS username, users.avatar_url,'Owner' AS "membershipStatus"
 				FROM room_user_rel
@@ -206,7 +207,12 @@ export class ChatService {
 				INNER JOIN users ON users.id = room_user_rel.user_id
 				WHERE room_user_rel.room_id = ${roomId}
 				AND room.owner_id = room_user_rel.user_id
+				${additionalCond}
 			)
+			-- then we get the other member and sort them by role
+			-- we do this because if we sort all the record by role
+			-- the result will be as follow: [admin, member, owner]
+			-- but wa want it in this order [owner, admin, member]
 			UNION
 			(
 				SELECT users.id, users.username AS username, users.avatar_url,room_user_rel.role AS "membershipStatus"
@@ -215,9 +221,10 @@ export class ChatService {
 				INNER JOIN users ON users.id = room_user_rel.user_id
 				WHERE room_user_rel.room_id = ${roomId}
 				AND room.owner_id != room_user_rel.user_id
+				${additionalCond}
 				ORDER BY room_user_rel.role ASC
-			)
-		`);
+			)`;
+        return this.prismaService.$queryRaw(Prisma.raw(query));
     }
 
     getRoomMessages(roomId: number, userId = -1) {

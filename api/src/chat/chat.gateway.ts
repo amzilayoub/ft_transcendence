@@ -7,6 +7,7 @@ import {
 } from '@nestjs/websockets';
 import { ChatService } from './chat.service';
 import {
+    BlockUserDto,
     CreateMessageDto,
     CreateRoomDto,
     JoinRoomDto,
@@ -213,6 +214,7 @@ export class ChatGateway {
             data: {
                 room: room[0],
                 clientId: client.id,
+                action: 'update',
             },
         });
         return { status: 200, data: true };
@@ -244,6 +246,56 @@ export class ChatGateway {
             data: this.chatService.setRoomAsRead(roomId, user['id']),
         };
     }
+    @SubscribeMessage('user/block')
+    async blockUser(
+        @MessageBody() blockUserDto: BlockUserDto,
+        @ConnectedSocket() client: any,
+    ) {
+        const user = this.getUserInfo(client);
+
+        if (user === null) return { status: 401 };
+        await this.chatService.blockUser(user.id, blockUserDto.blockedUserId);
+        client.broadcast.to(NAMESPACE + blockUserDto.roomId).emit('block', {
+            status: 200,
+            data: {
+                /*
+                 ** true it means block, false it means unblock
+                 */
+                value: true,
+                by: user['id'],
+            },
+        });
+        return {
+            status: 200,
+            data: {
+                value: true,
+            },
+        };
+    }
+
+    @SubscribeMessage('user/unblock')
+    async unblockUser(
+        @MessageBody() blockUserDto: BlockUserDto,
+        @ConnectedSocket() client: any,
+    ) {
+        const user = this.getUserInfo(client);
+        if (user === null) return { status: 401 };
+
+        await this.chatService.unblockUser(user.id, blockUserDto.blockedUserId);
+        client.broadcast.to(NAMESPACE + blockUserDto.roomId).emit('block', {
+            status: 200,
+            data: {
+                value: false,
+                by: user['id'],
+            },
+        });
+        return {
+            status: 200,
+            data: {
+                value: false,
+            },
+        };
+    }
 
     /*
      ** Helper functions
@@ -254,6 +306,7 @@ export class ChatGateway {
         roomId: number,
         userId: number,
         exceptRoom = '',
+        action = 'add',
     ) {
         const room = await this.chatService.getUserRooms(userId, roomId);
         this.server
@@ -264,6 +317,7 @@ export class ChatGateway {
                 data: {
                     room: room[0],
                     clientId: client.id,
+                    action,
                 },
             });
     }

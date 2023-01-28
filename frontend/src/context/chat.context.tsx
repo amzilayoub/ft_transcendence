@@ -84,7 +84,6 @@ export const ChatProvider = ({ children }: { children: React.ReactNode }) => {
         if (item.id === convMetaData.id) {
           item.unreadMessagesCount = 0;
           item.isActiveBox = true;
-          console.log(item);
         }
       });
       return tmp;
