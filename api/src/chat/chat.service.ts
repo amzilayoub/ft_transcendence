@@ -193,8 +193,13 @@ export class ChatService {
         });
     }
 
-    getRoomMembers(roomId: number) {
-        return this.prismaService.$queryRaw(Prisma.sql`
+    getRoomMembers(roomId: number, username?: string) {
+        let additionalCond = '';
+        if (username)
+            additionalCond = `AND users.username LIKE '%${username}%'`;
+
+        const query = `
+			-- Here we get firs the owner
 			(
 				SELECT users.id, users.username AS username, users.avatar_url,'Owner' AS "membershipStatus"
 				FROM room_user_rel
@@ -202,7 +207,12 @@ export class ChatService {
 				INNER JOIN users ON users.id = room_user_rel.user_id
 				WHERE room_user_rel.room_id = ${roomId}
 				AND room.owner_id = room_user_rel.user_id
+				${additionalCond}
 			)
+			-- then we get the other member and sort them by role
+			-- we do this because if we sort all the record by role
+			-- the result will be as follow: [admin, member, owner]
+			-- but wa want it in this order [owner, admin, member]
 			UNION
 			(
 				SELECT users.id, users.username AS username, users.avatar_url,room_user_rel.role AS "membershipStatus"
@@ -211,9 +221,10 @@ export class ChatService {
 				INNER JOIN users ON users.id = room_user_rel.user_id
 				WHERE room_user_rel.room_id = ${roomId}
 				AND room.owner_id != room_user_rel.user_id
+				${additionalCond}
 				ORDER BY room_user_rel.role ASC
-			)
-		`);
+			)`;
+        return this.prismaService.$queryRaw(Prisma.raw(query));
     }
 
     getRoomMessages(roomId: number, userId = -1) {

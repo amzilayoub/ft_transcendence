@@ -54,7 +54,7 @@ const Message = ({
         </div>
       </div>
       <Image
-        src={senderAvatar}
+        src={senderAvatar || "/public/images/default_avatar.jpg"}
         alt="Sender Avatar"
         width={24}
         height={24}
@@ -283,7 +283,10 @@ const ChatBox = ({
               </svg>
             </span>
             <Image
-              src={`${conversationMetaData?.avatar_url}`}
+              src={
+                conversationMetaData?.avatar_url ||
+                "/public/images/default_avatar.jpg"
+              }
               alt={`${conversationMetaData?.name || "User"}'s avatar`}
               width={40}
               height={40}

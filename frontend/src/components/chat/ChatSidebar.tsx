@@ -270,6 +270,35 @@ const ChatSidebar = ({
     }
   };
   const allUnreadMessages = 0;
+
+  const blockBtn = async (item, status) => {
+    await changeBlockStatus(item.user_id, status);
+    setConversationsMetadata((state) => {
+      let newState = [...state];
+
+      newState.forEach((obj) => {
+        if (obj.id == item.id) {
+          obj.isBlocked = !status;
+        }
+      });
+      return newState;
+    });
+  };
+
+  const muteBtn = async (item, muted) => {
+    await muteUser(item.room_id, item.user_id, muted);
+    setConversationsMetadata((state) => {
+      let newState = [...state];
+
+      newState.forEach((obj) => {
+        if (obj.id == item.id) {
+          obj.muted = muted;
+        }
+      });
+      return newState;
+    });
+  };
+
   return (
     <>
       <div
@@ -348,30 +377,12 @@ const ChatSidebar = ({
                 lastMessageTime={item.lastMessageTime}
                 unreadMessages={item.unreadMessagesCount}
                 onMuteClick={async (muted) => {
-                  await muteUser(item.room_id, item.user_id, muted);
-                  setConversationsMetadata((state) => {
-                    let newState = [...state];
-
-                    newState.forEach((obj) => {
-                      if (obj.id == item.id) {
-                        obj.muted = muted;
-                      }
-                    });
-                    return newState;
-                  });
+                  await muteBtn(item, muted);
+                  await onConversationClick(item);
                 }}
                 onBlockClick={async (status) => {
-                  await changeBlockStatus(item.user_id, status);
-                  setConversationsMetadata((state) => {
-                    let newState = [...state];
-
-                    newState.forEach((obj) => {
-                      if (obj.id == item.id) {
-                        obj.isBlocked = !status;
-                      }
-                    });
-                    return newState;
-                  });
+                  await blockBtn(item, status);
+                  await onConversationClick(item);
                 }}
                 socket={socket}
                 type={item.type}
@@ -400,30 +411,12 @@ const ChatSidebar = ({
                 unreadMessages={item.unreadMessagesCount}
                 muted={item.muted}
                 onMuteClick={async (muted) => {
-                  await muteUser(item.room_id, item.user_id, muted);
-                  setConversationsMetadata((state) => {
-                    let newState = [...state];
-
-                    newState.forEach((obj) => {
-                      if (obj.id == item.id) {
-                        obj.muted = muted;
-                      }
-                    });
-                    return newState;
-                  });
+                  await muteBtn(item, muted);
+                  await onConversationClick(item);
                 }}
                 onBlockClick={async (status) => {
-                  await changeBlockStatus(item.user_id, status);
-                  setConversationsMetadata((state) => {
-                    let newState = [...state];
-
-                    newState.forEach((obj) => {
-                      if (obj.id == item.id) {
-                        obj.isBlocked = !status;
-                      }
-                    });
-                    return newState;
-                  });
+                  await blockBtn(item, status);
+                  await onConversationClick(item);
                 }}
                 socket={socket}
                 type={item.type}

@@ -80,12 +80,12 @@ export class ChatController {
         return await this.chatService.exploreRooms(roomName, user['id']);
     }
 
-    @Get('room/:roomId/members')
+    @Get('room/:roomId/members/:username?')
     async getRoomMembers(
-        @Req() request: RequestWithUser,
         @Param('roomId') roomId: number,
+        @Param('username') username = '',
     ) {
-        return await this.chatService.getRoomMembers(roomId);
+        return await this.chatService.getRoomMembers(roomId, username);
     }
 
     @Get('room/:roomId/messages')

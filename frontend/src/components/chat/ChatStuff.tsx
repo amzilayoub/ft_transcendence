@@ -38,24 +38,36 @@ const ChatStuff = () => {
 
     if (socket) {
       socket.on("updateListConversations", async (obj) => {
-        console.log("updateListConversations = ", obj);
         let targetedRoom = (await getRoomInfo(obj.data.room.room_id))[0];
         setConversationsMetadata((state) => {
-          const newState = state.filter((item) => {
-            if (item.isActiveBox && item.room_id == obj.data.room.room_id) {
-              socket.emit(
-                "setRead",
-                {
-                  roomId: item.room_id,
-                },
-                () => {}
-              );
-              targetedRoom.unreadMessagesCount = 0;
-              targetedRoom.isActiveBox = true;
+          if (obj.data.action == "add") {
+            const newState = state.filter((item) => {
+              if (item.isActiveBox && item.room_id == obj.data.room.room_id) {
+                socket.emit(
+                  "setRead",
+                  {
+                    roomId: item.room_id,
+                  },
+                  () => {}
+                );
+                targetedRoom.unreadMessagesCount = 0;
+                targetedRoom.isActiveBox = true;
+              }
+              return item.room_id != obj.data.room.room_id;
+            });
+            return [targetedRoom, ...newState];
+          } else {
+            const newState = [...state];
+
+            for (let i in newState) {
+              if (newState[i].room_id == obj.data.room.room_id) {
+                targetedRoom.unreadMessagesCount = 0;
+                targetedRoom.isActiveBox = true;
+                newState[i] = targetedRoom;
+              }
             }
-            return item.room_id != obj.data.room.room_id;
-          });
-          return [targetedRoom, ...newState];
+            return newState;
+          }
         });
       });
     }
@@ -64,7 +76,6 @@ const ChatStuff = () => {
     };
   }, [setSocketIO]); // a hack to stop infinite rendering
 
-  console.log({ activeBoxes });
   return (
     <div className="fixed bottom-0 right-0 hidden px-6 md:block">
       <ChatSidebar

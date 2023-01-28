@@ -213,6 +213,7 @@ export class ChatGateway {
             data: {
                 room: room[0],
                 clientId: client.id,
+                action: 'update',
             },
         });
         return { status: 200, data: true };
@@ -254,6 +255,7 @@ export class ChatGateway {
         roomId: number,
         userId: number,
         exceptRoom = '',
+        action = 'add',
     ) {
         const room = await this.chatService.getUserRooms(userId, roomId);
         this.server
@@ -264,6 +266,7 @@ export class ChatGateway {
                 data: {
                     room: room[0],
                     clientId: client.id,
+                    action,
                 },
             });
     }

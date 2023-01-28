@@ -90,8 +90,14 @@ const MembershipStatusOptions = [
   { value: MembershipStatus.MEMBER, label: "Member" },
   { value: MembershipStatus.MODERATOR, label: "Admin" },
 ];
+
+const getDefaultOption = (value: string) =>
+  MembershipStatusOptions.find((option) => option.value === value);
 // const CurrentUser: IRoomMember = RoomParticipant[0];
 const MemberListItem = ({ member }: { member: IRoomMember }) => {
+  const [memberShip, setMemberShip] = useState(
+    getDefaultOption(member.membershipStatus)
+  );
   const [muted, setMuted] = useState(member.isMuted);
   const [isBlocked, setIsBlocked] = useState(member.isBanned);
   const [showDropDown, setShowDropDown] = useState(false);
@@ -108,9 +114,6 @@ const MemberListItem = ({ member }: { member: IRoomMember }) => {
     alert("kick");
   };
 
-  const getDefaultOption = (value: string) => {
-    return MembershipStatusOptions.find((option) => option.value === value);
-  };
   useEffect(() => {
     const handleClick = (e: any) => {
       if (!e.target.closest(".dropdown-menu")) {
@@ -122,6 +125,11 @@ const MemberListItem = ({ member }: { member: IRoomMember }) => {
       document.removeEventListener("click", handleClick);
     };
   }, [showDropDown]);
+  console.log("@", getDefaultOption(member.membershipStatus));
+
+  useEffect(() => {
+    setMemberShip(getDefaultOption(member.membershipStatus));
+  }, [true]);
 
   return (
     <li
@@ -150,7 +158,7 @@ const MemberListItem = ({ member }: { member: IRoomMember }) => {
             <div>
               <Select
                 options={MembershipStatusOptions}
-                defaultValue={getDefaultOption(member.membershipStatus)}
+                defaultValue={memberShip}
               />
             </div>
             {CurrentUser.membershipStatus === MembershipStatus.OWNER && (
@@ -289,7 +297,7 @@ export const ChatroomSettingsModal = ({
             <RoomInfo roomData={roomData} />
           )}
         </div>
-        <RoomMembers />
+        <RoomMembers roomData={roomData} />
       </div>
       <div className="flex w-full flex-row items-center justify-around pb-4">
         <Button variant="danger">Delete Room</Button>
@@ -435,7 +443,7 @@ export const ChatdmSettingsModal = ({
 
 export default ChatroomSettingsModal;
 
-const RoomMembers = () => {
+const RoomMembers = ({ roomData }: { roomData: IRoom }) => {
   const searchError = false;
   const searchLoading = false;
   const [searchQuery, setSearchQuery] = useState("");
@@ -444,13 +452,27 @@ const RoomMembers = () => {
     useState<IRoomMember[]>(RoomParticipant);
   const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setSearchQuery(e.target.value);
-    const results = RoomParticipant.filter((member) =>
-      member.username.toLowerCase().includes(e.target.value.toLowerCase())
-    );
-    console.log(results);
-    setSearchResults(results);
+    getMembers(e.target.value).then((data) => {
+      console.log(data);
+      setSearchResults(data);
+    });
   };
 
+  const getMembers = async (username = "") => {
+    const resp = await basicFetch.get(
+      `/chat/room/${roomData.room_id}/members/${username}`
+    );
+    if (resp.status == 200) {
+      return await resp.json();
+    }
+    return [];
+  };
+
+  useEffect(() => {
+    getMembers().then((resp) => {
+      setSearchResults(resp);
+    });
+  }, []);
   return (
     <div className="h-2/3 p-8">
       <div className=" flex flex-row justify-between">
