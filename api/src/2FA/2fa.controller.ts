@@ -112,7 +112,6 @@ export class TwoFactorAuthenticationController {
         @Body()
         { code }: TwoFactorAuthenticationCodeDto,
     ) {
-        console.log('isCodeValid', request.user);
         const isCodeValid =
             await this.twoFactorAuthenticationService.isTwoFactorAuthenticationCodeValid(
                 request.user,
@@ -126,7 +125,6 @@ export class TwoFactorAuthenticationController {
             true,
         );
         response.setHeader('Set-Cookie', [accessTokenCookie]);
-        response.redirect(this.configService.get('FRONTEND_URL') + '/home');
-        return request.user;
+        response.sendStatus(200);
     }
 }
