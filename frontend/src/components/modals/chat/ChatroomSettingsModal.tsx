@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 
 import cn from "classnames";
 import Image from "next/image";
@@ -94,34 +94,38 @@ const MembershipStatusOptions = [
 const MemberListItem = ({ member }: { member: IRoomMember }) => {
   const [muted, setMuted] = useState(member.isMuted);
   const [isBlocked, setIsBlocked] = useState(member.isBanned);
+  const [isKicked, setIsKicked] = useState(false);
   const [showDropDown, setShowDropDown] = useState(false);
-
-  const onMuteClick = () => {
-    setMuted(!muted);
-  };
-
-  const onBlockClick = () => {
-    setIsBlocked(!isBlocked);
-  };
-
-  const onKickClick = () => {
-    alert("kick");
-  };
 
   const getDefaultOption = (value: string) => {
     return MembershipStatusOptions.find((option) => option.value === value);
   };
+  const handleMute = () => {
+    setMuted(!muted);
+  };
+
+  const handleBlock = () => {
+    setIsBlocked(!isBlocked);
+  };
+
+  const handleKick = () => {
+    setIsKicked(!isKicked);
+  };
+
+  const ref = useRef(null);
+
+  const handleClickOutside = (event) => {
+    if (ref.current && !ref.current.contains(event.target)) {
+      setShowDropDown(false);
+    }
+  };
+
   useEffect(() => {
-    const handleClick = (e: any) => {
-      if (!e.target.closest(".dropdown-menu")) {
-        setShowDropDown(false);
-      }
-    };
-    document.addEventListener("click", handleClick);
+    document.addEventListener("mousedown", handleClickOutside);
     return () => {
-      document.removeEventListener("click", handleClick);
+      document.removeEventListener("mousedown", handleClickOutside);
     };
-  }, [showDropDown]);
+  }, []);
 
   return (
     <li
@@ -151,49 +155,45 @@ const MemberListItem = ({ member }: { member: IRoomMember }) => {
               <Select
                 options={MembershipStatusOptions}
                 defaultValue={getDefaultOption(member.membershipStatus)}
+                isSearchable={false}
               />
             </div>
             {CurrentUser.membershipStatus === MembershipStatus.OWNER && (
-              <div className=" group/dots relative flex h-9 w-9 items-center justify-center rounded-full text-xs duration-200 hover:bg-gray-300">
+              <div
+                ref={ref}
+                className=" group/dots relative flex  items-center justify-center rounded-full text-xs duration-200 hover:bg-gray-300"
+              >
                 <BsThreeDots
                   onClick={() => {
                     setShowDropDown(!showDropDown);
                   }}
+                  className="h-8 w-8 rounded-full bg-gray-200 p-2 text-2xl text-red-800 duration-300 hover:bg-gray-300"
                 />
                 <div
-                  className={`absolute top-5 right-5  w-28 flex-col overflow-hidden rounded-l-lg bg-white ${
+                  className={` absolute top-6 right-8 z-50 w-28  flex-col overflow-hidden rounded-l-lg bg-white shadow-md ${
                     showDropDown ? "group-hover/dots:flex " : "hidden"
                   }`}
                 >
                   <button
-                    onClick={async (e) => {
-                      e.stopPropagation();
-                      onMuteClick();
-                    }}
-                    className="flex w-full min-w-min items-center gap-x-2 bg-white px-4 py-2 font-semibold text-red-500 hover:bg-gray-100 hover:text-red-500"
+                    onClick={handleMute}
+                    className="z-50 flex w-full min-w-min items-center gap-x-2 bg-white px-4 py-2 font-semibold text-red-500 hover:bg-gray-100 hover:text-red-500"
                   >
                     <BsVolumeMute />
                     {muted ? "Unmute" : "Mute"}
                   </button>
                   <button
-                    onClick={async (e) => {
-                      e.stopPropagation();
-                      onBlockClick();
-                    }}
+                    onClick={handleBlock}
                     className="flex min-w-min items-center gap-x-2 px-4 py-2 font-semibold text-red-600 hover:bg-red-500 hover:text-white"
                   >
                     <MdBlockFlipped />
                     {isBlocked ? "Unblock" : "Block"}
                   </button>
                   <button
-                    onClick={async (e) => {
-                      e.stopPropagation();
-                      onKickClick();
-                    }}
+                    onClick={handleKick}
                     className="flex min-w-min items-center gap-x-2 px-4 py-2 font-semibold text-red-600 hover:bg-red-500 hover:text-white"
                   >
                     <MdBlockFlipped />
-                    {isBlocked ? "Unblock" : "Block"}
+                    {isKicked ? "unkick" : "kick"}
                   </button>
                 </div>
               </div>
