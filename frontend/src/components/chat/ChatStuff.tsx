@@ -86,12 +86,15 @@ const ChatStuff = () => {
         onNewConversationClick={() => console.log("new conversation")}
         setConversationsMetadata={setConversationsMetadata}
         socket={socketIO}
+        activeBoxes={activeBoxes}
       />
       <ul className="absolute bottom-0 right-[400px] flex gap-x-3">
         {activeBoxes?.map((item) => (
           <li key={item.id} className="w-full">
             <ChatBox
               conversationMetaData={item}
+              allConversation={conversationsMetadata}
+              setConversationsMetadata={setConversationsMetadata}
               onClose={() => deleteBox(item["id"])}
               socket={socketIO}
             />

@@ -187,6 +187,7 @@ const ChatSidebar = ({
   setShowChatSidebar,
   socket,
   setConversationsMetadata,
+  activeBoxes,
 }: {
   showChatSidebar: boolean;
   conversationsMetadata: IConversationMetaData[];
@@ -195,6 +196,7 @@ const ChatSidebar = ({
   setShowChatSidebar: (showChatSidebar: boolean) => void;
   socket: any;
   setConversationsMetadata: () => void;
+  activeBoxes: any;
 }) => {
   const [searchQuery, setsearchQuery] = useState("");
   const [searchResults, setSearchResults] = useState<
@@ -254,25 +256,59 @@ const ChatSidebar = ({
   /*
    ** @param status true it means block, false unblock
    */
-  const changeBlockStatus = async (blockedUserId: number, status: boolean) => {
-    let uri = "/chat/room/";
+  const changeBlockStatus = async (
+    blockedUserId: number,
+    roomId: number,
+    status: boolean
+  ) => {
+    let uri = "user/";
     if (status == false) uri += "block";
     else uri += "unblock";
-    const resp = await basicFetch.post(
+    // const resp = await basicFetch.post(
+    //   uri,
+    //   {},
+    //   {
+    //     blockedUserId: blockedUserId,
+    //   }
+    // );
+    // if (resp.status == 200) {
+    //   const data = await resp.json();
+    // }
+    socket.emit(
       uri,
-      {},
       {
         blockedUserId: blockedUserId,
+        roomId,
+      },
+      (resp) => {
+        const targetRoom = conversationsMetadata.find(
+          (item) => item.room_id == roomId
+        );
+        activeBoxes.forEach((item) => {
+          if (targetRoom?.room_id == item.room_id) {
+            onConversationClick(targetRoom);
+            return;
+          }
+        });
+
+        // onConversationClick((state) => {
+        //   const newState = [...state];
+        //   console.log({ newState });
+        //   //   newState.forEach((item) => {
+        //   //     if (item.user_id == blockedUserId) {
+        //   //       item.isBlocked = resp.data.value;
+        //   //       console.log({ user: item.user_id });
+        //   //     }
+        //   //   });
+        //   return newState;
+        // });
       }
     );
-    if (resp.status == 200) {
-      const data = await resp.json();
-    }
   };
   const allUnreadMessages = 0;
 
   const blockBtn = async (item, status) => {
-    await changeBlockStatus(item.user_id, status);
+    await changeBlockStatus(item.user_id, item.room_id, status);
     setConversationsMetadata((state) => {
       let newState = [...state];
 
@@ -378,11 +414,11 @@ const ChatSidebar = ({
                 unreadMessages={item.unreadMessagesCount}
                 onMuteClick={async (muted) => {
                   await muteBtn(item, muted);
-                  await onConversationClick(item);
+                  //   await onConversationClick(item);
                 }}
                 onBlockClick={async (status) => {
                   await blockBtn(item, status);
-                  await onConversationClick(item);
+                  //   await onConversationClick(item);
                 }}
                 socket={socket}
                 type={item.type}
@@ -412,11 +448,11 @@ const ChatSidebar = ({
                 muted={item.muted}
                 onMuteClick={async (muted) => {
                   await muteBtn(item, muted);
-                  await onConversationClick(item);
+                  //   await onConversationClick(item);
                 }}
                 onBlockClick={async (status) => {
                   await blockBtn(item, status);
-                  await onConversationClick(item);
+                  //   await onConversationClick(item);
                 }}
                 socket={socket}
                 type={item.type}
