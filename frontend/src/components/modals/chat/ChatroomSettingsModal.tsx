@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 
 import cn from "classnames";
 import Image from "next/image";
@@ -112,6 +112,21 @@ const MemberListItem = ({ member }: { member: IRoomMember }) => {
     setIsKicked(!isKicked);
   };
 
+  const ref = useRef(null);
+
+  const handleClickOutside = (event) => {
+    if (ref.current && !ref.current.contains(event.target)) {
+      setShowDropDown(false);
+    }
+  };
+
+  useEffect(() => {
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+    };
+  }, []);
+
   return (
     <li
       className={cn(
@@ -144,7 +159,10 @@ const MemberListItem = ({ member }: { member: IRoomMember }) => {
               />
             </div>
             {CurrentUser.membershipStatus === MembershipStatus.OWNER && (
-              <div className=" group/dots relative flex  items-center justify-center rounded-full text-xs duration-200 hover:bg-gray-300">
+              <div
+                ref={ref}
+                className=" group/dots relative flex  items-center justify-center rounded-full text-xs duration-200 hover:bg-gray-300"
+              >
                 <BsThreeDots
                   onClick={() => {
                     setShowDropDown(!showDropDown);
@@ -152,13 +170,13 @@ const MemberListItem = ({ member }: { member: IRoomMember }) => {
                   className="h-8 w-8 rounded-full bg-gray-200 p-2 text-2xl text-red-800 duration-300 hover:bg-gray-300"
                 />
                 <div
-                  className={`absolute top-5 right-5  w-28 flex-col overflow-hidden rounded-l-lg bg-white ${
+                  className={` absolute top-6 right-8 z-50 w-28  flex-col overflow-hidden rounded-l-lg bg-white shadow-md ${
                     showDropDown ? "group-hover/dots:flex " : "hidden"
                   }`}
                 >
                   <button
                     onClick={handleMute}
-                    className="flex w-full min-w-min items-center gap-x-2 bg-white px-4 py-2 font-semibold text-red-500 hover:bg-gray-100 hover:text-red-500"
+                    className="z-50 flex w-full min-w-min items-center gap-x-2 bg-white px-4 py-2 font-semibold text-red-500 hover:bg-gray-100 hover:text-red-500"
                   >
                     <BsVolumeMute />
                     {muted ? "Unmute" : "Mute"}
