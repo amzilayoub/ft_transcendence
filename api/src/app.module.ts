@@ -3,7 +3,7 @@ import { ChatModule } from './chat/chat.module';
 import { ConfigModule } from '@nestjs/config';
 import { PrismaModule } from './prisma/prisma.module';
 import { AuthModule } from './auth/auth.module';
-import { TwoFactorAuthenticationModule } from './twoFactorAuthentication/twoFactorAuthentication.module';
+import { TwoFactorAuthenticationModule } from './2FA/2fa.module';
 import { UserModule } from './users/user.module';
 import { TestJwtModule } from './test_jwt/test_jwt.module';
 import { NotificationModule } from './notification/notification.module';
