@@ -1,6 +1,6 @@
 import { Module } from '@nestjs/common';
-import { TwoFactorAuthenticationService } from './twoFactorAuthentication.service';
-import { TwoFactorAuthenticationController } from './twoFactorAuthentication.controller';
+import { TwoFactorAuthenticationService } from './2fa.service';
+import { TwoFactorAuthenticationController } from './2fa.controller';
 import { AuthService } from 'src/auth/auth.service';
 import { JwtModule } from '@nestjs/jwt';
 import { PassportModule } from '@nestjs/passport';
@@ -13,9 +13,9 @@ import { ConfigModule, ConfigService } from '@nestjs/config';
             imports: [ConfigModule],
             inject: [ConfigService],
             useFactory: async (configService: ConfigService) => ({
-                secret: process.env.SECRET_KEY,
+                secret: configService.get('SECRET_KEY'),
                 signOptions: {
-                    expiresIn: process.env.JWT_EXPIRATION_TIME,
+                    expiresIn: configService.get('JWT_EXPIRATION_TIME'),
                 },
             }),
         }),

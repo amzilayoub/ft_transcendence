@@ -5,8 +5,8 @@ import Image from "next/image";
 import { BsThreeDots } from "react-icons/bs";
 import { RxCross2 } from "react-icons/rx";
 
-import ChatroomSettingsModal from "@components/modals/ChatActionsModal/ChatroomSettingsModal";
-import { ChatdmSettingsModal } from "@components/modals/ChatActionsModal/ChatroomSettingsModal";
+import ChatroomSettingsModal from "@components/modals/chat/ChatroomSettingsModal";
+import { ChatdmSettingsModal } from "@components/modals/chat/ChatroomSettingsModal";
 import basicFetch from "@utils/basicFetch";
 import {
   IConversation,

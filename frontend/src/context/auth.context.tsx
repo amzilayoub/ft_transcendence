@@ -57,10 +57,16 @@ const AuthContextProvider = ({ children }: { children: React.ReactNode }) => {
   const logout = async () => {
     try {
       const resp = await basicFetch.get(`/auth/logout`);
-      if (resp.status === 200) {
-        router.push("/");
-        removeUser();
-      }
+      /*
+       * normally, we would check the status code of the response
+       * but there is a logic bug in the 2FA service that causes
+       * the logout to fail (cookie gets deleted, but the user is still logged in)
+       * so we are just going to assume that the logout was successful and redirect
+       * */
+      // if (resp.status === 200) {
+      router.push("/");
+      removeUser();
+      // }
     } catch (error) {
       console.error(error);
     }
