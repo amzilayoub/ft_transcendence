@@ -362,10 +362,11 @@ const ChatBox = ({
               />
             )}
             <div>
-              {conversationMetaData.amIBlocked
+              {conversationMetaData.isBlocked
+                ? "You blocked this user"
+                : conversationMetaData.amIBlocked
                 ? "You are blocked by this user"
                 : ""}
-              {conversationMetaData.isBlocked ? "You blocked this user" : ""}
             </div>
           </form>
           <div className="flex justify-end py-1">

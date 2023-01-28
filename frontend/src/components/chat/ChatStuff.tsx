@@ -64,6 +64,7 @@ const ChatStuff = () => {
     };
   }, [setSocketIO]); // a hack to stop infinite rendering
 
+  console.log({ activeBoxes });
   return (
     <div className="fixed bottom-0 right-0 hidden px-6 md:block">
       <ChatSidebar

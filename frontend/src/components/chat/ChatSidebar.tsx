@@ -335,10 +335,10 @@ const ChatSidebar = ({
               />
             </div>
           </div>
-          {conversationsMetadata &&
-          conversationsMetadata.length > 0 &&
-          conversationsMetadata.length > 0 ? (
-            conversationsMetadata.map((item) => (
+          {searchResults &&
+          searchResults.length > 0 &&
+          searchResults.length > 0 ? (
+            searchResults.map((item) => (
               <ConversationMetadata
                 key={item.id}
                 avatar={item.avatar_url}
@@ -367,7 +367,7 @@ const ChatSidebar = ({
 
                     newState.forEach((obj) => {
                       if (obj.id == item.id) {
-                        obj.is_blocked = !status;
+                        obj.isBlocked = !status;
                       }
                     });
                     return newState;
@@ -377,7 +377,7 @@ const ChatSidebar = ({
                 type={item.type}
                 id={item.room_id}
                 userId={item.user_id}
-                isBlocked={item.is_blocked}
+                isBlocked={item.isBlocked}
                 muted={item.muted}
               />
             ))
@@ -419,7 +419,7 @@ const ChatSidebar = ({
 
                     newState.forEach((obj) => {
                       if (obj.id == item.id) {
-                        obj.is_blocked = !status;
+                        obj.isBlocked = !status;
                       }
                     });
                     return newState;
@@ -429,7 +429,7 @@ const ChatSidebar = ({
                 type={item.type}
                 id={item.room_id}
                 userId={item.user_id}
-                isBlocked={item.is_blocked}
+                isBlocked={item.isBlocked}
                 muted={item.muted}
               />
             ))
