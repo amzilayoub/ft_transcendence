@@ -8,8 +8,8 @@ import { TestJwtController } from './test_jwt.controller';
 import { TestJwtService } from './test_jwt.service';
 
 @Module({
-  imports: [JwtModule.register({})],
-  controllers: [TestJwtController],
-  providers: [TestJwtService],
+    imports: [JwtModule.register({})],
+    controllers: [TestJwtController],
+    providers: [TestJwtService],
 })
 export class TestJwtModule {}
