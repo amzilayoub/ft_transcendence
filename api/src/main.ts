@@ -25,7 +25,7 @@ async function bootstrap() {
             .readFileSync(join(process.cwd(), './initial_data.sql'))
             .toString();
         const queries = initial_data.split(';');
-        for (let i in queries) {
+        for (const i in queries) {
             // console.log(queries[i]);
             await prismaService.$executeRawUnsafe(queries[i]);
         }

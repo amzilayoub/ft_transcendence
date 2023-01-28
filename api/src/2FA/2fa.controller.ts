@@ -15,11 +15,18 @@ import {
 import { ApiTags } from '@nestjs/swagger';
 import { Response } from 'express';
 import { AuthService } from 'src/auth/auth.service';
-import { FortyTwoUserDto, TwoFactorAuthenticationCodeDto } from 'src/auth/dto';
+import { ConfigService } from '@nestjs/config';
+import { TwoFactorAuthenticationCodeDto } from 'src/auth/dto';
 import RequestWithUser from 'src/auth/inrefaces/requestWithUser.interface';
 import JwtGuard from 'src/common/guards/jwt1.guard';
 import JwtTwoFactorGuard from 'src/common/guards/jwt_guard';
-import { TwoFactorAuthenticationService } from './twoFactorAuthentication.service';
+import { TwoFactorAuthenticationService } from './2fa.service';
+
+/*
+ ** Note:
+ ** Enabling or disabling two-factor authentication won't take effect until the user logs out and logs in again.
+ **
+ */
 
 @ApiTags('2FA')
 @Controller('2fa')
@@ -28,9 +35,10 @@ export class TwoFactorAuthenticationController {
     constructor(
         private readonly authService: AuthService,
         private readonly twoFactorAuthenticationService: TwoFactorAuthenticationService,
+        private readonly configService: ConfigService,
     ) {}
 
-    @Get('generate')
+    @Get('qr-code')
     @UseGuards(JwtTwoFactorGuard)
     async register(@Res() response: Response, @Req() request: RequestWithUser) {
         const otpauthUrl =
@@ -52,7 +60,6 @@ export class TwoFactorAuthenticationController {
         @Req() request: RequestWithUser,
         @Body() { code }: TwoFactorAuthenticationCodeDto,
     ) {
-        //console.log('request.user', request);
         try {
             const isCodeValid =
                 await this.twoFactorAuthenticationService.isTwoFactorAuthenticationCodeValid(
@@ -63,37 +70,31 @@ export class TwoFactorAuthenticationController {
                 throw new UnauthorizedException('Wrong authentication code');
             }
             await this.authService.enableTwoFactor(request.user);
-            const accessTokenCookie = this.authService.getJwtToken(
-                request.user,
-                true,
-            );
-            request.res.setHeader('Set-Cookie', [accessTokenCookie]);
         } catch (e) {
             throw new HttpException(e.message, e.status);
         }
     }
 
-    @Post('turn-off')
+    // @Post('turn-off')
+    @Get('turn-off')
     @HttpCode(200)
     @UseGuards(JwtTwoFactorGuard)
     async turnOffTwoFactorAuthentication(
         @Req() request: RequestWithUser,
-        @Body() { code }: TwoFactorAuthenticationCodeDto,
+        // @Body() { code }: TwoFactorAuthenticationCodeDto,
     ) {
-        const isCodeValid =
-            await this.twoFactorAuthenticationService.isTwoFactorAuthenticationCodeValid(
-                request.user,
-                code,
-            );
-        if (!isCodeValid) {
-            throw new UnauthorizedException('Wrong authentication code');
-        }
+        /*
+         ** TODO: add code confirmation
+         */
+        // const isCodeValid =
+        //     await this.twoFactorAuthenticationService.isTwoFactorAuthenticationCodeValid(
+        //         request.user,
+        //         code,
+        //     );
+        // if (!isCodeValid) {
+        //     throw new UnauthorizedException('Wrong authentication code');
+        // }
         await this.authService.disableTwoFactor(request.user);
-        const accessTokenCookie = this.authService.getJwtToken(
-            request.user,
-            false,
-        );
-        request.res.setHeader('Set-Cookie', [accessTokenCookie]);
     }
 
     // Logging in with two-factor authentication
@@ -102,14 +103,16 @@ export class TwoFactorAuthenticationController {
     // if the 2FA is turned on, we provide the access just to the /2fa/authenticate endpoint,
     // the user looks up the Authenticator application code and sends it to the /2fa/authenticate endpoint; we respond with a new JWT token with full access.
     // @UseGuards(JwtTwoFactorGuard)
-    @Post('authenticate')
+    @Post('verify')
     @UseGuards(JwtGuard)
     @HttpCode(200)
     async authenticate(
         @Req() request: RequestWithUser,
+        @Res() response: Response,
         @Body()
         { code }: TwoFactorAuthenticationCodeDto,
     ) {
+        console.log('isCodeValid', request.user);
         const isCodeValid =
             await this.twoFactorAuthenticationService.isTwoFactorAuthenticationCodeValid(
                 request.user,
@@ -122,7 +125,8 @@ export class TwoFactorAuthenticationController {
             request.user,
             true,
         );
-        request.res.setHeader('Set-Cookie', [accessTokenCookie]);
+        response.setHeader('Set-Cookie', [accessTokenCookie]);
+        response.redirect(this.configService.get('FRONTEND_URL') + '/home');
         return request.user;
     }
 }
