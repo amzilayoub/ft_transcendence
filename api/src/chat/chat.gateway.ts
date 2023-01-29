@@ -131,6 +131,20 @@ export class ChatGateway {
     ) {
         const user = this.getUserInfo(client);
         if (user === null) return { status: 401 };
+        const targetedJoinedRecord = (
+            await this.chatService.targetedJoinedRecord(
+                createMessage.roomId,
+                user['id'],
+            )
+        )[0];
+        if (targetedJoinedRecord.muted) {
+            return {
+                status: 401,
+                message:
+                    "You're status is muted on this channel, you cannot send messages for now!",
+            };
+        }
+
         const message = await this.chatService.createMessage(
             createMessage.roomId,
             user['id'],

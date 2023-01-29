@@ -151,7 +151,10 @@ const ChatBox = ({
         "createMessage",
         { roomId: conversationMetaData.room_id, message: input },
         (msg) => {
-          if (msg.status != 200) return;
+          if (msg.status != 200) {
+            alert(msg.message);
+            return;
+          }
           msg.data.isMe = true;
           setConversation((state) => {
             return { ...state, messages: [...state?.messages, msg.data] };

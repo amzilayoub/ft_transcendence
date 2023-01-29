@@ -352,4 +352,13 @@ export class ChatService {
 			WHERE blocked_user_id = ${userId}
 		`);
     }
+
+    targetedJoinedRecord(roomId: number, userId: number) {
+        return this.prismaService.$queryRaw(Prisma.sql`
+		SELECT *
+		FROM room_user_rel
+		WHERE user_id = ${userId}
+		AND room_id = ${roomId}
+		`);
+    }
 }
