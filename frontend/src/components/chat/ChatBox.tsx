@@ -351,7 +351,8 @@ const ChatBox = ({
         <div className="w-full border-gray-200 p-3 sm:mb-0">
           <form className="relative flex" onSubmit={handleSendMessage}>
             {conversationMetaData.isBlocked ||
-            conversationMetaData.amIBlocked ? (
+            (conversationMetaData.amIBlocked &&
+              conversationMetaData.type == "dm") ? (
               ""
             ) : (
               <textarea
@@ -365,16 +366,19 @@ const ChatBox = ({
               />
             )}
             <div>
-              {conversationMetaData.isBlocked
+              {conversationMetaData.isBlocked &&
+              conversationMetaData.type == "dm"
                 ? "You blocked this user"
-                : conversationMetaData.amIBlocked
+                : conversationMetaData.amIBlocked &&
+                  conversationMetaData.type == "dm"
                 ? "You cannot contact this user"
                 : ""}
             </div>
           </form>
           <div className="flex justify-end py-1">
-            {conversationMetaData.isBlocked ||
-            conversationMetaData.amIBlocked ? (
+            {(conversationMetaData.isBlocked ||
+              conversationMetaData.amIBlocked) &&
+            conversationMetaData.type == "dm" ? (
               ""
             ) : (
               <button
