@@ -95,7 +95,7 @@ const ConversationMetadata = ({
   userId,
   muted,
   isBlocked,
-  isOnline,
+  userStatus,
 }: {
   avatar: string;
   name: string;
@@ -111,7 +111,7 @@ const ConversationMetadata = ({
   userId: number;
   muted: boolean;
   isBlocked: boolean;
-  isOnline: boolean;
+  userStatus: string;
 }) => {
   return (
     <div
@@ -137,7 +137,7 @@ const ConversationMetadata = ({
                       cx="8"
                       cy="8"
                       r="8"
-                      fill={isOnline ? "green" : "darkgrey"}
+                      fill={userStatus == "online" ? "green" : "darkgrey"}
                     ></circle>
                   </svg>
                 ) : (
@@ -442,7 +442,7 @@ const ChatSidebar = ({
                 userId={item.user_id}
                 isBlocked={item.isBlocked}
                 muted={item.muted}
-                isOnline={item.isOnline}
+                userStatus={item.userStatus}
               />
             ))
           ) : searchQuery.length > 0 ? (
@@ -477,7 +477,7 @@ const ChatSidebar = ({
                 userId={item.user_id}
                 isBlocked={item.isBlocked}
                 muted={item.muted}
-                isOnline={item.isOnline}
+                userStatus={item.userStatus}
               />
             ))
           )}

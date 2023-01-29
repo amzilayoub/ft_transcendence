@@ -42,16 +42,19 @@ const ChatStuff = () => {
         setConversationsMetadata((state) => {
           if (obj.data.action == "add") {
             const newState = state.filter((item) => {
-              if (item.isActiveBox && item.room_id == obj.data.room.room_id) {
-                socket.emit(
-                  "setRead",
-                  {
-                    roomId: item.room_id,
-                  },
-                  () => {}
-                );
-                targetedRoom.unreadMessagesCount = 0;
-                targetedRoom.isActiveBox = true;
+              if (item.room_id == obj.data.room.room_id) {
+                if (item.isActiveBox) {
+                  socket.emit(
+                    "setRead",
+                    {
+                      roomId: item.room_id,
+                    },
+                    () => {}
+                  );
+                  targetedRoom.unreadMessagesCount = 0;
+                  targetedRoom.isActiveBox = true;
+                }
+                targetedRoom.userStatus = item.userStatus;
               }
               return item.room_id != obj.data.room.room_id;
             });
@@ -63,6 +66,7 @@ const ChatStuff = () => {
               if (newState[i].room_id == obj.data.room.room_id) {
                 targetedRoom.unreadMessagesCount = 0;
                 targetedRoom.isActiveBox = true;
+                targetedRoom.userStatus = newState[i].userStatus;
                 newState[i] = targetedRoom;
               }
             }
@@ -70,20 +74,25 @@ const ChatStuff = () => {
           }
         });
       });
-    }
-    socket.on("userConnect", (resp) => {
-      const userId = resp.data.userId;
-      const mode = resp.data.mode;
+      socket.on("userConnect", (resp) => {
+        const userId = resp.data.userId;
+        const mode = resp.data.mode;
 
-      setConversationsMetadata((state) => {
-        const newConv = [...state];
-        newConv.forEach((item) => {
-          if (item.user_id == userId) {
-            item.isOnline = mode == "online";
-          }
+        setConversationsMetadata((state) => {
+          const newConv = [...state];
+          newConv.forEach((item) => {
+            if (item.user_id == userId) {
+              item.userStatus = mode;
+            }
+          });
+          return newConv;
         });
-        return newConv;
       });
+    }
+
+    const users = [];
+    socket.emit("room/all", {}, (resp) => {
+      setConversationsMetadata(resp);
     });
     return () => {
       socket.close();

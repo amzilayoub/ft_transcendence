@@ -50,12 +50,6 @@ export class ChatGateway {
         this.connectedClient[user['id']] = client.id;
         userRooms.forEach((element) => {
             client.join(NAMESPACE + element.room_id);
-
-            /*
-             ** this part is for online/offline
-             */
-            if (element.user_id in this.connectedClient)
-                element.isOnline = true;
         });
         /*
          ** the following code is for the online status
@@ -245,14 +239,13 @@ export class ChatGateway {
                 .get(socketId)
                 ?.join(NAMESPACE + joinRoomDto.roomId);
         }
-        const room = await this.chatService.getUserRooms(
-            user['id'],
-            joinRoomDto.roomId,
-        );
+        const room = (
+            await this.chatService.getUserRooms(user['id'], joinRoomDto.roomId)
+        )[0];
         client.emit('updateListConversations', {
             status: 200,
             data: {
-                room: room[0],
+                room: room,
                 clientId: client.id,
                 action: joinRoomDto.action || 'add', // needs to
             },
@@ -337,6 +330,18 @@ export class ChatGateway {
         };
     }
 
+    @SubscribeMessage('room/all')
+    async getUserRooms(@ConnectedSocket() client: any) {
+        const user = this.getUserInfo(client);
+        if (user === null) return { status: 401 };
+        const rooms = await this.chatService.getUserRooms(user['id']);
+        rooms.forEach((item) => {
+            if (item.user_id in this.connectedClient)
+                item.userStatus = 'online';
+        });
+        return rooms;
+    }
+
     /*
      ** Helper functions
      */
@@ -348,14 +353,14 @@ export class ChatGateway {
         exceptRoom = '',
         action = 'add',
     ) {
-        const room = await this.chatService.getUserRooms(userId, roomId);
+        const room = (await this.chatService.getUserRooms(userId, roomId))[0];
         this.server
             .to(NAMESPACE + roomId)
             .except(exceptRoom)
             .emit('updateListConversations', {
                 status: 200,
                 data: {
-                    room: room[0],
+                    room: room,
                     clientId: client.id,
                     action,
                 },

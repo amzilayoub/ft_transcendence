@@ -57,7 +57,7 @@ export class ChatService {
             else specificRoom = `AND name LIKE '%${roomName}%'`;
         }
         const query = `
-			SELECT *, false AS "isOnline"
+			SELECT *, 'offline' AS "userStatus"
 			FROM (
 				(
 					SELECT receiver.id, receiver.room_id, room.updated_at AS "lastMessageTime", room_type.type,

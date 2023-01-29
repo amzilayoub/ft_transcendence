@@ -218,17 +218,18 @@ const ChatBox = ({
         });
     });
 
-    if (conversationMetaData.user_id != -1)
-      socket.emit(
-        "joinRoom",
-        {
-          roomId: conversationMetaData.room_id,
-          userId: conversationMetaData.user_id,
-        },
-        (res) => {
-          if (res.status != 200) return;
-        }
-      );
+    // if (conversationMetaData.user_id != -1)
+    //   socket.emit(
+    //     "joinRoom",
+    //     {
+    //       roomId: conversationMetaData.room_id,
+    //       userId: conversationMetaData.user_id,
+    //       action: "update",
+    //     },
+    //     (res) => {
+    //       if (res.status != 200) return;
+    //     }
+    //   );
   };
   useEffect(() => {
     const textarea = document.getElementById("textarea");
