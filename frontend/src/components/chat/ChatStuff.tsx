@@ -39,6 +39,8 @@ const ChatStuff = () => {
     if (socket) {
       socket.on("updateListConversations", async (obj) => {
         let targetedRoom = (await getRoomInfo(obj.data.room.room_id))[0];
+
+        targetedRoom.userStatus = obj.data.room.userStatus;
         setConversationsMetadata((state) => {
           if (obj.data.action == "add") {
             const newState = state.filter((item) => {
