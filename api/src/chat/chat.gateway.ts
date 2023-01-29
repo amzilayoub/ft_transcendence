@@ -133,10 +133,15 @@ export class ChatGateway {
         await this.chatService.joinRoom(newRoom['id'], user['id']);
         this.joinRoom(client, {
             roomId: newRoom.id,
-            userId: user['id'],
+            userId: body.userId,
             action: body.userId ? 'add' : 'update',
         });
-        this.notifyMembers(client, newRoom.id, user['id']);
+        if (body.userId) {
+            const socketId = this.connectedClient[body.userId].clientId;
+            this.server.sockets.get(socketId)?.join(NAMESPACE + newRoom.id);
+        }
+        if (defaultRoom.id != roomTypeId)
+            this.notifyMembers(client, newRoom.id, user['id']); // if the list of conversation is not being updated, probably here
         return { status: 200, data: newRoom };
     }
 
@@ -359,6 +364,9 @@ export class ChatGateway {
         action = 'add',
     ) {
         const room = (await this.chatService.getUserRooms(userId, roomId))[0];
+
+        if (room?.user_id in this.connectedClient)
+            room.userStatus = this.connectedClient[room.user_id].status;
         this.server
             .to(NAMESPACE + roomId)
             .except(exceptRoom)
