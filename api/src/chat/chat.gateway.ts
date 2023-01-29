@@ -50,6 +50,22 @@ export class ChatGateway {
         this.connectedClient[user['id']] = client.id;
         userRooms.forEach((element) => {
             client.join(NAMESPACE + element.room_id);
+
+            /*
+             ** this part is for online/offline
+             */
+            if (element.user_id in this.connectedClient)
+                element.isOnline = true;
+        });
+        /*
+         ** the following code is for the online status
+         */
+        this.server.emit('userConnect', {
+            status: 200,
+            data: {
+                mode: 'online',
+                userId: user['id'],
+            },
         });
     }
 
@@ -58,6 +74,13 @@ export class ChatGateway {
         if (user === null) return { status: 401 };
 
         delete this.connectedClient[user['id']];
+        this.server.emit('userConnect', {
+            status: 200,
+            data: {
+                mode: 'offline',
+                userId: user['id'],
+            },
+        });
     }
 
     @SubscribeMessage('createRoom')

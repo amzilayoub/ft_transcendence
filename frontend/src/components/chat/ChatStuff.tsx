@@ -71,11 +71,24 @@ const ChatStuff = () => {
         });
       });
     }
+    socket.on("userConnect", (resp) => {
+      const userId = resp.data.userId;
+      const mode = resp.data.mode;
+
+      setConversationsMetadata((state) => {
+        const newConv = [...state];
+        newConv.forEach((item) => {
+          if (item.user_id == userId) {
+            item.isOnline = mode == "online";
+          }
+        });
+        return newConv;
+      });
+    });
     return () => {
       socket.close();
     };
   }, [setSocketIO]); // a hack to stop infinite rendering
-
   return (
     <div className="fixed bottom-0 right-0 hidden px-6 md:block">
       <ChatSidebar

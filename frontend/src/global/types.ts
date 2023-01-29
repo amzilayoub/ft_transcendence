@@ -83,6 +83,7 @@ export interface IConversationMetaData {
   muted: boolean;
   isBlocked: boolean;
   amIBlocked: boolean;
+  isOnline: boolean;
 }
 
 export interface IMessageSender {
