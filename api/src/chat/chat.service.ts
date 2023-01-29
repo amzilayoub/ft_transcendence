@@ -167,15 +167,27 @@ export class ChatService {
 
     getRoomInfo(roomId: number) {
         return this.prismaService.$queryRaw(Prisma.sql`
-			SELECT room_details.name, room_type.type
+			SELECT room_details.name, room_type.type,
+				(
+					SELECT room_rules.rule
+					FROM room_rules
+					WHERE room.id = room_rules.room_id
+				) AS "rule"
 			FROM room
 			INNER JOIN room_details ON room.id = room_details.room_id
 			INNER JOIN room_type ON room_type.id = room.room_type_id
-			WHERE room.id = ${roomId}		
+			WHERE room.id = ${roomId}
 		`);
     }
 
-    createRoomRule(roomeId: number, rule?: string) {}
+    createRoomRule(roomeId: number, rule?: string) {
+        return this.prismaService.room_rules.create({
+            data: {
+                room_id: roomeId,
+                rule,
+            },
+        });
+    }
 
     getRoomType(name: string) {
         return this.prismaService.room_type.findFirst({
@@ -254,7 +266,7 @@ export class ChatService {
         let query = `%${roomName}%`;
         if (query == '') query = '%%';
         return this.prismaService.$queryRaw(Prisma.sql`
-					SELECT DISTINCT room.id, room_details.name, room_details.avatar_url,
+					SELECT DISTINCT room.id, room_details.name, room_details.avatar_url, room_type.type,
 					CASE
 					WHEN (
 							SELECT COUNT(*)

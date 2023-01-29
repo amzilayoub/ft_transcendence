@@ -104,7 +104,6 @@ export class ChatGateway {
          */
         if (body.userId) {
             await this.chatService.joinRoom(newRoom['id'], body.userId);
-            // this.joinRoom(client, { roomId: newRoom.id, userId: body.userId });
         }
 
         /*
@@ -112,7 +111,11 @@ export class ChatGateway {
          ** is going to be part of it :)
          */
         await this.chatService.joinRoom(newRoom['id'], user['id']);
-        this.joinRoom(client, { roomId: newRoom.id, userId: user['id'] });
+        this.joinRoom(client, {
+            roomId: newRoom.id,
+            userId: user['id'],
+            action: body.userId ? 'add' : 'update',
+        });
         this.notifyMembers(client, newRoom.id, user['id']);
         return { status: 200, data: newRoom };
     }
@@ -228,7 +231,7 @@ export class ChatGateway {
             data: {
                 room: room[0],
                 clientId: client.id,
-                action: 'update',
+                action: joinRoomDto.action || 'add', // needs to
             },
         });
         return { status: 200, data: true };
@@ -353,10 +356,7 @@ export class ChatGateway {
         await this.chatService.createRoomName(newRoom.id, body.name);
         jsonString = JSON.stringify(objectToInsert);
         if (jsonString != '{}')
-            await this.chatService.createRoomRule(
-                roomTypeObject.id,
-                jsonString,
-            );
+            await this.chatService.createRoomRule(newRoom.id, jsonString);
     }
 
     getUserInfo(client) {
