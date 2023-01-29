@@ -74,7 +74,7 @@ export class ChatController {
     @Get('room/explore/:roomName?')
     async exploreRooms(
         @Req() request: RequestWithUser,
-        @Param('roomName') roomName: string = '',
+        @Param('roomName') roomName = '',
     ) {
         const user = await this.authService.getMe(request.user.id);
         return await this.chatService.exploreRooms(roomName, user['id']);

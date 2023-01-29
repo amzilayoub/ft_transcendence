@@ -11,7 +11,8 @@ import TextInput, { TextArea, TextInputLabel } from "@ui/TextInput";
 import basicFetch from "@utils/basicFetch";
 import { useAuthContext } from "context/auth.context";
 
-import Button from "../../ui/Button";
+import Button from "@ui/Button";
+import QRModal from "./QRModal";
 
 const SettingsModal = ({
   isOpen = false,
@@ -22,7 +23,11 @@ const SettingsModal = ({
 }) => {
   const ctx = useAuthContext();
   const [settings, setSettings] = useState({});
-  const [switchEnabled, setSwitchEnabled] = useState(false);
+  const [switchEnabled, setSwitchEnabled] = useState(
+    ctx.user?.isTwoFactorEnabled
+  );
+
+  const [showQRModal, setShowQRModal] = useState(false);
   const [buttonText, setButtonText] = useState("Save");
   const [deleteButtonText, setDeleteButtonText] = useState("Delete");
   const [isSaving, setIsSaving] = useState(false);
@@ -37,6 +42,22 @@ const SettingsModal = ({
     }
   };
 
+  const handleSwitchChange = async () => {
+    if (!switchEnabled) {
+      setShowQRModal(true);
+    } else {
+      try {
+        const res = await basicFetch.get("/2fa/turn-off");
+        if (res.status === 200) {
+          setSwitchEnabled(false);
+          ctx.loadUserData();
+        }
+      } catch (error) {
+        console.log(error);
+      }
+    }
+  };
+
   const handleSave = async (
     e: React.MouseEvent<HTMLButtonElement, MouseEvent>
   ) => {
@@ -44,7 +65,7 @@ const SettingsModal = ({
     setButtonText("Saving...");
     setIsSaving(true);
     try {
-      const res = await basicFetch.post("/users/update", settings);
+      const res = await basicFetch.post("/users/update", {}, settings);
       if (res.status === 200) {
         setButtonText("Saved!");
         // ctx.setUser(res.data);
@@ -139,7 +160,7 @@ const SettingsModal = ({
 
                 <Switch
                   checked={switchEnabled}
-                  onChange={setSwitchEnabled}
+                  onChange={handleSwitchChange}
                   className={cn(
                     "relative inline-flex h-[30px] w-[74px] shrink-0 cursor-pointer rounded-full transition-colors duration-200 ease-in-out focus:outline-none focus-visible:ring-2 focus-visible:ring-white focus-visible:ring-opacity-75",
                     {
@@ -184,6 +205,16 @@ const SettingsModal = ({
           </form>
         </div>
       </div>
+      {showQRModal && (
+        <QRModal
+          isOpen={showQRModal}
+          onClose={() => setShowQRModal(false)}
+          onSuccess={() => {
+            setShowQRModal(false);
+            setSwitchEnabled(true);
+          }}
+        />
+      )}
     </BaseModal>
   );
 };

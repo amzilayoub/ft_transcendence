@@ -5,7 +5,7 @@ import Head from "next/head";
 import { useRouter } from "next/router";
 
 import ChatStuff from "@components/chat/ChatStuff";
-import SettingsModal from "@components/modals/Settings";
+import SettingsModal from "@components/modals/settings";
 import Navbar from "@components/navbar";
 import LoadingPage from "@ui/LoadingPage";
 import { APP_NAME } from "@utils/constants";
