@@ -49,6 +49,14 @@ export class JoinRoomDto {
     @IsOptional()
     @IsInt()
     userId?: number;
+
+    @IsOptional()
+    @IsString()
+    password?: string;
+
+    @IsOptional()
+    @IsString()
+    action?: string;
 }
 
 export class CreateMessageDto {

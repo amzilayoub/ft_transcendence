@@ -7,6 +7,8 @@ import {
     UseGuards,
     Req,
     Headers,
+    HttpException,
+    HttpStatus,
 } from '@nestjs/common';
 
 import { ApiTags } from '@nestjs/swagger';
@@ -21,6 +23,7 @@ import JwtGuard from 'src/common/guards/jwt_guard';
 import { AuthService } from 'src/auth/auth.service';
 import RequestWithUser from 'src/auth/inrefaces/requestWithUser.interface';
 import { JwtService } from '@nestjs/jwt';
+import * as argon2 from 'argon2';
 
 @UseGuards(JwtGuard)
 /*
@@ -46,8 +49,25 @@ export class ChatController {
         const isJoined = (
             await this.chatService.isJoined(user.id, joinRoomDto.roomId)
         )[0];
-        if (!isJoined)
+        let shouldJoin = false;
+        if (!isJoined) {
+            const roomData = (
+                await this.chatService.getRoomInfo(joinRoomDto.roomId)
+            )[0];
+            if (String(roomData.type).toLowerCase() == 'protected') {
+                shouldJoin = false;
+                const passwordCorrect = await argon2.verify(
+                    JSON.parse(roomData.rule).password,
+                    joinRoomDto.password,
+                );
+                if (passwordCorrect) {
+                    shouldJoin = true;
+                }
+            } else shouldJoin = true;
+        }
+        if (shouldJoin)
             return await this.chatService.joinRoom(joinRoomDto.roomId, userId);
+        throw new HttpException('Unauthorized', HttpStatus.UNAUTHORIZED);
     }
 
     @Get('/room/types/all')
@@ -130,30 +150,4 @@ export class ChatController {
             muteUserDto.muted,
         );
     }
-
-    // @Post('room/block')
-    // async blockUser(
-    //     @Body() blockUserDto: BlockUserDto,
-    //     @Req() request: RequestWithUser,
-    // ) {
-    //     console.log('blockUserDto = ', blockUserDto);
-    //     const user = await this.authService.getMe(request.user.id);
-    //     return await this.chatService.blockUser(
-    //         user.id,
-    //         blockUserDto.blockedUserId,
-    //     );
-    // }
-
-    // @Post('room/unblock')
-    // async unblockUser(
-    //     @Body() blockUserDto: BlockUserDto,
-    //     @Req() request: RequestWithUser,
-    // ) {
-    //     const user = await this.authService.getMe(request.user.id);
-
-    //     return await this.chatService.unblockUser(
-    //         user.id,
-    //         blockUserDto.blockedUserId,
-    //     );
-    // }
 }

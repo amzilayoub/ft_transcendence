@@ -12,12 +12,34 @@ import basicFetch from "@utils/basicFetch";
 import { truncateString } from "@utils/format";
 import { IRoom } from "global/types";
 
-const handleJoinRoom = (room: IRoom) => {
-  alert(`Joining room ${room.name}`);
-};
-
 const RoomListItem = ({ room, socket }: { room: IRoom; socket: any }) => {
   const [showPasswordModal, setShowPasswordModal] = useState<boolean>(false);
+  const [passwordIsCoorect, setPasswordIsCorrect] = useState(true);
+  const [roomPassword, setRoomPassword] = useState("");
+
+  const handleJoinRoom = async () => {
+    await joinRoom();
+  };
+
+  const joinRoom = async () => {
+    const res = await basicFetch.post(
+      "/chat/room/join",
+      {},
+      {
+        roomId: room.id,
+        password: roomPassword,
+      }
+    );
+    if (res.status == 201) {
+      setShowPasswordModal(false);
+      setPasswordIsCorrect(true);
+      socket.emit("joinRoom", {
+        roomId: room.id,
+      });
+    } else if (res.status == 401) {
+      setPasswordIsCorrect(false);
+    }
+  };
 
   return (
     <li
@@ -29,19 +51,10 @@ const RoomListItem = ({ room, socket }: { room: IRoom; socket: any }) => {
       )}
       onClick={async () => {
         if (room.am_i_member) return;
-        if (room.type === "protected") {
+        if (String(room.type).toLowerCase() === "protected") {
           setShowPasswordModal(true);
         } else {
-          await basicFetch.post(
-            "/chat/room/join",
-            {},
-            {
-              roomId: room.id,
-            }
-          );
-          socket.emit("joinRoom", {
-            roomId: room.id,
-          });
+          await joinRoom();
         }
       }}
     >
@@ -88,18 +101,22 @@ const RoomListItem = ({ room, socket }: { room: IRoom; socket: any }) => {
           onClose={() => setShowPasswordModal(false)}
         >
           <div className="flex flex-col items-center justify-center gap-y-4 p-6">
+            {passwordIsCoorect ? "" : <h5>password incorrect</h5>}
             <TextInput
               label={`joining room ${room.name}`}
               name="password"
               placeholder="Password"
               inputClassName="pl-12 py-[8px] "
+              onChange={(e) => {
+                e.preventDefault();
+                setRoomPassword(e.target.value);
+              }}
             />
             <Button
               type="submit"
               className="w-full"
-              onClick={() => {
-                handleJoinRoom(room);
-                setShowPasswordModal(false);
+              onClick={async () => {
+                await handleJoinRoom();
               }}
             >
               Join
