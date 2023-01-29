@@ -37,73 +37,70 @@ const handler = (req, res) => {
           }
           game = games.get(roomID); // i fucking HATE TYPESCRIPT
 
-          let state!: string;
+          let state!: number;
           if (game.p1 === undefined) {
-            state = "wait";
+            state = 1;
             game.p1 = socket.id;
           } else if (game.p2 === undefined) {
-            state = "gaming";
+            state = 2;
             game.p2 = socket.id;
           } else {
-            state = "spectate";
+            state = 3;
+          }
+          socket.emit("state", state);
+          // {
+          //   io.to(roomID).emit(
+          //     "broadcast",
+          //     `player 1: ${game.p1} -- player 2: ${game.p2}`
+          //   );
+
+          //   const connectedSockets = io.sockets.adapter.rooms.get(roomID);
+
+          //   io.to(roomID).emit(
+          //     "broadcast",
+          //     `spectators: \n${Array.from(connectedSockets.values()).filter(
+          //       (socket) => socket !== game.p1 && socket !== game.p2
+          //     )}\n`
+          //   );
+          //     const rooms = io.sockets.adapter.rooms;
+          //     rooms.forEach((set, key) => {
+          //       if (set.has(key)) rooms.delete(key);
+          //     });
+
+          //     // console.log("rooms: ", rooms);
+          //     // io.to(roomID).emit("roomsCount", rooms.size);
+          //     // io.to(roomID).emit("clientsCount", connectedSockets?.size);
+          // }
+          if (state === 3) return;
+          if (game.p1 && game.p2) {
+            io.to(game.p1).to(game.p2).emit("ready");
           }
 
-          // switch (connectedSockets?.size) {
-          //   case 1:
-          //     break;
-          //   case 2:
-          //     break;
-          //   default:
-          //     break;
-          // }
           games.set(roomID, game);
-
-          io.to(roomID).emit(
-            "broadcast",
-            `player 1: ${game.p1} -- player 2: ${game.p2}`
-          );
-
-          const connectedSockets = io.sockets.adapter.rooms.get(roomID);
-
-          io.to(roomID).emit(
-            "broadcast",
-            `spectators: \n${Array.from(connectedSockets.values()).filter(
-              (socket) => socket !== game.p1 && socket !== game.p2
-            )}\n`
-          );
-
-          const rooms = io.sockets.adapter.rooms;
-          rooms.forEach((set, key) => {
-            if (set.has(key)) rooms.delete(key);
-          });
-
-          console.log("rooms: ", rooms);
-
-          io.to(roomID).emit("state", state);
-          io.to(roomID).emit("roomsCount", rooms.size);
-          io.to(roomID).emit("clientsCount", connectedSockets?.size);
         }
       });
-
+      console.log("hahahahahahahahha");
+      
       socket.on("move", (dir) => {
         if (socket.id === game.p1) {
           const roomID = Array.from(socket.rooms.values()).find(
             (id) => id !== socket.id
           );
 
-          socket.broadcast.to(roomID).emit("moved", { p1: dir, p2: undefined }); // diha fmok
+          io.to(roomID).emit("moved", { p1: dir, p2: undefined }); // diha fmok
         } else if (socket.id === game.p2) {
           const roomID = Array.from(socket.rooms.values()).find(
             (id) => id !== socket.id
           );
-          socket.broadcast.to(roomID).emit("moved", { p2: dir, p1: undefined }); // diha fmok
+
+          io.to(roomID).emit("moved", { p2: dir, p1: undefined }); // diha fmok
         }
       });
       socket.on("start_game", () => {
         const roomID = Array.from(socket.rooms.values()).find(
           (id) => id !== socket.id
         );
-        socket.broadcast.to(roomID).emit("start_game"); // diha fmok
+        io.to(roomID).emit("start_game"); // diha fmok
         // console.log("start_game", roomID);
       });
 
@@ -112,35 +109,46 @@ const handler = (req, res) => {
         const roomID = Array.from(socket.rooms.values()).find(
           (id) => id !== socket.id
         );
-        game = games.get(roomID);
-
         socket.broadcast.to(roomID).emit("sync", py, idx);
+      });
+
+      socket.on("ball_sync", (newBall) => {
+        // pls dont hak me
+        const roomID = Array.from(socket.rooms.values()).find(
+          (id) => id !== socket.id
+        );
+        socket.broadcast.to(roomID).emit("ball_sync", newBall);
+      });
+
+      socket.on("game_end", (win) => {
+        // pls dont hak me
+        const roomID = Array.from(socket.rooms.values()).find(
+          (id) => id !== socket.id
+        );
+        socket.broadcast.to(roomID).emit("stop_game", win);
       });
 
       socket.on("get_info", () => socket.emit("get_info", games));
 
-      socket.on("disconnecting", (client) => {
+      socket.on("disconnecting", () => {
         const roomID = Array.from(socket.rooms.values()).find(
           (id) => id !== socket.id
         );
-        if (game.p1 == socket.id) {
+        if (game.p1 === socket.id) {
           game.p1 = game.p2;
           game.p2 = undefined;
-        } 
-        else if (game.p2 == socket.id) {
+        } else if (game.p2 === socket.id) {
           game.p2 = undefined;
-        }
+        } else return;
 
         io.to(roomID).emit("stop_game");
         // console.log(`sending to ${game.p1} state wait`);
-        
-        console.log("io.sockets.sockets.get(game.p1) = ", io.sockets.sockets.get(game.p1))
-        io.sockets.sockets.get(game.p1).emit("state", "wait")
-        // io.sockets.sockets.get(game.p1).client.emit("state", "wait2")
-        // socket.emit('leave')
-        // console.log(socket.id, "disconnected from room ", roomID, game);
-        // console.log("io.sockets.get(game.p1) = ", io.sockets.sockets.get(game.p1))
+        if (game.p1 === undefined) return;
 
+        io.to(game.p1).emit("state", 1);
+
+        // console.log("io.sockets.sockets.get(game.p1) = ", io.sockets.sockets.get(game.p1))
+        // io.sockets.sockets.get(game.p1)?.emit("state", "wait")
       });
     });
   }
