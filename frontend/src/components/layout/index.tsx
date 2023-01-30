@@ -29,7 +29,7 @@ const MainLayout: React.FC<MainLayoutProps> = ({
 }) => {
   const router = useRouter();
   const ctx = useAuthContext();
-  const { isSettingsOpen, setIsSettingsOpen } = useUIContext(); //
+  const uiCtx = useUIContext();
 
   useEffect(() => {
     // console.log(
@@ -72,10 +72,10 @@ const MainLayout: React.FC<MainLayoutProps> = ({
               {children}
             </div>
             {ctx?.isAuthenticated && <ChatStuff />}
-            {isSettingsOpen && (
+            {uiCtx?.isSettingsOpen && (
               <SettingsModal
-                isOpen={isSettingsOpen}
-                onClose={() => setIsSettingsOpen(false)}
+                isOpen={uiCtx?.isSettingsOpen}
+                onClose={() => uiCtx?.setIsSettingsOpen(false)}
               />
             )}
           </main>
