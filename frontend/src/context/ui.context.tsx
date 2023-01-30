@@ -16,13 +16,16 @@ export const UIContext = createContext<IUIContext | undefined>(undefined);
 
 const UIContextProvider = ({ children }: { children: React.ReactNode }) => {
   const [isSettingsOpen, setIsSettingsOpen] = useState(false);
+  const [isWelcomeModalOpen, setIsWelcomeModalOpen] = useState(false);
 
   const value = useMemo(
     () => ({
       isSettingsOpen,
       setIsSettingsOpen,
+      isWelcomeModalOpen,
+      setIsWelcomeModalOpen,
     }),
-    [isSettingsOpen]
+    [isSettingsOpen, isWelcomeModalOpen]
   );
 
   return <UIContext.Provider value={value}>{children}</UIContext.Provider>;

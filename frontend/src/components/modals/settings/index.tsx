@@ -7,11 +7,11 @@ import Image from "next/image";
 import { TbCameraPlus } from "react-icons/tb";
 
 import BaseModal from "@ui/BaseModal";
+import Button from "@ui/Button";
 import TextInput, { TextArea, TextInputLabel } from "@ui/TextInput";
 import basicFetch from "@utils/basicFetch";
 import { useAuthContext } from "context/auth.context";
 
-import Button from "@ui/Button";
 import QRModal from "./QRModal";
 
 const SettingsModal = ({
@@ -146,6 +146,7 @@ const SettingsModal = ({
                 <TextArea
                   defaultValue={ctx.user?.bio}
                   label="Bio"
+                  placeholder="Tell us about yourself"
                   name="bio"
                   onChange={handleInputChange}
                   maxLength={300}
@@ -157,7 +158,6 @@ const SettingsModal = ({
                 <TextInputLabel
                   label={switchEnabled ? "Disable 2FA" : "Enable 2FA"}
                 />
-
                 <Switch
                   checked={switchEnabled}
                   onChange={handleSwitchChange}
