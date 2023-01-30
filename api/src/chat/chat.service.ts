@@ -107,7 +107,6 @@ export class ChatService {
 					AND sender.room_id = receiver.room_id
 					AND sender.user_id != receiver.user_id
 					AND room_type.type = 'dm'
-					AND (room.created_at != room.updated_at OR room.owner_id = ${userId})
 					AND sender.user_id = ${userId}
 				)
 				UNION
@@ -142,7 +141,6 @@ export class ChatService {
 				AND room.room_type_id = room_type.id
 				AND users.id = receiver.user_id
 				AND room_type.type != 'dm'
-				AND (room.created_at != room.updated_at OR room.owner_id = ${userId})
 				AND receiver.user_id = ${userId}
 				)
 			) AS tbl
