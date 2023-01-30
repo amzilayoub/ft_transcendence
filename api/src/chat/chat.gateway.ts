@@ -47,9 +47,22 @@ export class ChatGateway {
         const user = this.getUserInfo(client);
         if (user === null) return { status: 401 };
         const userRooms = await this.chatService.getUserRooms(user['id']);
-        this.connectedClient[user['id']] = client.id;
+        this.connectedClient[user['id']] = {
+            clientId: client.id,
+            status: 'online',
+        };
         userRooms.forEach((element) => {
             client.join(NAMESPACE + element.room_id);
+        });
+        /*
+         ** the following code is for the online status
+         */
+        this.server.emit('userConnect', {
+            status: 200,
+            data: {
+                mode: 'online',
+                userId: user['id'],
+            },
         });
     }
 
@@ -58,6 +71,13 @@ export class ChatGateway {
         if (user === null) return { status: 401 };
 
         delete this.connectedClient[user['id']];
+        this.server.emit('userConnect', {
+            status: 200,
+            data: {
+                mode: 'offline',
+                userId: user['id'],
+            },
+        });
     }
 
     @SubscribeMessage('createRoom')
@@ -171,7 +191,7 @@ export class ChatGateway {
         const exceptRoomName = NAMESPACE + '/blacklist/' + user['id'];
         const exceptSockets = [];
         listOfBlockedUsers.forEach((item) => {
-            const socketId = this.connectedClient[item.user_id];
+            const socketId = this.connectedClient[item.user_id].clientId;
             if (socketId) {
                 const clientSocket = this.server.sockets.get(socketId);
                 if (clientSocket) {
@@ -217,21 +237,22 @@ export class ChatGateway {
          ** its either a private/protected room
          */
         if (joinRoomDto.userId) {
-            const socketId = this.connectedClient[joinRoomDto.userId];
+            const socketId = this.connectedClient[joinRoomDto.userId].clientId;
             this.server.sockets
                 .get(socketId)
                 ?.join(NAMESPACE + joinRoomDto.roomId);
         }
-        const room = await this.chatService.getUserRooms(
-            user['id'],
-            joinRoomDto.roomId,
-        );
+        const room = (
+            await this.chatService.getUserRooms(user['id'], joinRoomDto.roomId)
+        )[0];
+        if (room.user_id in this.connectedClient)
+            room.userStatus = this.connectedClient[room.user_id].status;
         client.emit('updateListConversations', {
             status: 200,
             data: {
-                room: room[0],
+                room: room,
                 clientId: client.id,
-                action: joinRoomDto.action || 'add', // needs to
+                action: joinRoomDto.action || 'add', // needs to check later on
             },
         });
         return { status: 200, data: true };
@@ -314,6 +335,18 @@ export class ChatGateway {
         };
     }
 
+    @SubscribeMessage('room/all')
+    async getUserRooms(@ConnectedSocket() client: any) {
+        const user = this.getUserInfo(client);
+        if (user === null) return { status: 401 };
+        const rooms = await this.chatService.getUserRooms(user['id']);
+        rooms.forEach((item) => {
+            if (item.user_id in this.connectedClient)
+                item.userStatus = this.connectedClient[item.user_id].status;
+        });
+        return rooms;
+    }
+
     /*
      ** Helper functions
      */
@@ -325,14 +358,14 @@ export class ChatGateway {
         exceptRoom = '',
         action = 'add',
     ) {
-        const room = await this.chatService.getUserRooms(userId, roomId);
+        const room = (await this.chatService.getUserRooms(userId, roomId))[0];
         this.server
             .to(NAMESPACE + roomId)
             .except(exceptRoom)
             .emit('updateListConversations', {
                 status: 200,
                 data: {
-                    room: room[0],
+                    room: room,
                     clientId: client.id,
                     action,
                 },

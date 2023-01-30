@@ -95,6 +95,7 @@ const ConversationMetadata = ({
   userId,
   muted,
   isBlocked,
+  userStatus,
 }: {
   avatar: string;
   name: string;
@@ -110,6 +111,7 @@ const ConversationMetadata = ({
   userId: number;
   muted: boolean;
   isBlocked: boolean;
+  userStatus: string;
 }) => {
   return (
     <div
@@ -127,7 +129,21 @@ const ConversationMetadata = ({
           />
           <div className="ml-2 flex w-full flex-col">
             <div className="flex h-7 w-full justify-between">
-              <h1 className="text-sm font-semibold">{name}</h1>
+              <h1 className="text-sm font-semibold">
+                {name}{" "}
+                {userId > 0 ? (
+                  <svg width="16" height="16">
+                    <circle
+                      cx="8"
+                      cy="8"
+                      r="8"
+                      fill={userStatus == "online" ? "green" : "darkgrey"}
+                    ></circle>
+                  </svg>
+                ) : (
+                  ""
+                )}
+              </h1>
               <div className="flex flex-col items-center justify-center">
                 <h1 className="text-xs text-gray-500 group-hover:hidden">
                   {new Date(lastMessageTime).toDateString()}
@@ -426,6 +442,7 @@ const ChatSidebar = ({
                 userId={item.user_id}
                 isBlocked={item.isBlocked}
                 muted={item.muted}
+                userStatus={item.userStatus}
               />
             ))
           ) : searchQuery.length > 0 ? (
@@ -460,6 +477,7 @@ const ChatSidebar = ({
                 userId={item.user_id}
                 isBlocked={item.isBlocked}
                 muted={item.muted}
+                userStatus={item.userStatus}
               />
             ))
           )}
