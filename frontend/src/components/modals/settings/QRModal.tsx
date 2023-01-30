@@ -2,9 +2,8 @@
 import React, { useState, useEffect } from "react";
 
 import BaseModal from "@ui/BaseModal";
-import TextInput from "@ui/TextInput";
-
 import Button from "@ui/Button";
+import TextInput from "@ui/TextInput";
 
 const QRModal = ({
   isOpen,
@@ -52,17 +51,17 @@ const QRModal = ({
 
   return (
     <BaseModal isOpen={isOpen} onClose={onClose}>
-      <div className="w-[400px] p-8 gap-y-5 flex flex-col w-full justify-center items-center">
+      <div className="flex w-[400px] w-full flex-col items-center justify-center gap-y-5 p-8">
         <div className="flex flex-col items-center gap-y-2">
           <p className="text-2xl font-bold">Scan this QR code</p>
-          <p className="text-gray-500 text-center">
+          <p className="text-center text-gray-500">
             To enable 2FA, scan this QR code with your 2FA app.
           </p>
         </div>
         <img
           src={process.env.NEXT_PUBLIC_API_URL + "/2fa/qr-code"}
           alt="qr code"
-          className="w-[280px] h-[280px] border"
+          className="h-[280px] w-[280px] border"
         />
         <div className="flex flex-col items-center gap-y-2">
           <p className="text-2xl font-bold">Enter the 6-digit code</p>
@@ -76,7 +75,7 @@ const QRModal = ({
             inputClassName="w-full"
           />
         </div>
-        <div className="flex justify-end w-full">
+        <div className="flex w-full justify-end">
           <Button
             variant="primary"
             type="submit"

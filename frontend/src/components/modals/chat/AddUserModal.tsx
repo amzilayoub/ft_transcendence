@@ -1,15 +1,16 @@
 import React, { useState } from "react";
 
-import BaseModal from "@ui/BaseModal";
-import TextInput from "@ui/TextInput";
 import cn from "classnames";
-import { IUser } from "global/types";
 import Image from "next/image";
 
 import avatar from "/public/images/default-avatar.jpg";
 
 import { AiOutlineUsergroupAdd } from "react-icons/ai";
 import { IoSearchOutline } from "react-icons/io5";
+
+import BaseModal from "@ui/BaseModal";
+import TextInput from "@ui/TextInput";
+import { IUser } from "global/types";
 
 const users: IUser[] = [
   {
@@ -122,7 +123,7 @@ const AddUserModal = ({
         <form className="group relative h-10 w-full">
           <label className="absolute top-3 left-3 flex items-center justify-center text-gray-400">
             <button type="submit" className="h-full w-full cursor-default">
-              <IoSearchOutline className="group-focus-within:text-secondary group-hover:text-secondary h-6 w-6 text-gray-400" />
+              <IoSearchOutline className="h-6 w-6 text-gray-400 group-focus-within:text-secondary group-hover:text-secondary" />
             </button>
           </label>
           <TextInput

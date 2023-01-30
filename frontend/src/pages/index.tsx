@@ -3,14 +3,13 @@ import { useState, useEffect, useRef } from "react";
 import { NextPageContext } from "next";
 import Image from "next/image";
 import { BiHide, BiShowAlt } from "react-icons/bi";
+import { SlScreenSmartphone } from "react-icons/sl";
 
 import MainLayout from "@components/layout";
 import Button from "@ui/Button";
 import TextInput from "@ui/TextInput";
-import { LANDING_IMAGE } from "@utils/constants";
 import basicFetch from "@utils/basicFetch";
-
-import { SlScreenSmartphone } from "react-icons/sl";
+import { LANDING_IMAGE } from "@utils/constants";
 
 const TwoFactorAuthForm = () => {
   const [code, setCode] = useState("");
@@ -78,12 +77,12 @@ const TwoFactorAuthForm = () => {
   }, [code]);
 
   return (
-    <section className="flex flex-col justify-center w-full xl:text-black text-gray-200">
+    <section className="flex w-full flex-col justify-center text-gray-200 xl:text-black">
       <SlScreenSmartphone className="mx-auto text-5xl " />
-      <h1 className="text-2xl font-bold text-center py-6">
+      <h1 className="py-6 text-center text-2xl font-bold">
         Enter your 2FA code
       </h1>
-      <div className="flex flex-col w-full gap-y-8">
+      <div className="flex w-full flex-col gap-y-8">
         <TextInput
           name="code"
           placeholder="XXXXXX"
@@ -121,11 +120,11 @@ const TwoFactorAuthForm = () => {
             />
           ))}
         </div> */}
-        <div className="flex justify-center w-full">
+        <div className="flex w-full justify-center">
           <Button
             onClick={handleSubmit}
             isLoading={isSubmitting}
-            className="max-w-none w-full px-10 py-2 transition duration-300 ease-in-out bg-orange-500 rounded-xl hover:scale-105 hover:bg-orange-600"
+            className="w-full max-w-none rounded-xl bg-orange-500 px-10 py-2 transition duration-300 ease-in-out hover:scale-105 hover:bg-orange-600"
           >
             {isSubmitting ? "Submitting..." : "Submit"}
           </Button>
@@ -151,8 +150,8 @@ const TwoFactorAuthForm = () => {
 const SiginFields = () => {
   const [showPassword, setShowPassword] = useState(false);
   return (
-    <section className="relative flex flex-col justify-center w-full cursor-wait group">
-      <div className="flex flex-col w-full cursor-wait gap-y-4 group-hover:blur-sm">
+    <section className="group relative flex w-full cursor-wait flex-col justify-center">
+      <div className="flex w-full cursor-wait flex-col gap-y-4 group-hover:blur-sm">
         <TextInput
           label="Username or Email"
           placeholder="Username or Email"
@@ -180,7 +179,7 @@ const SiginFields = () => {
           Sign In
         </Button>
       </div>
-      <p className="absolute hidden w-full font-mono text-3xl font-semibold text-center text-gray-800 cursor-wait group-hover:block">
+      <p className="absolute hidden w-full cursor-wait text-center font-mono text-3xl font-semibold text-gray-800 group-hover:block">
         Soon...?
       </p>
     </section>
@@ -208,27 +207,27 @@ export default function LandingPage() {
   return (
     <MainLayout pageIsProtected={false} noLayout>
       <div className="grid min-h-screen grid-cols-5">
-        <div className="grid items-center justify-center col-span-5 xl:col-span-2 z-30 ">
+        <div className="z-30 col-span-5 grid items-center justify-center xl:col-span-2 ">
           <div className="relative rounded-xl">
             <section
-              className="flex flex-col  rounded-xl items-center max-w-md py-24 shadow-2xl gap-y-10 
-            px-16 bg-clip-padding xl:bg-white bg-gray-900 backdrop-filter backdrop-blur-xl bg-opacity-50 border border-gray-500/20"
+              className="flex max-w-md  flex-col items-center gap-y-10 rounded-xl border border-gray-500/20 
+            bg-gray-900 bg-opacity-50 bg-clip-padding py-24 px-16 shadow-2xl backdrop-blur-xl xl:bg-white"
             >
               {show2fa ? (
                 <TwoFactorAuthForm />
               ) : (
                 <>
-                  <header className="flex flex-col items-center gap-y-2 xl:text-black text-gray-200">
+                  <header className="flex flex-col items-center gap-y-2 text-gray-200 xl:text-black">
                     <h1 className="text-4xl font-bold">Sign in to Pong</h1>
-                    <p className="text-gray-500 text-lg">
+                    <p className="text-lg text-gray-500">
                       Login to play Pong with your friends
                     </p>
                   </header>
                   <SiginFields />
                   <p className="text-gray-500">
-                    <span className="inline-block w-32 h-px mb-1 bg-gray-200" />
+                    <span className="mb-1 inline-block h-px w-32 bg-gray-200" />
                     <span className="mx-2">OR</span>
-                    <span className="inline-block w-32 h-px mb-1 bg-gray-200" />
+                    <span className="mb-1 inline-block h-px w-32 bg-gray-200" />
                   </p>
                   <button
                     onClick={(e) => {
@@ -236,7 +235,7 @@ export default function LandingPage() {
                       handle42Login();
                     }}
                     type="button"
-                    className="flex items-center justify-center w-full px-10 py-2 transition duration-300 ease-in-out bg-orange-500 gap-x-4 rounded-xl hover:scale-105 hover:bg-orange-600"
+                    className="flex w-full items-center justify-center gap-x-4 rounded-xl bg-orange-500 px-10 py-2 transition duration-300 ease-in-out hover:scale-105 hover:bg-orange-600"
                   >
                     <Image
                       src={"/42-logo.svg"}
@@ -253,12 +252,12 @@ export default function LandingPage() {
             </section>
           </div>
         </div>
-        <figure className=" w-full h-full col-span-5 z-0 absolute xl:static xl:col-span-3">
+        <figure className=" absolute z-0 col-span-5 h-full w-full xl:static xl:col-span-3">
           {/* eslint-disable-next-line @next/next/no-img-element */}
           <img
             src={LANDING_IMAGE}
             alt="Pong image"
-            className="object-cover w-full h-full max-h-screen"
+            className="h-full max-h-screen w-full object-cover"
           />
         </figure>
       </div>
@@ -280,10 +279,14 @@ LandingPage.getInitialProps = async (ctx: NextPageContext) => {
    * and redirect the user to the login page.
    * */
 
-  //   if (ctx?.req?.headers?.cookie?.includes("Authentication")) {
-  //     ctx.res.writeHead(303, { Location: "/home" });
-  //     ctx.res.end();
-  //   }
+  if (!ctx.res) {
+    // throw new Error("Server-side only");
+    return {};
+  }
+  if (ctx?.req?.headers?.cookie?.includes("Authentication")) {
+    ctx.res.writeHead(303, { Location: "/home" });
+    ctx.res.end();
+  }
 
   return {};
 };
