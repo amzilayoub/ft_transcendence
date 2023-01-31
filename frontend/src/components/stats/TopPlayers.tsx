@@ -43,7 +43,7 @@ const OrdinalBadge = ({ rank }: { rank: number }) => (
 );
 
 const PlayerInfo = (player: IPlayer) => (
-  <div className="flex gap-x-4 px-5 py-3 relative w-72">
+  <div className="relative flex w-full gap-x-4 px-5 py-3 sm:w-72">
     {player.rank < 4 && (
       <div className="absolute -top-2 -right-2">
         <OrdinalBadge rank={player.rank} />
@@ -64,7 +64,7 @@ const PlayerInfo = (player: IPlayer) => (
       </div>
     </Link>
 
-    <div className="flex items-end justify-end w-full">
+    <div className="flex w-full items-end justify-end">
       <p className="text-gray-500">{player.xp} XP</p>
     </div>
   </div>
@@ -75,7 +75,7 @@ const TopPlayers = () => {
   //   revalidateOnFocus: false,
   // });
   return (
-    <div className="max-w-max">
+    <div className="w-full sm:max-w-max">
       <TitledCard
         title="Top Players"
         actions={
@@ -87,11 +87,11 @@ const TopPlayers = () => {
           </button>
         }
       >
-        <ul className="flex flex-col gap-y-3">
+        <ul className="flex flex-col gap-y-3 p-2">
           {[...new Array(5).fill(MOCK_PLAYER)]?.map((player: IPlayer, idx) => (
             <li
               key={player.id}
-              className="flex flex-col gap-y-3 rounded-lg border duration-200"
+              className="flex flex-col gap-y-3 rounded-lg border shadow-lg  duration-200 hover:shadow-xl"
             >
               <PlayerInfo {...player} rank={idx + 1} />
             </li>

@@ -1,10 +1,8 @@
 /* eslint-disable @next/next/no-img-element */
 import React from "react";
 
-import cn from "classnames";
 import dynamic from "next/dynamic";
 import Link from "next/link";
-import { RiRefreshLine } from "react-icons/ri";
 
 import useLiveGames, { ILiveGame } from "@hooks/useLiveGames";
 import TitledCard from "@ui/TitledCard";
@@ -41,10 +39,10 @@ const MOCK_GAMES: ILiveGame[] = [
 ];
 
 const LiveGame = ({ game }: { game: ILiveGame }) => (
-  <div className="flex items-center justify-between rounded-lg border px-3 py-2">
-    <div className="flex flex-col">
+  <div className="flex w-full items-center justify-between rounded-lg px-3 py-2 shadow-lg hover:shadow-xl">
+    <div className="flex w-full flex-col">
       <p className="pb-2 text-lg font-normal">
-        {truncateString(game.player1.username, 10)}
+        {truncateString(game.player1.username, 14)}
       </p>
       <div className="flex justify-around gap-x-4">
         <img
@@ -54,6 +52,7 @@ const LiveGame = ({ game }: { game: ILiveGame }) => (
         />
         <div className="flex">
           <p className="ml-2 text-lg font-bold">{game.player1.score}</p>
+          <span className="ml-2  font-semibold">-</span>
           <p className="ml-2 text-lg font-bold">{game.player2.score}</p>
         </div>
         <img
@@ -63,7 +62,7 @@ const LiveGame = ({ game }: { game: ILiveGame }) => (
         />
       </div>
       <p className="pt-2 text-right text-lg font-normal">
-        {truncateString(game.player2.username, 10)}
+        {truncateString(game.player2.username, 14)}
       </p>
     </div>
   </div>
@@ -71,30 +70,44 @@ const LiveGame = ({ game }: { game: ILiveGame }) => (
 
 const LiveGames = () => {
   const { refresh, isRefetching } = useLiveGames();
-  const games = new Array(5).fill(MOCK_GAMES).flat();
+  const games = new Array(4).fill(MOCK_GAMES).flat();
 
   return (
-    <div className="max-w-max">
+    <div className="w-full">
       <TitledCard
-        title="Current Games"
+        title="Live Games"
+        // actions={
+        //   <button
+        //     onClick={refresh}
+        //     className="text-2xl font-bold text-primary hover:text-primary/80"
+        //   >
+        //     <RiRefreshLine className={cn({ "animate-spin": isRefetching })} />
+        //   </button>
+        // }
         actions={
           <button
-            onClick={refresh}
-            className="text-2xl font-bold text-primary hover:text-primary/80"
+            // onClick={() => setSeeAll(true)}
+            className="text-sm font-semibold text-primary"
           >
-            <RiRefreshLine className={cn({ "animate-spin": isRefetching })} />
+            See All
           </button>
         }
       >
-        <ul className="flex flex-col gap-y-3">
-          {games.map((game) => (
+        {games?.length === 0 && (
+          <div className="py-6">
+            <p className="text-center text-lg text-gray-500 ">
+              No games are currently live, be the first to start a game!
+            </p>
+          </div>
+        )}
+        <ul className="flex flex-wrap justify-center gap-3">
+          {games?.map((game) => (
             <Link
               key={game.id}
               href={`/game/${game.id}`}
-              className="flex flex-col gap-y-3 rounded-lg border duration-200"
+              className="flex w-fit min-w-min flex-col gap-y-3 rounded-lg border duration-200"
             >
-              {/* <LiveGame game={game} /> */}
-              <GameSummary {...game} />
+              <LiveGame game={game} />
             </Link>
           ))}
         </ul>
