@@ -10,6 +10,8 @@ import {
 interface IUIContext {
   isSettingsOpen: boolean;
   setIsSettingsOpen: Dispatch<SetStateAction<boolean>>;
+  isWelcomeModalOpen: boolean;
+  setIsWelcomeModalOpen: Dispatch<SetStateAction<boolean>>;
 }
 
 export const UIContext = createContext<IUIContext | undefined>(undefined);
