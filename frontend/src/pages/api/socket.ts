@@ -1,5 +1,4 @@
 import { IGame } from "@utils/game/IGame";
-import { IGameState } from "@utils/game/IGameState";
 import { Server as IOServer } from "socket.io";
 
 const handler = (req, res) => {
@@ -40,7 +39,7 @@ const handler = (req, res) => {
 
       socket.on("join_room", (msg) => {
         let roomID = msg;
-        console.log("roomID:", roomID);
+        console.log("joining roomID:", roomID);
         // TODO: check valid roomID
 
         const socketRooms = Array.from(socket.rooms.values()).filter(
@@ -75,29 +74,6 @@ const handler = (req, res) => {
             return;
           }
           socket.emit("state", state);
-          // {
-          //   io.to(roomID!).emit(
-          //     "broadcast",
-          //     `player 1: ${game.p1} -- player 2: ${game.p2}`
-          //   );
-
-          //   const connectedSockets = io.sockets.adapter.rooms.get(roomID!);
-
-          //   io.to(roomID!).emit(
-          //     "broadcast",
-          //     `spectators: \n${Array.from(connectedSockets.values()).filter(
-          //       (socket) => socket !== game.p1 && socket !== game.p2
-          //     )}\n`
-          //   );
-          //     const rooms = io.sockets.adapter.rooms;
-          //     rooms.forEach((set, key) => {
-          //       if (set.has(key)) rooms.delete(key);
-          //     });
-
-          //     // console.log("rooms: ", rooms);
-          //     // io.to(roomID!).emit("roomsCount", rooms.size);
-          //     // io.to(roomID!).emit("clientsCount", connectedSockets?.size);
-          // }
           if (state === 3) return;
           if (game.p1 && game.p2) {
             io.to(game.p1).to(game.p2).emit("ready");
@@ -141,7 +117,6 @@ const handler = (req, res) => {
         );
         io.to(roomID!).emit("start_game"); // diha fmok
         gameStarted = true;
-        // console.log("start_game", roomID);
       });
 
       socket.on("sync", (py, idx) => {
@@ -178,7 +153,7 @@ const handler = (req, res) => {
         const roomID = Array.from(socket.rooms.values()).find(
           (id) => id !== socket.id
         );
-        console.log("disconnecting", roomID);
+        console.log(socket.id, "disconnecting from", roomID);
 
         game = games[roomKeys[roomID!]]; // i fucking HATE socket io
 
@@ -200,13 +175,9 @@ const handler = (req, res) => {
 
         io.to(roomID!).emit("stop_game");
         gameStarted = false;
-        // console.log(`sending to ${game.p1} state wait`);
         if (game.p1 === undefined) return;
 
         io.to(game.p1).emit("state", 1);
-
-        // console.log("io.sockets.sockets.get(game.p1) = ", io.sockets.sockets.get(game.p1))
-        // io.sockets.sockets.get(game.p1)?.emit("state", "wait")
       });
     });
   }

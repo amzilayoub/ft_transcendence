@@ -22,7 +22,6 @@ let centerX!: number;
 
 let dir!: number;
 let tickCount: number = 0;
-let t0: number = 0;
 
 let socket!: Socket;
 let state!: number;
@@ -124,7 +123,7 @@ export default class pongScene extends Scene {
             startText.text = "Waiting for P1\nto Start the Game";
             break;
           case 3:
-            startText.setVisible(false);
+            startText.setVisible(!serverGameStarted);
             startText.text = "Waiting for Game to Start";
             break;
           default:
