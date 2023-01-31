@@ -1,5 +1,5 @@
 /* eslint-disable no-console */
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 
 import { Switch } from "@headlessui/react";
 import cn from "classnames";
@@ -42,22 +42,7 @@ const SettingsModal = ({
     }
   };
 
-  const handleSwitchChange = async () => {
-    if (!switchEnabled) {
-      setShowQRModal(true);
-    } else {
-      try {
-        const res = await basicFetch.get("/2fa/turn-off");
-        if (res.status === 200) {
-          setSwitchEnabled(false);
-          ctx.loadUserData();
-        }
-      } catch (error) {
-        console.log(error);
-      }
-    }
-  };
-
+ 
   const handleSave = async (
     e: React.MouseEvent<HTMLButtonElement, MouseEvent>
   ) => {
@@ -160,7 +145,7 @@ const SettingsModal = ({
                 />
                 <Switch
                   checked={switchEnabled}
-                  onChange={handleSwitchChange}
+                  onChange={() => setShowQRModal(true)}
                   className={cn(
                     "relative inline-flex h-[30px] w-[74px] shrink-0 cursor-pointer rounded-full transition-colors duration-200 ease-in-out focus:outline-none focus-visible:ring-2 focus-visible:ring-white focus-visible:ring-opacity-75",
                     {
@@ -210,9 +195,10 @@ const SettingsModal = ({
           isOpen={showQRModal}
           onClose={() => setShowQRModal(false)}
           onSuccess={() => {
+            ctx.loadUserData().then((data) => setSwitchEnabled(data?.isTwoFactorEnabled));
             setShowQRModal(false);
-            setSwitchEnabled(true);
           }}
+          actionType={switchEnabled ? "turn-off" : "turn-on"}
         />
       )}
     </BaseModal>

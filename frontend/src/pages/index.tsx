@@ -195,7 +195,8 @@ export default function LandingPage() {
   };
 
   useEffect(() => {
-    if (location.search.includes("2fa")) {
+    console.log("!!!!", window.location);
+    if (typeof window !== undefined && window.location.search.includes("2fa=true")) {
       setShow2fa(true);
     }
   }, []);
@@ -283,7 +284,9 @@ LandingPage.getInitialProps = async (ctx: NextPageContext) => {
     // throw new Error("Server-side only");
     return {};
   }
-  if (ctx?.req?.headers?.cookie?.includes("Authentication")) {
+  if (ctx?.req?.headers?.cookie?.includes("Authentication")
+    && !ctx?.req?.headers?.["2fa"] === "true"
+  ) {
     ctx.res.writeHead(303, { Location: "/home" });
     ctx.res.end();
   }

@@ -64,6 +64,7 @@ export class AuthController {
                     false,
                 );
                 response.setHeader('Set-Cookie', cookie);
+                response.setHeader('2fa', 'true');
                 response.redirect(
                     this.configService.get('FRONTEND_URL') + '/?2fa=true',
                 );
