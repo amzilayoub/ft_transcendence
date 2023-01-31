@@ -57,11 +57,10 @@ export class ChatService {
             else specificRoom = `AND name LIKE '%${roomName}%'`;
         }
         const query = `
-			SELECT *
+			SELECT *, 'offline' AS "userStatus"
 			FROM (
 				(
-					SELECT receiver.id, receiver.room_id, room.updated_at AS "lastMessageTime", room_type.type,
-					users.id as user_id,
+					SELECT receiver.id, receiver.room_id, room.updated_at AS "lastMessageTime", room_type.type, room.created_at AS "created_at",
 					users.avatar_url,
 					(
 						SELECT message
@@ -112,8 +111,7 @@ export class ChatService {
 				)
 				UNION
 				(
-				SELECT receiver.id, receiver.room_id, room.updated_at AS "lastMessageTime", room_type.type,
-				users.id as user_id,
+				SELECT receiver.id, receiver.room_id, room.updated_at AS "lastMessageTime", room_type.type, room.created_at AS "created_at",
 				users.avatar_url,
 				(
 					SELECT message
