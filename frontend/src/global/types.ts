@@ -42,8 +42,6 @@ export interface IUser {
   username: string;
   first_name: string;
   last_name: string;
-  // first_name: string;
-  // middleName: string;
   twitterUsername?: string;
   intraUsername: string;
   email: string;
@@ -54,6 +52,7 @@ export interface IUser {
   is_follower: boolean;
   followers_count: number;
   following_count: number;
+  isTwoFactorEnabled: boolean;
 }
 
 export interface IUserAnalytics {

@@ -65,11 +65,14 @@ const SettingsModal = ({
     setButtonText("Saving...");
     setIsSaving(true);
     try {
+      console.log({settings});
       const res = await basicFetch.post("/users/update", {}, settings);
-      if (res.status === 200) {
+      if (res.ok) {
+        const d = await res.json()
+        console.log("D",  d);
         setButtonText("Saved!");
-        // ctx.setUser(res.data);
-        ctx.loadUserData();
+        ctx.updateUserData();
+        onClose();
       }
     } catch (error) {
       console.log(error);
@@ -78,7 +81,7 @@ const SettingsModal = ({
       setButtonText("Save");
     }
   };
-
+console.log(ctx.user);
   return (
     <BaseModal isOpen={isOpen} onClose={onClose}>
       <div className="min-h-[calc(45vh)] p-8">
@@ -98,7 +101,7 @@ const SettingsModal = ({
                         defaultValue={ctx.user?.first_name}
                         label="First Name"
                         type="text"
-                        name="firstName"
+                        name="first_name"
                         onChange={handleInputChange}
                       />
                     </div>
@@ -107,7 +110,7 @@ const SettingsModal = ({
                         defaultValue={ctx.user?.last_name}
                         label="Last Name"
                         type="text"
-                        name="lastName"
+                        name="last_name"
                         onChange={handleInputChange}
                       />
                     </div>

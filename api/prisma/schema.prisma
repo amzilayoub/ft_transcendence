@@ -19,6 +19,7 @@ model user {
     intra_url          String?
     first_name         String?
     last_name          String?
+    bio                String?
     avatar_url         String?
     cover_url          String?
     isTwoFactorEnabled Boolean? @default(false)

@@ -1,13 +1,6 @@
 "use client";
 import { useEffect, useState } from "react";
 
-import cn from "classnames";
-import dynamic from "next/dynamic";
-import Image from "next/image";
-import { useRouter } from "next/router";
-import { BiEdit } from "react-icons/bi";
-import { FaGlobe, FaTwitter } from "react-icons/fa";
-
 import MainLayout from "@components/layout";
 import UserStats from "@components/stats";
 import useUser from "@hooks/useUser";
@@ -17,9 +10,15 @@ import { IconButton } from "@ui/Button";
 import { ExternalLink } from "@ui/Links";
 import { APP_NAME } from "@utils/constants";
 import { removeUser } from "@utils/local-storage";
+import cn from "classnames";
 import { useAuthContext } from "context/auth.context";
 import { useUIContext } from "context/ui.context";
 import { IUser, SetStateFunc } from "global/types";
+import dynamic from "next/dynamic";
+import Image from "next/image";
+import { useRouter } from "next/router";
+import { BiEdit } from "react-icons/bi";
+import { FaGlobe, FaTwitter } from "react-icons/fa";
 
 const LastGames = dynamic(() => import("@components/stats/History"), {
   ssr: false,
@@ -263,6 +262,11 @@ export default function ProfilePage() {
       router.push("/");
     }
   }, [router, ctx.isAuthenticated, ctx.loadingUser]);
+
+  useEffect(() => {
+    if (isMyProfile)
+      user.refetch();
+  }, [isMyProfile, ctx.user]);
 
   return (
     <MainLayout

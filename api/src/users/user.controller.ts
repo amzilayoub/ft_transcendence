@@ -1,4 +1,4 @@
-import { Controller, Get, Req, Res, UseGuards } from '@nestjs/common';
+import { Controller, Get, Post, Req, Res, UseGuards } from '@nestjs/common';
 
 import { UserService } from './user.service';
 import JwtGuard from 'src/common/guards/jwt_guard';
@@ -72,5 +72,21 @@ export class UserController {
             res.status(204).send();
         }
         res.status(404).send();
+    }
+
+    @Post('update')
+    async updateUser(@Req() req) {
+        const { id } = req.user;
+        const { username, bio, first_name, last_name, avatar_url, cover_url } =
+            req.body;
+        const user = await this.userService.update(id, {
+            first_name,
+            last_name,
+            username,
+            bio,
+            avatar_url,
+            cover_url,
+        });
+        return user;
     }
 }

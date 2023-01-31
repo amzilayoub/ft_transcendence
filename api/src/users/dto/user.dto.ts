@@ -8,6 +8,9 @@ export class UserDto extends PartialType(FortyTwoUserDto) {
     username: string;
     avatar_url: string;
     cover_url: string;
+    first_name: string;
+    last_name: string;
+    bio: string;
     isTwoFactorEnabled: boolean;
     @IsBoolean()
     twoFactorAuth: boolean;
