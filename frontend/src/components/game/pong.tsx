@@ -2,7 +2,7 @@ import React, { useEffect, useRef } from "react";
 
 import { Game as GameType } from "phaser";
 
-const Pong = ({ roomID }: { roomID: string }) => {
+const Pong = ({ roomID, mode }: { roomID: string; mode: string }) => {
   const gameRef = useRef<GameType>();
 
   useEffect(() => {
@@ -22,14 +22,20 @@ const Pong = ({ roomID }: { roomID: string }) => {
           physics: {
             default: "arcade",
           },
+          fps: {
+            target: 60,
+            forceSetTimeOut: true,
+          },
+
           scene: [pongScene],
-          roomID: roomID,
+          // roomID: roomID,
         };
         if (gameRef.current !== undefined) return;
 
         gameRef.current = new Phaser.Game(config);
 
         gameRef.current.cache.text.add("roomID", roomID);
+        gameRef.current.cache.text.add("mode", mode);
       } catch (error: any) {
         console.log(error.message);
       }

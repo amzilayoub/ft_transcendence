@@ -1,54 +1,50 @@
-import React, { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 
-import Pong from "@components/game/pong";
-import Button from "@ui/Button";
-import TextInput from "@ui/TextInput";
-
-const GamePrompts = ({
-  setRoomID,
-}: {
-  setRoomID: React.Dispatch<React.SetStateAction<string>>;
-}) => {
-  const [input, setInput] = useState("");
-
-  const onChangeHandler = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setInput(e.target.value);
-  };
-
-  const onSubmitHandler = (e: React.FormEvent<HTMLFormElement>) => {
-    e.preventDefault();
-    setRoomID(input);
-  };
-  return (
-    <>
-      <form onSubmit={onSubmitHandler}>
-        <TextInput
-          label=""
-          placeholder="Enter a Room ID to join"
-          name="room"
-          onChange={(e) => {
-            onChangeHandler(e);
-          }}
-        />
-        <Button type="submit">Join Room</Button>
-      </form>
-    </>
-  );
-};
+import { IGame } from "@utils/game/IGame";
+import { io, Socket } from "socket.io-client";
 
 const Game = () => {
-  // should not be here if not signed in
+  const [games, setGames] = useState<Array<IGame>>([]);
+  // : Map<string, IGame>
+  // useffect block
+  const socketRef = useRef<Socket>();
+  useEffect(() => {
+    const initSocket = async () => {
+      try {
+        if (socketRef.current !== undefined) return;
 
-  const [roomID, setRoomID] = useState("");
+        fetch("/api/socket");
+        socketRef.current = io();
+
+        socketRef.current.on("connect", () => {
+          socketRef.current.emit("sub_info");
+        });
+
+        socketRef.current.on("get_info", (newGames) => {
+          setGames(newGames);
+          console.log(newGames);
+        });
+        // var id = crypto.randomBytes(8).toString("hex");
+      } catch (error: any) {
+        console.log(error.message);
+      }
+    };
+    initSocket();
+  }, []);
 
   return (
-    <>
-      {roomID ? (
-        <Pong roomID={roomID} />
-      ) : (
-        <GamePrompts setRoomID={setRoomID} />
+    <div>
+      {games.map((game) =>
+        game.p1 || game.p2 ? (
+          <div key={game.roomID}>
+            <h1>
+              {game.roomID}: {game.p1 || "undefined"} - {game.p2 || "undefined"}{" "}
+              --- {game.spectators}
+            </h1>
+          </div>
+        ) : null
       )}
-    </>
+    </div>
   );
 };
 

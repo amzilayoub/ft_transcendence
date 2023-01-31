@@ -1,20 +1,12 @@
+import { IGame } from "@utils/game/IGame";
 import { Server as IOServer } from "socket.io";
 
-import { IGameState } from "@utils/game/IGameState";
-
 const handler = (req, res) => {
-  let p1!: string; // bad way to keep track
-  let p2!: string;
-  let gameState: IGameState = {
-    p1: {
-      pos: { y: 0 },
-      vel: { y: 0 },
-    },
-    p2: {
-      pos: { y: 0 },
-      vel: { y: 0 },
-    },
-  };
+  let games = new Array<IGame>();
+
+  let roomKeys: { [key: string]: number } = {};
+  let game!: IGame;
+  let gameStarted!: boolean;
 
   const server = res.socket?.server;
   let io = server.io;
@@ -25,9 +17,29 @@ const handler = (req, res) => {
     server.io = io;
 
     io.on("connection", (socket) => {
+      socket.on("spectate_room", (msg) => {
+        let roomID = msg;
+        console.log("spectating roomID:", roomID);
+        socket.emit("state", 3, gameStarted);
+        socket.join(roomID!);
+
+        if (roomKeys[roomID] === undefined) {
+          games.push({
+            roomID: roomID,
+            p1: undefined,
+            p2: undefined,
+            spectators: [],
+          });
+          roomKeys[roomID] = games.length - 1;
+        }
+
+        games[roomKeys[roomID]].spectators.push(socket.id);
+        io.to("subscribers").emit("get_info", games);
+      });
+
       socket.on("join_room", (msg) => {
         let roomID = msg;
-        console.log("roomID:", roomID);
+        console.log("joining roomID:", roomID);
         // TODO: check valid roomID
 
         const socketRooms = Array.from(socket.rooms.values()).filter(
@@ -35,102 +47,140 @@ const handler = (req, res) => {
         );
 
         if (socketRooms.length > 0) {
-          socket.emit("room_join_error", {
-            error: "you are already in a room",
-          });
+          socket.emit("error");
         } else {
-          socket.join(roomID);
+          if (roomKeys[roomID] === undefined) {
+            games.push({
+              roomID: roomID,
+              p1: undefined,
+              p2: undefined,
+              spectators: [],
+            });
+            roomKeys[roomID] = games.length - 1;
+          }
+          socket.join(roomID!);
 
-          const connectedSockets = io.sockets.adapter.rooms.get(roomID);
+          game = games[roomKeys[roomID]]; // i fucking HATE socket io
 
-          let state!: string;
-          switch (connectedSockets?.size) {
-            case 1:
-              state = "wait";
-              p1 = socket.id;
-              break;
-            case 2:
-              state = "gaming";
-              p2 = socket.id;
-              break;
-            default:
-              state = "spectate";
-              break;
+          let state!: number;
+          if (game.p1 === undefined) {
+            state = 1;
+            game.p1 = socket.id;
+          } else if (game.p2 === undefined) {
+            state = 2;
+            game.p2 = socket.id;
+          } else {
+            socket.emit("error");
+            return;
+          }
+          socket.emit("state", state);
+          if (state === 3) return;
+          if (game.p1 && game.p2) {
+            io.to(game.p1).to(game.p2).emit("ready");
           }
 
-          io.to(roomID).emit("broadcast", `player 1: ${p1} -- player 2: ${p2}`);
+          games[roomKeys[roomID]] = game;
 
-          io.to(roomID).emit(
-            "broadcast",
-            `spectators: \n${Array.from(connectedSockets.values()).filter(
-              (socket) => socket !== p1 && socket !== p2
-            )}\n`
-          );
-
-          const rooms = io.sockets.adapter.rooms;
-          rooms.forEach((set, key) => {
-            if (set.has(key)) rooms.delete(key);
-          });
-
-          console.log("rooms: ", rooms);
-
-          io.to(roomID).emit("state", state);
-          io.to(roomID).emit("roomsCount", rooms.size);
-          io.to(roomID).emit("clientsCount", connectedSockets?.size);
+          io.to("subscribers").emit("get_info", games);
+          console.log("games: ", games);
         }
       });
 
-      socket.on("move", (playerY, playerVelY) => {
-        if (socket.id === p1) {
+      socket.on("move", (dir) => {
+        const roomID = Array.from(socket.rooms.values()).find(
+          (id) => id !== socket.id
+        );
+        game = games[roomKeys[roomID!]]; // i fucking HATE socket io
+        if (!game) return;
+        if (socket.id === game.p1) {
           const roomID = Array.from(socket.rooms.values()).find(
             (id) => id !== socket.id
           );
-          if (!roomID)
-            console.log('ROOMID IS UNDEFINED IN MOVE DEFAULTING TO ""');
 
-          socket.broadcast.to(roomID || "").emit("game_state", {
-            ...gameState,
-            p1: {
-              pos: { y: playerY },
-              vel: { y: playerVelY },
-            },
-          }); // TODO: more data for protection
-        } else if (socket.id === p2) {
+          io.to(roomID!).volatile.emit("moved", { p1: dir, p2: undefined }); // diha fmok
+        } else if (socket.id === game.p2) {
           const roomID = Array.from(socket.rooms.values()).find(
             (id) => id !== socket.id
           );
-          if (!roomID)
-            console.log('ROOMID IS UNDEFINED IN MOVE DEFAULTING TO ""');
-          socket.broadcast.to(roomID || "").emit("game_state", {
-            ...gameState,
-            p2: {
-              pos: { y: playerY },
-              vel: { y: playerVelY },
-            },
-          });
+
+          io.to(roomID!).volatile.emit("moved", { p2: dir, p1: undefined }); // diha fmok
         }
       });
+
+      socket.on("ping", (t0) => {
+        socket.emit("ping", t0);
+      });
+
       socket.on("start_game", () => {
         const roomID = Array.from(socket.rooms.values()).find(
           (id) => id !== socket.id
         );
-        if (!roomID)
-          console.log('ROOMID IS UNDEFINED IN START_GAME DEFAULTING TO ""');
-        socket.broadcast.to(roomID || "").emit("start_game");
-        // console.log("start_game", roomID);
+        io.to(roomID!).emit("start_game"); // diha fmok
+        gameStarted = true;
       });
-      // socket.on("disconnect", () => {
-      //   console.log(socket.id, "disconnected from room ", roomID);
-      //   if (p1 == socket.id) p1 = "";
-      //   else if (p2 == socket.id) p2 = "";
-      // });
 
-      socket.on("hi", () => {
-        socket.broadcast.to(roomID).emit("hi");
+      socket.on("sync", (py, idx) => {
+        // pls dont hak me
+        const roomID = Array.from(socket.rooms.values()).find(
+          (id) => id !== socket.id
+        );
+        socket.broadcast.to(roomID!).emit("sync", py, idx);
+      });
+
+      socket.on("ball_sync", (newBall) => {
+        // pls dont hak me
+        const roomID = Array.from(socket.rooms.values()).find(
+          (id) => id !== socket.id
+        );
+        socket.broadcast.volatile.to(roomID!).emit("ball_sync", newBall);
+      });
+
+      socket.on("game_end", (win) => {
+        // pls dont hak me
+        const roomID = Array.from(socket.rooms.values()).find(
+          (id) => id !== socket.id
+        );
+        socket.broadcast.to(roomID!).emit("stop_game", win);
+        gameStarted = false;
+      });
+
+      socket.on("sub_info", () => {
+        socket.join("subscribers");
+        io.to("subscribers").emit("get_info", games);
+      });
+
+      socket.on("disconnecting", () => {
+        const roomID = Array.from(socket.rooms.values()).find(
+          (id) => id !== socket.id
+        );
+        console.log(socket.id, "disconnecting from", roomID);
+
+        game = games[roomKeys[roomID!]]; // i fucking HATE socket io
+
+        console.log(game);
+
+        if (!game) return;
+
+        if (game.p1 === socket.id) {
+          game.p1 = game.p2;
+          game.p2 = undefined;
+        } else if (game.p2 === socket.id) {
+          game.p2 = undefined;
+        } else {
+          game.spectators = game.spectators.filter((id) => id !== socket.id);
+          io.to("subscribers").emit("get_info", games);
+          return;
+        }
+        io.to("subscribers").emit("get_info", games);
+
+        io.to(roomID!).emit("stop_game");
+        gameStarted = false;
+        if (game.p1 === undefined) return;
+
+        io.to(game.p1).emit("state", 1);
       });
     });
   }
-
   res.end();
 };
 
