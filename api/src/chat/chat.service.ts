@@ -163,6 +163,23 @@ export class ChatService {
 		`);
     }
 
+    isThisUserBlocked(userId: number, roomId: number) {
+        return this.prismaService.$queryRaw(Prisma.sql`
+			SELECT *
+			FROM blacklist
+			WHERE (
+				SELECT COUNT(*)
+				FROM room_user_rel
+				INNER JOIN room ON room.id = room_user_rel.room_id
+				INNER JOIN room_type ON room_type.id = room.room_type_id
+				AND room_type.type = 'dm'
+				AND room.id = ${roomId}
+				AND room_user_rel.user_id IN (${userId})
+				AND (blacklist.user_id = ${userId} OR blacklist.blocked_user_id = ${userId})
+			) > 0
+		`);
+    }
+
     getRoomInfo(roomId: number) {
         return this.prismaService.$queryRaw(Prisma.sql`
 			SELECT room_details.name, room_type.type,
@@ -173,6 +190,20 @@ export class ChatService {
 				) AS "rule"
 			FROM room
 			INNER JOIN room_details ON room.id = room_details.room_id
+			INNER JOIN room_type ON room_type.id = room.room_type_id
+			WHERE room.id = ${roomId}
+		`);
+    }
+
+	getDmRoomInfo(roomId: number) {
+        return this.prismaService.$queryRaw(Prisma.sql`
+			SELECT room_type.type,
+				(
+					SELECT room_rules.rule
+					FROM room_rules
+					WHERE room.id = room_rules.room_id
+				) AS "rule"
+			FROM room
 			INNER JOIN room_type ON room_type.id = room.room_type_id
 			WHERE room.id = ${roomId}
 		`);

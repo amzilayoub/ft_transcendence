@@ -186,7 +186,9 @@ const ConversationMetadata = ({
         <div className="mt-1 flex h-4 justify-end">
           {unreadMessages > 0 && (
             <div className="flex h-full w-4 items-center justify-center rounded-full bg-red-500">
-              <p className="text-xs text-white">{unreadMessages}</p>
+              <p className="text-xs text-white">
+                {unreadMessages > 9 ? "+9" : unreadMessages}
+              </p>
             </div>
           )}
         </div>
@@ -280,16 +282,6 @@ const ChatSidebar = ({
     let uri = "user/";
     if (status == false) uri += "block";
     else uri += "unblock";
-    // const resp = await basicFetch.post(
-    //   uri,
-    //   {},
-    //   {
-    //     blockedUserId: blockedUserId,
-    //   }
-    // );
-    // if (resp.status == 200) {
-    //   const data = await resp.json();
-    // }
     socket.emit(
       uri,
       {
@@ -300,6 +292,7 @@ const ChatSidebar = ({
         const targetRoom = conversationsMetadata.find(
           (item) => item.room_id == roomId
         );
+        targetRoom.isBlocked = resp.data.value;
         activeBoxes.forEach((item) => {
           if (targetRoom?.room_id == item.room_id) {
             onConversationClick(targetRoom);

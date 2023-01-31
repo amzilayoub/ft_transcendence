@@ -95,12 +95,14 @@ const ChatBox = ({
   socket,
   setConversationsMetadata,
   allConversation,
+  onConversationClick,
 }: {
   conversationMetaData: any;
   onClose: any;
   socket: any;
   setConversationsMetadata: () => void;
   allConversation: any;
+  onConversationClick: () => void;
 }) => {
   const [conversation, setConversation] = useState<IConversation | null>(null);
   const [input, setInput] = useState("");
@@ -212,10 +214,15 @@ const ChatBox = ({
 
   const setSocketEvents = () => {
     socket.on("createMessage", (msg) => {
-      if (conversationMetaData.room_id == msg.roomId)
-        setConversation((state) => {
-          return { ...state, messages: [...state?.messages, msg] };
-        });
+      console.log({ msg });
+      if (msg.status == 200) {
+        if (conversationMetaData.room_id == msg.data.roomId)
+          setConversation((state) => {
+            return { ...state, messages: [...state?.messages, msg.data] };
+          });
+      } else {
+        alert(msg.message);
+      }
     });
 
     // if (conversationMetaData.user_id != -1)
@@ -261,15 +268,25 @@ const ChatBox = ({
     };
   }, [handleKeyDown, conversationMetaData.room_id, loadMessages, loadMembers]);
   socket.on("block", (resp) => {
-    const newState = [...allConversation];
+    // const newState = [...allConversation];
 
-    console.log({ resp });
-    newState.forEach((item) => {
-      if (item.user_id == conversationMetaData.user_id) {
-        item.amIBlocked = resp.data.value;
-      }
-      console.log({ newState });
-      setConversationsMetadata(newState);
+    // newState.forEach((item) => {
+    //   if (item.user_id == conversationMetaData.user_id) {
+    //     item.amIBlocked = resp.data.value;
+    //     if (item.isActiveBox) onConversationClick(item);
+    //   }
+
+    //   setConversationsMetadata(newState);
+    setConversationsMetadata((state) => {
+      const newState = [...state];
+
+      newState.forEach((item) => {
+        if (item.user_id == conversationMetaData.user_id) {
+          item.amIBlocked = resp.data.value;
+          if (item.isActiveBox) onConversationClick(item);
+        }
+      });
+      return newState;
     });
   });
   return (
@@ -350,9 +367,9 @@ const ChatBox = ({
         {/* inputa */}
         <div className="w-full border-gray-200 p-3 sm:mb-0">
           <form className="relative flex" onSubmit={handleSendMessage}>
-            {conversationMetaData.isBlocked ||
-            (conversationMetaData.amIBlocked &&
-              conversationMetaData.type == "dm") ? (
+            {(conversationMetaData.isBlocked ||
+              conversationMetaData.amIBlocked) &&
+            conversationMetaData.type == "dm" ? (
               ""
             ) : (
               <textarea
