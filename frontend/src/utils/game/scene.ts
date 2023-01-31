@@ -1,5 +1,5 @@
 // TODO: move game logic to server and send controls only
-
+import Router from "next/router";
 import { Scene } from "phaser";
 import { io, Socket } from "socket.io-client";
 
@@ -21,6 +21,8 @@ let centerY!: number;
 let centerX!: number;
 
 let dir!: number;
+let tickCount: number = 0;
+let t0: number = 0;
 
 let socket!: Socket;
 let state!: number;
@@ -46,9 +48,8 @@ export default class pongScene extends Scene {
             y: ball.body.velocity.y,
           },
         };
-        console.log("balls_sync");
 
-        socket.emit("ball_sync", newBall);
+        socket.volatile.emit("ball_sync", newBall);
       }
     });
     return paddle;
@@ -57,6 +58,7 @@ export default class pongScene extends Scene {
   preload() {
     this.load.image("paddle", "/assets/paddle.png");
     this.load.image("ball", "/assets/small_ball.png");
+    this.game.sound.destroy();
   }
 
   create() {
@@ -88,29 +90,31 @@ export default class pongScene extends Scene {
 
     const socketInitializer = async () => {
       const roomID = this.cache.text.get("roomID");
-      fetch(`/api/socket`);
+      const mode = this.cache.text.get("mode");
+      fetch("/api/socket");
       socket = io();
 
       socket.on("connect", () => {
-        console.log("connected");
-        console.log("my id: ", socket.id);
-
         // TODO: some way to get a valid roomID
 
-        socket.emit("join_room", roomID);
+        if (mode === "play") socket.emit("join_room", roomID);
+        else if (mode === "spectate") socket.emit("spectate_room", roomID);
       });
 
-      socket.on("state", (res) => {
+      socket.on("ping", (t0) => {
+        console.log("ping", performance.now() - t0);
+      });
+
+      socket.on("error", () => {
+        socket.disconnect();
+        Router.replace(`/game/${roomID}/spectate`);
+      });
+
+      socket.on("state", (res, serverGameStarted) => {
         state = res;
 
         p1 = state === 1;
         p2 = state === 2;
-
-        if (startText === undefined) {
-          console.log("starttext is undefined");
-
-          return;
-        }
 
         switch (state) {
           case 1:
@@ -120,12 +124,14 @@ export default class pongScene extends Scene {
             startText.text = "Waiting for P1\nto Start the Game";
             break;
           case 3:
+            startText.setVisible(false);
             startText.text = "Waiting for Game to Start";
             break;
           default:
             startText.text = "who are you";
             break;
         }
+        gameStarted = serverGameStarted;
       });
 
       socket.on("broadcast", (res) =>
@@ -140,11 +146,7 @@ export default class pongScene extends Scene {
       });
 
       socket.on("stop_game", (win) => {
-        if (win === undefined) console.log("opponent disconnected?");
-
         if (!gameStarted) return;
-
-        console.log("he said STOP");
 
         gameStarted = false;
         startText.visible = true;
@@ -165,54 +167,11 @@ export default class pongScene extends Scene {
         const ballDir = p2 ? -1 : 1;
         ball.setVelocity(500 * ballDir, 500);
 
-        // let randomAng = 0 * Math.PI; // time awtes
-
-        // console.log(randomAng);
-
-        // // randomAng *= Math.PI;
-
-        // console.log(Math.cos(randomAng), Math.cos(8 * Math.PI / 18));
-        // randomAng = Math.cos(randomAng) < Math.cos(8 * Math.PI / 18) ? randomAng : 8 * Math.PI / 18;
-
-        // console.log(Math.cos(randomAng), Math.cos(10 * Math.PI / 18));
-        // randomAng = Math.cos(randomAng) < Math.cos(10 * Math.PI / 18) ? randomAng : 10 * Math.PI / 18;
-
-        // console.log(Math.sin(randomAng), Math.sin(Math.PI / 4));
-        // randomAng = Math.sin(randomAng) > Math.sin(Math.PI / 4) ? randomAng : (randomAng > Math.PI / 2) ? 3 * Math.PI / 4 : Math.PI / 4;
-
-        // // randomAng *= Math.random() > .5 ? 1 : -1;
-
-        // ball.setVelocity(600 * Math.sin(randomAng) * ballDir, 600 * Math.cos(randomAng));
-        // setTimeout(() => this.stopGame(), 700);
-
-        // gameState = {
-        //   p1: {
-        //     pos: { y: paddle1.y },
-        //     vel: { y: paddle1.body.velocity.y },
-        //   },
-        //   p2: {
-        //     pos: { y: paddle2.y },
-        //     vel: { y: paddle2.body.velocity.y },
-        //   },
-        //   ball: {
-        //     pos: {
-        //       x: ball.x,
-        //       y: ball.y,
-        //     },
-        //     vel: {
-        //       x: ball.body.velocity.x,
-        //       y: ball.body.velocity.y,
-        //     },
-        //   },
-        // };
-
         startText.visible = false;
-        // startText.text = "Press Space\nto Start Game";
       });
 
       socket.on("moved", (movement) => {
         if (p2 === false) {
-          //p1 && spectator
           if (movement.p1 !== undefined)
             paddle1.body.velocity.y = movement.p1 * 650;
           if (movement.p2 !== undefined)
@@ -225,12 +184,8 @@ export default class pongScene extends Scene {
             paddle1.body.velocity.y = movement.p2 * 650;
         }
 
-        if (p1 === true && movement.p1 === 0) {
-          socket.emit("sync", paddle1.y, 1);
-        }
-        if (p2 === true && movement.p2 === 0) {
-          socket.emit("sync", paddle1.y, 2);
-        }
+        if (p1 === true && movement.p1 === 0) socket.emit("sync", paddle1.y, 1);
+        if (p2 === true && movement.p2 === 0) socket.emit("sync", paddle1.y, 2);
       });
 
       socket.on("sync", (py, idx) => {
@@ -255,19 +210,22 @@ export default class pongScene extends Scene {
     paddle.y = y;
   };
 
-  controlPaddle = (paddle: Phaser.Physics.Arcade.Sprite, dir: number) => {
-    // console.log("befro return", dir, paddle.body.velocity.y, state);
+  controlPaddle = (paddle: Phaser.Physics.Arcade.Sprite, newDir: number) => {
+    // console.log("befro return", newDir, paddle.body.velocity.y, state);
 
-    if (p2 && !dir) {
-      dir = Math.sign(ball.y - paddle.y);
-      dir = Math.abs(ball.y - paddle.y) > 16 ? dir : 0;
+    if (gameStarted && !newDir) {
+      newDir = Math.sign(ball.y - paddle.y);
+      newDir = Math.abs(ball.y - paddle.y) > 8 ? newDir : 0;
     }
+    if (dir === newDir) return;
 
-    if (!paddle.body.velocity.y && !dir) return;
+    if (!paddle.body.velocity.y && !newDir) return;
 
-    // paddle.setVelocityY(dir * 650);
+    // paddle.setVelocityY(newDir * 650);
 
-    socket.emit("move", dir);
+    socket.volatile.emit("move", newDir);
+
+    dir = newDir;
   };
 
   startGame = () => {
@@ -275,6 +233,7 @@ export default class pongScene extends Scene {
     if (!p1 || !ready) return;
 
     socket.emit("start_game");
+
     startText.visible = false;
   };
 
@@ -283,6 +242,7 @@ export default class pongScene extends Scene {
 
     startText.text = win ? "you won" : "you lost";
     socket.emit("game_end", win);
+
     gameStarted = false;
     startText.visible = true;
 
@@ -301,43 +261,20 @@ export default class pongScene extends Scene {
     );
     if (!gameStarted) {
       if (pressedKeys.has("Space")) this.startGame();
-    } else if (state === 1) {
-      if (ball.x < 32) {
-        this.stopGame(false);
-      } else if (ball.x > width - 32) {
-        this.stopGame(true);
+    } else if (state !== 3) {
+      if (state === 1) {
+        if (ball.x < 32) {
+          this.stopGame(false);
+        } else if (ball.x > width - 32) {
+          this.stopGame(true);
+        }
       }
-      // if (p1) {
-      //   console.log(gameStarted);
+    }
+    tickCount++;
+    if (tickCount === 60) {
+      tickCount = 0;
 
-      //   tickCount++;
-      //   if (tickCount === 20) {
-      //     tickCount = 0;
-
-      //     const gameState = {
-      //       p1: {
-      //         pos: { y: paddle1.y },
-      //         vel: { y: paddle1.body.velocity.y },
-      //       },
-      //       p2: {
-      //         pos: { y: paddle2.y },
-      //         vel: { y: paddle2.body.velocity.y },
-      //       },
-      //       ball: {
-      //         pos: {
-      //           x: ball.x,
-      //           y: ball.y,
-      //         },
-      //         vel: {
-      //           x: ball.body.velocity.x,
-      //           y: ball.body.velocity.y,
-      //         },
-      //       },
-      //     };
-
-      //     socket.emit("ball_sync", gameState);
-      //   }
-      // }
+      socket.emit("ping", performance.now());
     }
   }
 }
