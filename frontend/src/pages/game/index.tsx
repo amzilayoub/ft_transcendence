@@ -1,11 +1,12 @@
 import { useEffect, useRef, useState } from "react";
 
-import { io, Socket } from "socket.io-client";
-
 import { IGame } from "@utils/game/IGame";
+import { useRouter } from "next/router";
+import { io, Socket } from "socket.io-client";
 
 const Game = () => {
   const [games, setGames] = useState<Array<IGame>>([]);
+  const router = useRouter();
   // : Map<string, IGame>
   // useffect block
   const socketRef = useRef<Socket>();
@@ -32,11 +33,12 @@ const Game = () => {
     };
     initSocket();
   }, []);
+  console.log(router.query.error);
 
   return (
     <div>
       {games.map((game) =>
-        game.p1 || game.p2 ? (
+        game.roomID ? (
           <div key={game.roomID}>
             <h1>
               {game.roomID}: {game.p1 || "undefined"} - {game.p2 || "undefined"}{" "}
