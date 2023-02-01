@@ -1,5 +1,6 @@
-import { IGame } from "@utils/game/IGame";
 import { Server as IOServer } from "socket.io";
+
+import { IGame } from "@utils/game/IGame";
 
 const handler = (req, res) => {
   let games = new Array<IGame>();

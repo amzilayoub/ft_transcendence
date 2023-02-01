@@ -10,6 +10,7 @@ import BaseModal from "@ui/BaseModal";
 import Button from "@ui/Button";
 import TextInput, { TextArea, TextInputLabel } from "@ui/TextInput";
 import basicFetch from "@utils/basicFetch";
+import { uploadFile } from "@utils/uploadFile";
 import { useAuthContext } from "context/auth.context";
 
 import QRModal from "./QRModal";
@@ -27,10 +28,13 @@ const SettingsModal = ({
     ctx.user?.isTwoFactorEnabled
   );
 
+
   const [showQRModal, setShowQRModal] = useState(false);
   const [buttonText, setButtonText] = useState("Save");
   const [deleteButtonText, setDeleteButtonText] = useState("Delete");
   const [isSaving, setIsSaving] = useState(false);
+
+  const avatarInputRef = React.useRef<HTMLInputElement>(null);
 
   const handleInputChange = (
     e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
@@ -39,6 +43,13 @@ const SettingsModal = ({
     if (value.length > 0) {
       setButtonText("Save");
       setSettings({ ...settings, [e.target.name]: value });
+    }
+  };
+
+  const handleFileInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const { files } = e.target;
+    if (files && files.length > 0) {
+      setSettings({ ...settings, avatar: files[0] });
     }
   };
 
@@ -62,14 +73,22 @@ const SettingsModal = ({
     e: React.MouseEvent<HTMLButtonElement, MouseEvent>
   ) => {
     e.preventDefault();
-    setButtonText("Saving...");
     setIsSaving(true);
     try {
-      console.log({settings});
+      console.log({ settings });
+      if (settings.avatar) {
+        setButtonText("Uploading...");
+        const file_data = await uploadFile(settings.avatar);
+        if (file_data) {
+          delete settings.avatar;
+          settings.avatar_url = file_data.secure_url || null;
+        }
+      }
+      setButtonText("Saving...");
       const res = await basicFetch.post("/users/update", {}, settings);
       if (res.ok) {
-        const d = await res.json()
-        console.log("D",  d);
+        const d = await res.json();
+        console.log("D", d);
         setButtonText("Saved!");
         ctx.updateUserData();
         onClose();
@@ -81,7 +100,7 @@ const SettingsModal = ({
       setButtonText("Save");
     }
   };
-console.log(ctx.user);
+  console.log(ctx.user);
   return (
     <BaseModal isOpen={isOpen} onClose={onClose}>
       <div className="min-h-[calc(45vh)] p-8">
@@ -129,12 +148,16 @@ console.log(ctx.user);
                 <div className="relative h-[160px] w-[160px] gap-4">
                   <figure
                     className="group absolute flex h-[160px] w-[160px] cursor-pointer items-center justify-center rounded-full bg-black transition"
-                    onClick={() => {
-                      console.log("clicked");
-                    }}
+                    onClick={() => avatarInputRef.current?.click()}
                   >
                     <Image
-                      src={ctx.user?.avatar_url || "/images/default-avatar.jpg"}
+                      src={
+                        avatarInputRef.current?.files?.length > 0
+                          ? URL.createObjectURL(
+                              avatarInputRef.current?.files[0]
+                            )
+                          : ctx.user?.avatar_url || "/images/default-avatar.jpg"
+                      }
                       alt={`avatar for ${ctx.user?.username}`}
                       fill
                       className="rounded-full object-cover opacity-70 shadow-inner duration-300 hover:opacity-50"
@@ -142,6 +165,14 @@ console.log(ctx.user);
                     <span className="pointer-events-none absolute rounded-full bg-black/50 p-2 text-white duration-300 group-hover:block">
                       <TbCameraPlus className="h-5 w-5" />
                     </span>
+                    <input
+                      ref={avatarInputRef}
+                      onChange={(event) => handleFileInputChange(event)}
+                      accept="image/jpeg,image/png,image/webp"
+                      tabindex="-1"
+                      type="file"
+                      className="hidden"
+                    />
                   </figure>
                 </div>
               </div>
