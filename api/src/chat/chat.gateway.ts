@@ -173,6 +173,23 @@ export class ChatGateway {
             };
         }
 
+        const roomInfo = (
+            await this.chatService.getDmRoomInfo(createMessage.roomId)
+        )[0];
+        if (roomInfo.type == 'dm') {
+            const isThisUserBlocked = (
+                await this.chatService.isThisUserBlocked(
+                    user['id'],
+                    createMessage.roomId,
+                )
+            )[0];
+            if (isThisUserBlocked)
+                return {
+                    status: 401,
+                    message: 'you cannot contact this user',
+                };
+        }
+
         const message = await this.chatService.createMessage(
             createMessage.roomId,
             user['id'],
@@ -211,7 +228,10 @@ export class ChatGateway {
         client
             .to(NAMESPACE + createMessage.roomId)
             .except(exceptRoomName)
-            .emit('createMessage', msgObject);
+            .emit('createMessage', {
+                status: 200,
+                data: msgObject,
+            });
 
         /*
          ** and this one to update the list of conversations
