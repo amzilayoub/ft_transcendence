@@ -28,13 +28,13 @@ const SettingsModal = ({
     ctx.user?.isTwoFactorEnabled
   );
 
-
   const [showQRModal, setShowQRModal] = useState(false);
   const [buttonText, setButtonText] = useState("Save");
   const [deleteButtonText, setDeleteButtonText] = useState("Delete");
   const [isSaving, setIsSaving] = useState(false);
 
   const avatarInputRef = React.useRef<HTMLInputElement>(null);
+  const coverInputRef = React.useRef<HTMLInputElement>(null);
 
   const handleInputChange = (
     e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
@@ -46,10 +46,18 @@ const SettingsModal = ({
     }
   };
 
-  const handleFileInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleFileInputChange = (
+    e: React.ChangeEvent<HTMLInputElement>,
+    type: string
+  ) => {
     const { files } = e.target;
     if (files && files.length > 0) {
-      setSettings({ ...settings, avatar: files[0] });
+      if (type === "avatar") {
+        setSettings({ ...settings, avatar: files[0] });
+      }
+      if (type === "cover") {
+        setSettings({ ...settings, cover: files[0] });
+      }
     }
   };
 
@@ -84,6 +92,14 @@ const SettingsModal = ({
           settings.avatar_url = file_data.secure_url || null;
         }
       }
+      if (settings.cover) {
+        setButtonText("Uploading...");
+        const file_data = await uploadFile(settings.cover);
+        if (file_data) {
+          delete settings.cover;
+          settings.cover_url = file_data.secure_url || null;
+        }
+      }
       setButtonText("Saving...");
       const res = await basicFetch.post("/users/update", {}, settings);
       if (res.ok) {
@@ -112,29 +128,104 @@ const SettingsModal = ({
               {/* div for the avatar and the 3 input fields. */}
               <div className="flex w-full flex-col-reverse items-center justify-start gap-y-6 md:flex-row md:items-center md:justify-between md:gap-y-0 md:gap-x-10">
                 {/* 3 input fields */}
-                <div className="flex w-full max-w-sm flex-col items-center justify-center gap-4">
-                  {/* first and last name */}
-                  <div className="flex w-full gap-x-4">
-                    <div>
-                      <TextInput
-                        defaultValue={ctx.user?.first_name}
-                        label="First Name"
-                        type="text"
-                        name="first_name"
-                        onChange={handleInputChange}
+                <div className="flex w-full flex-col items-center justify-center gap-4 sm:min-w-[600px]">
+                  <div className="relative w-full">
+                    <figure
+                      onClick={() => coverInputRef.current?.click()}
+                      className="relative flex h-[200px] w-full cursor-pointer items-center justify-center rounded-t-xl shadow-sm"
+                    >
+                      {!ctx?.user?.cover_url &&
+                      !coverInputRef.current?.files?.length ? (
+                        <div className="h-full w-full rounded-t-xl bg-gray-300 " />
+                      ) : (
+                        <Image
+                          src={
+                            coverInputRef.current?.files?.length
+                              ? URL.createObjectURL(
+                                  coverInputRef.current?.files[0]
+                                )
+                              : ctx.user?.cover_url ||
+                                "/images/cover-placeholder.png"
+                          }
+                          alt={
+                            ctx.user?.cover_url
+                              ? `cover for ${ctx.user?.username}`
+                              : "cover placeholder"
+                          }
+                          // onClick={() => user?.cover_url && setIsCoverModalOpen(true)}
+                          fill
+                          className={cn("object-cover rounded-t-xl absolute", {
+                            "cursor-pointer": ctx.user?.cover_url,
+                          })}
+                        />
+                      )}
+                      <span className="pointer-events-none absolute rounded-full bg-black/50 p-2 text-white duration-300 group-hover:block">
+                        <TbCameraPlus className="h-5 w-5 " />
+                      </span>
+                      <input
+                        ref={coverInputRef}
+                        onChange={(event) =>
+                          handleFileInputChange(event, "cover")
+                        }
+                        accept="image/jpeg,image/png,image/webp"
+                        tabindex="-1"
+                        type="file"
+                        className="hidden"
                       />
-                    </div>
-                    <div>
-                      <TextInput
-                        defaultValue={ctx.user?.last_name}
-                        label="Last Name"
-                        type="text"
-                        name="last_name"
-                        onChange={handleInputChange}
-                      />
+                    </figure>
+
+                    <div className="absolute -bottom-12 -left-2 h-[160px] w-[160px] gap-4">
+                      <figure
+                        className="group absolute flex h-[160px] w-[160px] cursor-pointer items-center justify-center rounded-full bg-black transition"
+                        onClick={() => avatarInputRef.current?.click()}
+                      >
+                        <Image
+                          src={
+                            avatarInputRef.current?.files?.length > 0
+                              ? URL.createObjectURL(
+                                  avatarInputRef.current?.files[0]
+                                )
+                              : ctx.user?.avatar_url ||
+                                "/images/default-avatar.jpg"
+                          }
+                          alt={`avatar for ${ctx.user?.username}`}
+                          fill
+                          className="rounded-full object-cover opacity-70 shadow-inner duration-300 hover:opacity-50"
+                        />
+                        <span className="pointer-events-none absolute rounded-full bg-black/50 p-2 text-white duration-300 group-hover:block">
+                          <TbCameraPlus className="h-5 w-5" />
+                        </span>
+                        <input
+                          ref={avatarInputRef}
+                          onChange={(event) =>
+                            handleFileInputChange(event, "avatar")
+                          }
+                          accept="image/jpeg,image/png,image/webp"
+                          tabindex="-1"
+                          type="file"
+                          className="hidden"
+                        />
+                      </figure>
                     </div>
                   </div>
-                  <div className="w-full">
+                  {/* first and last name */}
+
+                  <div className="flex w-full gap-x-4 pt-10">
+                    <TextInput
+                      defaultValue={ctx.user?.first_name}
+                      label="First Name"
+                      type="text"
+                      name="first_name"
+                      onChange={handleInputChange}
+                    />
+                    <TextInput
+                      defaultValue={ctx.user?.last_name}
+                      label="Last Name"
+                      type="text"
+                      name="last_name"
+                      onChange={handleInputChange}
+                    />
+
                     <TextInput
                       defaultValue={ctx.user?.username}
                       label="Username"
@@ -143,37 +234,6 @@ const SettingsModal = ({
                       onChange={handleInputChange}
                     />
                   </div>
-                </div>
-
-                <div className="relative h-[160px] w-[160px] gap-4">
-                  <figure
-                    className="group absolute flex h-[160px] w-[160px] cursor-pointer items-center justify-center rounded-full bg-black transition"
-                    onClick={() => avatarInputRef.current?.click()}
-                  >
-                    <Image
-                      src={
-                        avatarInputRef.current?.files?.length > 0
-                          ? URL.createObjectURL(
-                              avatarInputRef.current?.files[0]
-                            )
-                          : ctx.user?.avatar_url || "/images/default-avatar.jpg"
-                      }
-                      alt={`avatar for ${ctx.user?.username}`}
-                      fill
-                      className="rounded-full object-cover opacity-70 shadow-inner duration-300 hover:opacity-50"
-                    />
-                    <span className="pointer-events-none absolute rounded-full bg-black/50 p-2 text-white duration-300 group-hover:block">
-                      <TbCameraPlus className="h-5 w-5" />
-                    </span>
-                    <input
-                      ref={avatarInputRef}
-                      onChange={(event) => handleFileInputChange(event)}
-                      accept="image/jpeg,image/png,image/webp"
-                      tabindex="-1"
-                      type="file"
-                      className="hidden"
-                    />
-                  </figure>
                 </div>
               </div>
               <div className="w-full">
