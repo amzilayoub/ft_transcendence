@@ -1,8 +1,9 @@
 import React from "react";
 
+import { useRouter } from "next/router";
+
 import Pong from "@components/game/pong";
 import { useAuthContext } from "context/auth.context";
-import { useRouter } from "next/router";
 
 const Game = () => {
   const ctx = useAuthContext();

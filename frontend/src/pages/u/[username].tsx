@@ -264,6 +264,10 @@ export default function ProfilePage() {
     }
   }, [router, ctx.isAuthenticated, ctx.loadingUser]);
 
+  useEffect(() => {
+    if (isMyProfile) user.refetch();
+  }, [isMyProfile, ctx.user]);
+
   return (
     <MainLayout
       title={username ? username + " | " + APP_NAME : APP_NAME}

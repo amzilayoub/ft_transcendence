@@ -7,13 +7,16 @@ const nextConfig = {
     domains: [
       "localhost",
       "cdn.intra.42.fr",
+      "res.cloudinary.com",
       "images.unsplash.com",
+      ///
       "martinfowler.com",
       "variety.com",
       "img.freepik.com",
       "images.saymedia-content.com",
       "encrypted-tbn0.gstatic.com",
       "miro.medium.com",
+
     ],
   },
 };

@@ -1,6 +1,5 @@
 import React, { createContext, useCallback, useEffect, useMemo } from "react";
 
-import basicFetch from "@utils/basicFetch";
 import { IConversationMetaData } from "global/types";
 
 import { useAuthContext } from "./auth.context";

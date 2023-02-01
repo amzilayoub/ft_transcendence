@@ -54,7 +54,7 @@
 //   ready: false,
 //   gameStarted: false,
 //   pressedKeys: new Set<string>(),
-  
+
 //   socketInitializer: async ({
 // 	paddle2,
 // 	paddle1,
@@ -84,7 +84,7 @@
 //     if (mode === "play") socket.emit("join_room", roomID);
 //     else if (mode === "spectate") socket.emit("spectate_room", roomID);
 //   });
-  
+
 //   socket.on("ping", (t0) => {
 //     console.log("ping", performance.now() - t0);
 // });
@@ -99,7 +99,7 @@
 
 //     p1 = state === 1;
 //     p2 = state === 2;
-	
+
 //     switch (state) {
 //       case 1:
 //         startText.text = "Waiting for Opponent";
@@ -117,28 +117,28 @@
 // 				}
 // 				gameStarted = serverGameStarted;
 // 			});
-			
+
 // 			socket.on("broadcast", (res) =>
 // 			console.log("################\n", res, "\n################\n")
 // 			);
-			
+
 // 			socket.on("ready", () => {
 // 				ready = true;
 // 				startText.text = p1
 // 				? "Press Space\nto Start Game"
 // 				: "Waiting for P1\nto Start the Game";
 // 			});
-			
+
 // 			socket.on("stop_game", (win) => {
 // 				if (!gameStarted) return;
-				
+
 // 				gameStarted = false;
 // 				startText.visible = true;
 //     if (p2) startText.text = win ? "you lost" : "you won";
 //     else startText.text = win ? "p1 won" : "p1 lost";
-	
+
 //     ball.setVelocity(0, 0);
-	
+
 //     ball.x = centerX;
 //     ball.y = centerY;
 //     paddle1.y = centerY;
@@ -147,7 +147,7 @@
 
 // socket.on("start_game", () => {
 // 	gameStarted = true;
-	
+
 //     const ballDir = p2 ? -1 : 1;
 //     ball.setVelocity(500 * ballDir, 500);
 
@@ -167,14 +167,14 @@
 // 		if (movement.p2 !== undefined)
 //         paddle1.body.velocity.y = movement.p2 * 650;
 //     }
-	
+
 //     if (p1 === true && movement.p1 === 0) socket.emit("sync", paddle1.y, 1);
 //     if (p2 === true && movement.p2 === 0) socket.emit("sync", paddle1.y, 2);
 // });
 
 // socket.on("sync", (py, idx) => {
 // 	if (p2 === true) idx = idx === 1 ? 2 : 1;
-	
+
 //     if (idx === 1) paddle1.y = py;
 //     else if (idx === 2) paddle2.y = py;
 // });
@@ -199,7 +199,7 @@
 //     }),
 //     []
 // 	);
-	
+
 //   return <GameContext.Provider value={value}>{children}</GameContext.Provider>;
 // };
 

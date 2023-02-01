@@ -64,12 +64,11 @@ export class UserService {
                 },
                 data: {
                     username: updateUserDto.username,
-                    email: updateUserDto.email,
                     first_name: updateUserDto.first_name,
                     last_name: updateUserDto.last_name,
+                    bio: updateUserDto.bio,
                     avatar_url: updateUserDto.avatar_url,
                     cover_url: updateUserDto.cover_url,
-                    isTwoFactorEnabled: updateUserDto.isTwoFactorEnabled,
                 },
             });
             return user;

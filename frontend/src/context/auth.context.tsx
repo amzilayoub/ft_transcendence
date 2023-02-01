@@ -23,6 +23,7 @@ export interface AuthState {
   isAuthenticated: boolean;
   loadingUser: boolean;
   loadUserData: () => Promise<ICurrentUser | null>;
+  updateUserData: () => Promise<void>;
   logout: () => void;
   // error: string | null;
 }
@@ -54,6 +55,13 @@ const AuthContextProvider = ({ children }: { children: React.ReactNode }) => {
   const [loadingUser, setLoadingUser] = useState<boolean>(true); // already logged in (token exists)
   const ref = useRef(false);
 
+  const updateUserData = async () => {
+    const data = await loadUserData();
+    setUser(data);
+    console.log("updateUserData", data);
+    setLocalStorage("user", JSON.stringify(data));
+  };
+
   const logout = async () => {
     try {
       const resp = await basicFetch.get(`/auth/logout`);
@@ -78,6 +86,7 @@ const AuthContextProvider = ({ children }: { children: React.ReactNode }) => {
       user,
       loadingUser,
       loadUserData,
+      updateUserData,
       logout,
     }),
     [user, isAuthenticated, loadingUser]

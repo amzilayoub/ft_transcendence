@@ -20,6 +20,7 @@ async function bootstrap() {
 		SELECT *
 		FROM room_type
 	`);
+
     if (is_init_data.length == 0) {
         const initial_data = fs
             .readFileSync(join(process.cwd(), './initial_data.sql'))

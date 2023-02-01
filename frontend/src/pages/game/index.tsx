@@ -1,7 +1,8 @@
 import { useEffect, useRef, useState } from "react";
 
-import { IGame } from "@utils/game/IGame";
 import { io, Socket } from "socket.io-client";
+
+import { IGame } from "@utils/game/IGame";
 
 const Game = () => {
   const [games, setGames] = useState<Array<IGame>>([]);
