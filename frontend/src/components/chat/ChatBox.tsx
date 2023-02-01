@@ -216,6 +216,11 @@ const ChatBox = ({
     socket.on("createMessage", (msg) => {
       if (msg.status == 200) {
         if (conversationMetaData.room_id == msg.data.roomId) {
+          if (msg.clients.includes(socket.id)) {
+            msg.data.isMe = true;
+          }
+          console.log("socket.id in msg.clients", socket.id in msg.clients);
+          console.log(socket.id, msg);
           setConversation((state) => {
             return { ...state, messages: [...state?.messages, msg.data] };
           });

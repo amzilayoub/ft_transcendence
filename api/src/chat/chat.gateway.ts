@@ -18,6 +18,7 @@ import { UseGuards } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import { PrismaClient, room, room_type, user } from '@prisma/client';
 import * as argon2 from 'argon2';
+import { connected } from 'process';
 
 const NAMESPACE = '/chat';
 const configService = new ConfigService();
@@ -47,10 +48,15 @@ export class ChatGateway {
         const user = this.getUserInfo(client);
         if (user === null) return { status: 401 };
         const userRooms = await this.chatService.getUserRooms(user['id']);
-        this.connectedClient[user['id']] = {
-            clientId: client.id,
-            status: 'online',
-        };
+        if (user['id'] in this.connectedClient) {
+            this.connectedClient[user['id']]['duplicatedSockets'].push(client);
+        } else {
+            this.connectedClient[user['id']] = {
+                clientId: client.id,
+                status: 'online',
+                duplicatedSockets: [],
+            };
+        }
         userRooms.forEach((element) => {
             client.join(NAMESPACE + element.room_id);
         });
@@ -70,7 +76,14 @@ export class ChatGateway {
         const user = this.getUserInfo(client);
         if (user === null) return { status: 401 };
 
-        delete this.connectedClient[user['id']];
+        if (!this.connectedClient[user['id']]['duplicatedSockets'].length)
+            delete this.connectedClient[user['id']];
+        else {
+            this.connectedClient[user['id']]['duplicatedSockets'] =
+                this.connectedClient[user['id']]['duplicatedSockets'].filter(
+                    (item) => item.id != client.id,
+                );
+        }
         this.server.emit('userConnect', {
             status: 200,
             data: {
@@ -139,6 +152,11 @@ export class ChatGateway {
         if (body.userId) {
             const socketId = this.connectedClient[body.userId].clientId;
             this.server.sockets.get(socketId)?.join(NAMESPACE + newRoom.id);
+            this.connectedClient[body.userId]['duplicatedSockets'].forEach(
+                (item) => {
+                    item.join(NAMESPACE + newRoom.id);
+                },
+            );
         }
         if (defaultRoom.id != roomTypeId)
             this.notifyMembers(client, newRoom.id, user['id']); // if the list of conversation is not being updated, probably here
@@ -159,6 +177,9 @@ export class ChatGateway {
     ) {
         const user = this.getUserInfo(client);
         if (user === null) return { status: 401 };
+        /*
+         ** check for muted
+         */
         const targetedJoinedRecord = (
             await this.chatService.targetedJoinedRecord(
                 createMessage.roomId,
@@ -172,6 +193,9 @@ export class ChatGateway {
                     "You're status is muted on this channel, you cannot send messages for now!",
             };
         }
+        /*
+         ** check for blocked
+         */
 
         const roomInfo = (
             await this.chatService.getDmRoomInfo(createMessage.roomId)
@@ -190,6 +214,9 @@ export class ChatGateway {
                 };
         }
 
+        /*
+         ** handle create message
+         */
         const message = await this.chatService.createMessage(
             createMessage.roomId,
             user['id'],
@@ -213,7 +240,7 @@ export class ChatGateway {
         const exceptRoomName = NAMESPACE + '/blacklist/' + user['id'];
         const exceptSockets = [];
         listOfBlockedUsers.forEach((item) => {
-            const socketId = this.connectedClient[item.user_id].clientId;
+            let socketId = this.connectedClient[item.user_id].clientId;
             if (socketId) {
                 const clientSocket = this.server.sockets.get(socketId);
                 if (clientSocket) {
@@ -221,16 +248,30 @@ export class ChatGateway {
                     clientSocket.join(exceptRoomName);
                 }
             }
+            this.connectedClient[item.user_id]['duplicatedSockets'].forEach(
+                (item) => {
+                    exceptSockets.push(item);
+                    item.join(exceptRoomName);
+                },
+            );
         });
         /*
          ** This one to update the chatbox
          */
+        const connectedClientSockets = [];
+        this.connectedClient[user['id']]['duplicatedSockets'].forEach(
+            (item) => {
+                connectedClientSockets.push(item.id);
+            },
+        );
+        connectedClientSockets.push(this.connectedClient[user['id']].clientId);
         client
             .to(NAMESPACE + createMessage.roomId)
             .except(exceptRoomName)
             .emit('createMessage', {
                 status: 200,
                 data: msgObject,
+                clients: connectedClientSockets,
             });
 
         /*
@@ -257,6 +298,12 @@ export class ChatGateway {
         const user = this.getUserInfo(client);
         if (user === null) return { status: 401 };
         client.join(NAMESPACE + joinRoomDto.roomId);
+        this.connectedClient[user['id']]['duplicatedSockets'].forEach(
+            (item) => {
+                item.join(NAMESPACE + joinRoomDto.roomId);
+            },
+        );
+
         /*
          ** Get the other client if included, otherwise,
          ** its either a private/protected room
@@ -266,6 +313,11 @@ export class ChatGateway {
             this.server.sockets
                 .get(socketId)
                 ?.join(NAMESPACE + joinRoomDto.roomId);
+            this.connectedClient[joinRoomDto.userId][
+                'duplicatedSockets'
+            ].forEach((item) => {
+                item.join(NAMESPACE + joinRoomDto.roomId);
+            });
         }
         const room = (
             await this.chatService.getUserRooms(user['id'], joinRoomDto.roomId)
@@ -280,6 +332,18 @@ export class ChatGateway {
                 action: joinRoomDto.action || 'add', // needs to check later on
             },
         });
+        this.connectedClient[user['id']]['duplicatedSockets'].forEach(
+            (item) => {
+                item.emit('updateListConversations', {
+                    status: 200,
+                    data: {
+                        room: room,
+                        clientId: client.id,
+                        action: joinRoomDto.action || 'add', // needs to check later on
+                    },
+                });
+            },
+        );
         return { status: 200, data: true };
     }
 

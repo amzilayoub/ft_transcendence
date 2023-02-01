@@ -36,10 +36,10 @@ model user {
     userLink2     blacklist[]     @relation("userLink2")
     friends       friends[]       @relation("userLink")
     friends2      friends[]       @relation("userLink2")
-    userGames1     games[]     @relation("userLink")
-    userGames2     games[]     @relation("userLink2")
+    userGames1    games[]         @relation("userLink")
+    userGames2    games[]         @relation("userLink2")
 
-    score Int @default(0)
+    score         Int             @default(0)
     notifications notifications[]
 
     @@map("users")
@@ -87,6 +87,7 @@ model room_user_rel {
     unread_message_count Int      @default(0)
     role                 String?  @default("Member")
     muted                Boolean? @default(false)
+    banned               Boolean  @default(false)
 
     created_at DateTime @default(now())
     updated_at DateTime @updatedAt
@@ -182,16 +183,15 @@ model notification_type {
     notifications notifications[]
 }
 
-
 model games {
     id Int @id @default(autoincrement())
 
     userLink user @relation("userLink", fields: [player_1], references: [id], onDelete: Cascade)
-    player_1  Int
+    player_1 Int
 
-    userLink2       user @relation("userLink2", fields: [player_2], references: [id], onDelete: Cascade)
-    player_2 Int
+    userLink2 user @relation("userLink2", fields: [player_2], references: [id], onDelete: Cascade)
+    player_2  Int
 
-    created_at    DateTime        @default(now())
-    updated_at    DateTime        @updatedAt
+    created_at DateTime @default(now())
+    updated_at DateTime @updatedAt
 }
