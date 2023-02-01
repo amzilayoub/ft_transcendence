@@ -214,12 +214,12 @@ const ChatBox = ({
 
   const setSocketEvents = () => {
     socket.on("createMessage", (msg) => {
-      console.log({ msg });
       if (msg.status == 200) {
-        if (conversationMetaData.room_id == msg.data.roomId)
+        if (conversationMetaData.room_id == msg.data.roomId) {
           setConversation((state) => {
             return { ...state, messages: [...state?.messages, msg.data] };
           });
+        }
       } else {
         alert(msg.message);
       }
