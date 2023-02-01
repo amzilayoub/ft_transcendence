@@ -1,5 +1,5 @@
 /* eslint-disable no-console */
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 
 import { Switch } from "@headlessui/react";
 import cn from "classnames";
@@ -83,7 +83,6 @@ const SettingsModal = ({
     e.preventDefault();
     setIsSaving(true);
     try {
-      console.log({ settings });
       if (settings.avatar) {
         setButtonText("Uploading...");
         const file_data = await uploadFile(settings.avatar);
@@ -103,8 +102,6 @@ const SettingsModal = ({
       setButtonText("Saving...");
       const res = await basicFetch.post("/users/update", {}, settings);
       if (res.ok) {
-        const d = await res.json();
-        console.log("D", d);
         setButtonText("Saved!");
         ctx.updateUserData();
         onClose();
@@ -116,7 +113,7 @@ const SettingsModal = ({
       setButtonText("Save");
     }
   };
-  console.log(ctx.user);
+  
   return (
     <BaseModal isOpen={isOpen} onClose={onClose}>
       <div className="min-h-[calc(45vh)] p-8">
@@ -254,7 +251,7 @@ const SettingsModal = ({
                 />
                 <Switch
                   checked={switchEnabled}
-                  onChange={handleSwitchChange}
+                  onChange={() => setShowQRModal(true)}
                   className={cn(
                     "relative inline-flex h-[30px] w-[74px] shrink-0 cursor-pointer rounded-full transition-colors duration-200 ease-in-out focus:outline-none focus-visible:ring-2 focus-visible:ring-white focus-visible:ring-opacity-75",
                     {
@@ -304,9 +301,10 @@ const SettingsModal = ({
           isOpen={showQRModal}
           onClose={() => setShowQRModal(false)}
           onSuccess={() => {
+            ctx.loadUserData().then((data) => setSwitchEnabled(data?.isTwoFactorEnabled));
             setShowQRModal(false);
-            setSwitchEnabled(true);
           }}
+          actionType={switchEnabled ? "turn-off" : "turn-on"}
         />
       )}
     </BaseModal>

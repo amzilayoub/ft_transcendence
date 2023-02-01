@@ -9,10 +9,12 @@ const QRModal = ({
   isOpen,
   onClose,
   onSuccess,
+  actionType,
 }: {
   isOpen: boolean;
   onClose: () => void;
   onSuccess: () => void;
+  actionType: "turn-on" | "turn-off";
 }) => {
   const [twoFACode, setTwoFACode] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -21,7 +23,7 @@ const QRModal = ({
     try {
       setIsSubmitting(true);
       const res = await fetch(
-        process.env.NEXT_PUBLIC_API_URL + "/2fa/turn-on",
+        process.env.NEXT_PUBLIC_API_URL + "/2fa/" + actionType,
         {
           method: "POST",
           headers: {
@@ -55,14 +57,20 @@ const QRModal = ({
         <div className="flex flex-col items-center gap-y-2">
           <p className="text-2xl font-bold">Scan this QR code</p>
           <p className="text-center text-gray-500">
-            To enable 2FA, scan this QR code with your 2FA app.
+            To 
+            
+            {actionType === "turn-on" ? " enable " : " disable "}
+             2FA, scan this QR code with your 2FA app.
           </p>
         </div>
-        <img
-          src={process.env.NEXT_PUBLIC_API_URL + "/2fa/qr-code"}
-          alt="qr code"
-          className="h-[280px] w-[280px] border"
-        />
+        {
+          actionType === "turn-on" &&
+          <img
+            src={process.env.NEXT_PUBLIC_API_URL + "/2fa/qr-code"}
+            alt="qr code"
+            className="h-[280px] w-[280px] border"
+          />
+        }
         <div className="flex flex-col items-center gap-y-2">
           <p className="text-2xl font-bold">Enter the 6-digit code</p>
           <TextInput

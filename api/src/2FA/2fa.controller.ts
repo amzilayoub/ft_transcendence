@@ -76,24 +76,24 @@ export class TwoFactorAuthenticationController {
     }
 
     // @Post('turn-off')
-    @Get('turn-off')
+    @Post('turn-off')
     @HttpCode(200)
     @UseGuards(JwtTwoFactorGuard)
     async turnOffTwoFactorAuthentication(
         @Req() request: RequestWithUser,
-        // @Body() { code }: TwoFactorAuthenticationCodeDto,
+        @Body() { code }: TwoFactorAuthenticationCodeDto,
     ) {
         /*
          ** TODO: add code confirmation
          */
-        // const isCodeValid =
-        //     await this.twoFactorAuthenticationService.isTwoFactorAuthenticationCodeValid(
-        //         request.user,
-        //         code,
-        //     );
-        // if (!isCodeValid) {
-        //     throw new UnauthorizedException('Wrong authentication code');
-        // }
+        const isCodeValid =
+            await this.twoFactorAuthenticationService.isTwoFactorAuthenticationCodeValid(
+                request.user,
+                code,
+            );
+        if (!isCodeValid) {
+            throw new UnauthorizedException('Wrong authentication code');
+        }
         await this.authService.disableTwoFactor(request.user);
     }
 

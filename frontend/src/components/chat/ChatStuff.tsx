@@ -122,6 +122,7 @@ const ChatStuff = () => {
               setConversationsMetadata={setConversationsMetadata}
               onClose={() => deleteBox(item["id"])}
               socket={socketIO}
+			  onConversationClick={activateBox}
             />
           </li>
         ))}
