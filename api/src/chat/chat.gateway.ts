@@ -297,16 +297,17 @@ export class ChatGateway {
     }
 
     @SubscribeMessage('setRead')
-    setRead(
+    async setRead(
         @ConnectedSocket() client: any,
         @MessageBody('roomId') roomId: number,
     ) {
         const user = this.getUserInfo(client);
         if (user === null) return { status: 401 };
 
+        console.log("roomId, user['id'] = ", roomId, user['id']);
         return {
             status: 200,
-            data: this.chatService.setRoomAsRead(roomId, user['id']),
+            data: await this.chatService.setRoomAsRead(roomId, user['id']),
         };
     }
     @SubscribeMessage('user/block')
