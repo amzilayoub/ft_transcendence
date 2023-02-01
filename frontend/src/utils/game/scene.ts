@@ -25,6 +25,7 @@ let tickCount: number = 0;
 
 let socket!: Socket;
 let state!: number;
+let userID!: string;
 let pressedKeys = new Set<string>();
 
 export default class pongScene extends Scene {
@@ -61,6 +62,11 @@ export default class pongScene extends Scene {
   }
 
   create() {
+    this.game.events.on("pause", () => {
+      console.log("pause");
+      socket.disconnect();
+      Router.push("/game");
+    });
     width = this.game.canvas.width;
     height = this.game.canvas.height;
     centerX = width / 2;
@@ -90,13 +96,16 @@ export default class pongScene extends Scene {
     const socketInitializer = async () => {
       const roomID = this.cache.text.get("roomID");
       const mode = this.cache.text.get("mode");
+      userID = this.cache.text.get("userID");
+
+      console.log("userID", userID);
+
       fetch("/api/socket");
       socket = io();
 
       socket.on("connect", () => {
         // TODO: some way to get a valid roomID
-
-        if (mode === "play") socket.emit("join_room", roomID);
+        if (mode === "play") socket.emit("join_room", roomID, userID);
         else if (mode === "spectate") socket.emit("spectate_room", roomID);
       });
 
@@ -104,9 +113,9 @@ export default class pongScene extends Scene {
         console.log("ping", performance.now() - t0);
       });
 
-      socket.on("error", () => {
+      socket.on("error", (msg) => {
         socket.disconnect();
-        Router.replace(`/game/${roomID}/spectate`);
+        Router.replace(`/game?error=${msg}`, "/game");
       });
 
       socket.on("state", (res, serverGameStarted) => {
@@ -145,7 +154,10 @@ export default class pongScene extends Scene {
       });
 
       socket.on("stop_game", (win) => {
-        if (!gameStarted) return;
+        if (!gameStarted) {
+          if (win === undefined) ready = false;
+          return;
+        }
 
         gameStarted = false;
         startText.visible = true;
@@ -201,8 +213,11 @@ export default class pongScene extends Scene {
         ball.body.velocity.y = newBall.vel.y;
       });
     };
-
-    socketInitializer();
+    try {
+      socketInitializer();
+    } catch (e) {
+      console.log(e);
+    }
   }
 
   mouseControlPaddle = (paddle: Phaser.Physics.Arcade.Sprite, y: number) => {
@@ -240,7 +255,7 @@ export default class pongScene extends Scene {
     if (!gameStarted) return;
 
     startText.text = win ? "you won" : "you lost";
-    socket.emit("game_end", win);
+    socket.emit("game_end", win, userID);
 
     gameStarted = false;
     startText.visible = true;

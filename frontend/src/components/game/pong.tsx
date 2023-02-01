@@ -2,12 +2,21 @@ import React, { useEffect, useRef } from "react";
 
 import { Game as GameType } from "phaser";
 
-const Pong = ({ roomID, mode }: { roomID: string; mode: string }) => {
-  const gameRef = useRef<GameType>();
 
+const Pong = ({
+  roomID,
+  mode,
+  userID,
+}: {
+  roomID: string;
+  mode: string;
+  userID: string;
+}) => {
+  const gameRef = useRef<GameType>();
   useEffect(() => {
     const initPhaser = async () => {
       try {
+        console.log(roomID, mode, userID);
         const Phaser = await import("phaser");
         const { default: pongScene } = await import("@utils/game/scene");
 
@@ -36,7 +45,9 @@ const Pong = ({ roomID, mode }: { roomID: string; mode: string }) => {
 
         gameRef.current.cache.text.add("roomID", roomID);
         gameRef.current.cache.text.add("mode", mode);
+        gameRef.current.cache.text.add("userID", `${userID}`);
       } catch (error: any) {
+        // router.replace(`/game?error=${error.message}`, "/game");
         console.log(error.message);
       }
     };
