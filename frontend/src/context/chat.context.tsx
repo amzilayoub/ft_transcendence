@@ -65,18 +65,21 @@ export const ChatProvider = ({ children }: { children: React.ReactNode }) => {
         const data = await resp.json();
         return data;
       }
-    } catch (error) {
+    } catch (error: any) {
       setError(error.message);
     }
   }, []);
 
-  const activateBox = useCallback((convMetaData: any) => {
-    if (activeBoxes.find((item) => item.id == convMetaData.id)) return;
-    if (activeBoxes.includes(convMetaData)) return;
+  const activateBox = (convMetaData: any) => {
+    if (
+      activeBoxes &&
+      activeBoxes.find((item: any) => item.id == convMetaData.id)
+    )
+      return;
     if (activeBoxes.length === 3) {
       setActiveBoxes([...activeBoxes.slice(1), convMetaData]);
     } else setActiveBoxes([...activeBoxes, convMetaData]);
-    setConversationsMetadata((state) => {
+    setConversationsMetadata((state: IConversationMetaData[]) => {
       const tmp = [...state];
       tmp.forEach((item) => {
         if (item.id === convMetaData.id) {
@@ -86,12 +89,12 @@ export const ChatProvider = ({ children }: { children: React.ReactNode }) => {
       });
       return tmp;
     });
-  }, []);
+  };
 
   const deleteBox = useCallback(
     (id: string) => {
-      setActiveBoxes(activeBoxes.filter((box) => box["id"] !== id));
-      setConversationsMetadata((state) => {
+      setActiveBoxes(activeBoxes.filter((box: any) => box.id !== id));
+      setConversationsMetadata((state: IConversationMetaData[]) => {
         const tmp = [...state];
         tmp.forEach((item) => {
           if (item.id === id) {
@@ -140,7 +143,7 @@ export const ChatProvider = ({ children }: { children: React.ReactNode }) => {
   return <ChatContext.Provider value={value}>{children}</ChatContext.Provider>;
 };
 
-export const useChatContext = (socket) => {
+export const useChatContext = (_socket: any) => {
   const context = React.useContext(ChatContext);
 
   if (context === undefined) {

@@ -215,8 +215,9 @@ const ChatBox = ({
     //   );
   };
   useEffect(() => {
-    const msg_input_textarea = document.getElementById("msg_input_textarea");
-    msg_input_textarea?.addEventListener("keydown", handleKeyDown);
+    // const msg_input_textarea = document.getElementById("msg_input_textarea");
+    // msg_input_textarea?.addEventListener("keydown", handleKeyDown);
+    textareaRef.current.addEventListener("keydown", handleKeyDown);
 
     const prepareData = async () => {
       try {
@@ -239,6 +240,7 @@ const ChatBox = ({
 
     return () => {
       // msg_input_textarea?.removeEventListener("keydown", handleKeyDown);
+      textareaRef.current.removeEventListener("keydown", handleKeyDown);
       //   socket.off("createMessage");
     };
   }, [conversationMetaData.room_id, loadMessages, loadMembers]);
@@ -279,7 +281,11 @@ const ChatBox = ({
         onClick={() => setShowChatBox(!showChatBox)}
         className="cursor-pointer flex justify-between border-b-2 border-gray-200 p-3 sm:items-center"
       >
-        <div className="relative flex items-center space-x-4">
+        {/* <div className="relative flex items-center space-x-4"> */}
+        <Link
+          href={`/u/${conversationMetaData.name}`}
+          className="relative flex items-center space-x-4"
+        >
           <div className="relative">
             <RoundedImage
               src={
@@ -290,19 +296,23 @@ const ChatBox = ({
               size="60px"
               className="h-8 w-8"
             />
-            <svg
-              id="status-circle"
-              width="13"
-              height="13"
-              className={cn("absolute bottom-0 right-1 ", {
-                "text-green-500": conversationMetaData.userStatus === "online",
-                "text-gray-500": conversationMetaData.userStatus === "offline",
-                "text-yellow-500":
-                  conversationMetaData.userStatus === "playing",
-              })}
-            >
-              <circle cx="6" cy="6" r="6" fill="currentColor" />
-            </svg>
+            {conversationMetaData.type === "dm" && (
+              <svg
+                id="status-circle"
+                width="13"
+                height="13"
+                className={cn("absolute bottom-0 right-1 ", {
+                  "text-green-500":
+                    conversationMetaData.userStatus === "online",
+                  "text-gray-500":
+                    conversationMetaData.userStatus === "offline",
+                  "text-yellow-500":
+                    conversationMetaData.userStatus === "playing",
+                })}
+              >
+                <circle cx="6" cy="6" r="6" fill="currentColor" />
+              </svg>
+            )}
           </div>
           <div
             onClick={(e) => {
@@ -310,23 +320,21 @@ const ChatBox = ({
             }}
             className="flex flex-col leading-tight"
           >
-            <Link
-              href={`/u/${conversationMetaData.name}`}
-              className="flex items-center text-xl"
-            >
+            <p className="flex items-center text-xl">
               <span className="mr-3 text-gray-700">
                 {truncateString(conversationMetaData.name, 14)}
               </span>
-            </Link>
+            </p>
           </div>
-        </div>
+          {/* </div> */}
+        </Link>
         <span
           onClick={onClose}
           className="absolute top-3 right-3 cursor-pointer rounded-full p-1 text-gray-400 duration-300 hover:bg-gray-200 hover:text-slate-600"
         >
           <RxCross2 className="h-5 w-5" />
         </span>
-        {conversationMetaData.type == "group" && (
+        {conversationMetaData.type !== "dm" && (
           <span
             onClick={(e) => {
               e.stopPropagation();

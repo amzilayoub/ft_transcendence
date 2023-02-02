@@ -304,7 +304,6 @@ export class ChatGateway {
         const user = this.getUserInfo(client);
         if (user === null) return { status: 401 };
 
-        console.log("roomId, user['id'] = ", roomId, user['id']);
         return {
             status: 200,
             data: await this.chatService.setRoomAsRead(roomId, user['id']),
