@@ -122,6 +122,7 @@ export interface IRoom {
   created_at: Date;
   // updated_at: Date;
   members: IRoomMember[];
+  room_id: number;
 }
 
 export interface IRoomMember {

@@ -108,6 +108,7 @@ export class ChatService {
 					AND sender.user_id != receiver.user_id
 					AND room_type.type = 'dm'
 					AND sender.user_id = ${userId}
+					AND receiver.banned = false
 				)
 				UNION
 				(
@@ -142,6 +143,7 @@ export class ChatService {
 				AND users.id = receiver.user_id
 				AND room_type.type != 'dm'
 				AND receiver.user_id = ${userId}
+				AND receiver.banned = false
 				)
 			) AS tbl
 			${specificRoom}
@@ -195,7 +197,7 @@ export class ChatService {
 		`);
     }
 
-	getDmRoomInfo(roomId: number) {
+    getDmRoomInfo(roomId: number) {
         return this.prismaService.$queryRaw(Prisma.sql`
 			SELECT room_type.type,
 				(
@@ -242,7 +244,9 @@ export class ChatService {
         const query = `
 			-- Here we get firs the owner
 			(
-				SELECT users.id, users.username AS username, users.avatar_url,'Owner' AS "membershipStatus"
+				SELECT users.id, users.username AS username, users.avatar_url,
+						'Owner' AS "membershipStatus",room_user_rel.banned AS "isBanned",
+						room_user_rel.muted AS "isMuted"
 				FROM room_user_rel
 				INNER JOIN room ON room.id = room_user_rel.room_id
 				INNER JOIN users ON users.id = room_user_rel.user_id
@@ -256,7 +260,10 @@ export class ChatService {
 			-- but wa want it in this order [owner, admin, member]
 			UNION
 			(
-				SELECT users.id, users.username AS username, users.avatar_url,room_user_rel.role AS "membershipStatus"
+				SELECT users.id, users.username AS username, users.avatar_url,
+						room_user_rel.role AS "membershipStatus",
+						room_user_rel.banned AS "isBanned",
+						room_user_rel.muted AS "isMuted"
 				FROM room_user_rel
 				INNER JOIN room ON room.id = room_user_rel.room_id
 				INNER JOIN users ON users.id = room_user_rel.user_id
@@ -369,6 +376,15 @@ export class ChatService {
 		`);
     }
 
+    banUserFromRoom(userId: number, roomId: number, banned: boolean) {
+        return this.prismaService.$queryRaw(Prisma.sql`
+			UPDATE room_user_rel
+			SET banned = ${banned}
+			WHERE room_id = ${roomId}
+			AND user_id = ${userId}
+		`);
+    }
+
     blockUser(userId: number, blockedUserId: number) {
         return this.prismaService.blacklist.create({
             data: {
@@ -400,6 +416,70 @@ export class ChatService {
 		FROM room_user_rel
 		WHERE user_id = ${userId}
 		AND room_id = ${roomId}
+		`);
+    }
+
+    async isRoomOwner(roomId: number, userId: number) {
+        const room = await this.prismaService.$queryRaw(Prisma.sql`
+			SELECT *
+			FROM room
+			WHERE owner_id = ${userId}
+			AND id = ${roomId}
+		`);
+
+        if (room[0]) return true;
+        return false;
+    }
+
+    updateRoomType(roomId: number, roomTypeId: number) {
+        return this.prismaService.$queryRaw(Prisma.sql`
+		UPDATE room
+		SET room_type_id = ${roomTypeId}
+		WHERE id = ${roomId}
+		`);
+    }
+
+    async updateRoomRules(roomId: number, rule: string) {
+        const getRule = (
+            await this.prismaService.$queryRaw(Prisma.sql`
+			SELECT *
+			FROM room_rules
+			WHERE room_id = ${roomId}
+		`)
+        )[0];
+        if (getRule)
+            return await this.prismaService.$queryRaw(Prisma.sql`
+			UPDATE room_rules
+			SET rule = ${rule}
+			WHERE room_id = ${roomId}
+			`);
+        else {
+            return this.prismaService.room_rules.create({
+                data: {
+                    room_id: roomId,
+                    rule,
+                },
+            });
+        }
+    }
+
+    async getMyRole(userId: number, roomId: number) {
+        return this.prismaService.$queryRaw(Prisma.sql`
+				SELECT
+					CASE
+						WHEN (
+								SELECT COUNT(*)
+								FROM room
+								WHERE room_user_rel.room_id = room.id
+								AND room.owner_id = ${userId}) > 0
+							THEN
+								'owner'
+						ELSE
+							room_user_rel.role
+					END AS role
+				FROM room_user_rel
+				WHERE user_id = ${userId}
+				AND room_id = ${roomId}
 		`);
     }
 }

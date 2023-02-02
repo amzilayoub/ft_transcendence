@@ -42,6 +42,25 @@ export class CreateRoomDto {
     usersId: number[];
 }
 
+export class UpdateRoomPassword {
+    @IsInt()
+    roomId: number;
+
+    @IsString()
+    password: string;
+
+    @IsString()
+    confirmPassword: string;
+}
+
+export class KickoutDto {
+    @IsInt()
+    roomId: number;
+
+    @IsInt()
+    userId: number;
+}
+
 export class JoinRoomDto {
     @IsInt()
     roomId: number;
@@ -75,6 +94,17 @@ export class MuteUserDto {
 
     @IsBoolean()
     muted: boolean;
+}
+
+export class BanFromRoom {
+    @IsInt()
+    roomId: number;
+
+    @IsInt()
+    userId: number;
+
+    @IsBoolean()
+    banned: boolean;
 }
 
 export class BlockUserDto {

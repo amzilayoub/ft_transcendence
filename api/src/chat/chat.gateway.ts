@@ -193,6 +193,13 @@ export class ChatGateway {
                     "You're status is muted on this channel, you cannot send messages for now!",
             };
         }
+
+        if (targetedJoinedRecord.banned) {
+            return {
+                status: 401,
+                message: 'You banned from this channel',
+            };
+        }
         /*
          ** check for blocked
          */

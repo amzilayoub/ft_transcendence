@@ -14,10 +14,13 @@ import {
 import { ApiTags } from '@nestjs/swagger';
 import { ChatService } from './chat.service';
 import {
+    BanFromRoom,
     BlockUserDto,
     CreateRoomDto,
     JoinRoomDto,
+    KickoutDto,
     MuteUserDto,
+    UpdateRoomPassword,
 } from './dto/chat_common.dto';
 import JwtGuard from 'src/common/guards/jwt_guard';
 import { AuthService } from 'src/auth/auth.service';
@@ -102,10 +105,17 @@ export class ChatController {
 
     @Get('room/:roomId/members/:username?')
     async getRoomMembers(
+        @Req() request: RequestWithUser,
         @Param('roomId') roomId: number,
         @Param('username') username = '',
     ) {
-        return await this.chatService.getRoomMembers(roomId, username);
+        const user = await this.authService.getMe(request.user.id);
+        const myRole = (await this.chatService.getMyRole(user.id, roomId))[0];
+        const members = await this.chatService.getRoomMembers(roomId, username);
+        return {
+            myRole: myRole?.role,
+            members,
+        };
     }
 
     @Get('room/:roomId/messages')
@@ -149,5 +159,77 @@ export class ChatController {
             muteUserDto.roomId,
             muteUserDto.muted,
         );
+    }
+
+    /*
+     ** this is for shared room and not for DMs
+     */
+    @Post('room/ban')
+    async blockUserFromRoom(
+        @Req() request: RequestWithUser,
+        @Body() banFromRoom: BanFromRoom,
+    ) {
+        const user = await this.authService.getMe(request.user.id);
+
+        const myRole = (
+            await this.chatService.getMyRole(user.id, banFromRoom.roomId)
+        )[0];
+        if (['admin', 'owner'].includes(myRole.role.toLowerCase()))
+            await this.chatService.banUserFromRoom(
+                banFromRoom.userId,
+                banFromRoom.roomId,
+                banFromRoom.banned,
+            );
+        else throw new HttpException('Forbidden', HttpStatus.FORBIDDEN);
+        return true;
+    }
+
+    @Post('room/kickout')
+    async kickout(
+        @Req() request: RequestWithUser,
+        @Body() kickoutDto: KickoutDto,
+    ) {
+        /*
+		 ** first check if the user has the admin/ownership access rights
+         ** check first if the user is the owner of the channel,
+         ** if so, then move the ownership to the firt admin
+         ** otherwise, remove the record
+         */
+        console.log(kickoutDto);
+    }
+
+    @Post('room/change-password')
+    async roomChangePassword(
+        @Req() request: RequestWithUser,
+        @Body() updateRoomPassword: UpdateRoomPassword,
+    ) {
+        const user = await this.authService.getMe(request.user.id);
+
+        const isRoomOwner = await this.chatService.isRoomOwner(
+            updateRoomPassword.roomId,
+            user.id,
+        );
+        if (!isRoomOwner)
+            throw new HttpException('Unauthorized', HttpStatus.UNAUTHORIZED);
+        const roomInfo = (
+            await this.chatService.getRoomInfo(updateRoomPassword.roomId)
+        )[0];
+        if (updateRoomPassword.password !== updateRoomPassword.confirmPassword)
+            throw new HttpException('Forbidden', HttpStatus.FORBIDDEN);
+        let roomRule = JSON.parse(roomInfo['rule']);
+        roomRule = {
+            ...roomRule,
+            password: await argon2.hash(updateRoomPassword.password),
+        };
+        const roomType = await this.chatService.getRoomType('protected');
+        await this.chatService.updateRoomType(
+            updateRoomPassword.roomId,
+            roomType.id,
+        );
+        await this.chatService.updateRoomRules(
+            updateRoomPassword.roomId,
+            JSON.stringify(roomRule),
+        );
+        return true;
     }
 }

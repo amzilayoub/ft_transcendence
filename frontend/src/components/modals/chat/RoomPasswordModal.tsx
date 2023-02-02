@@ -4,6 +4,7 @@ import BaseModal from "@ui/BaseModal";
 import Button from "@ui/Button";
 import TextInput from "@ui/TextInput";
 import { IRoom, RoomType } from "global/types";
+import basicFetch from "@utils/basicFetch";
 
 const PasswordModal = ({
   setCurrentOption,
@@ -33,12 +34,16 @@ const PasswordModal = ({
     setPasswordConfirmation(e.target.value);
   };
   const [passwordSuccess, setPasswordSuccess] = useState(false);
-  const handlePasswordSubmit = (e: React.FormEvent<HTMLFormElement>) => {
+  const handlePasswordSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     if (password !== passwordConfirmation) {
       console.log("passwords don't match");
     } else {
-      console.log("passwords match");
+      await setRoomPassword(
+        roomCurrentData.room_id,
+        password,
+        passwordConfirmation
+      );
       setShowPasswordModal(false);
       setRoomCurrentData({
         ...roomCurrentData,
@@ -47,6 +52,34 @@ const PasswordModal = ({
     }
   };
 
+  const setRoomPassword = async (
+    roomId: number,
+    password: string,
+    confirmPassword: string
+  ) => {
+    const resp = await basicFetch.post(
+      "/chat/room/change-password",
+      {},
+      {
+        roomId,
+        password,
+        confirmPassword,
+      }
+    );
+    if (resp.status == 201) {
+      setShowPasswordModal(false);
+    } else if (resp.status == 401) {
+      /*
+       ** Not the owner
+       */
+      alert("You're not the owner");
+    } else if (resp.status == 403) {
+      /*
+       ** password incorrect
+       */
+      alert("message incorrect");
+    }
+  };
   return (
     <BaseModal
       isOpen={showPasswordModal}
