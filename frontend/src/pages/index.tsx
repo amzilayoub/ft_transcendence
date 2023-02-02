@@ -16,8 +16,8 @@ const TwoFactorAuthForm = () => {
   const [isCodeInvalid, setIsCodeInvalid] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
 
-  const [data, setData] = useState([]);
-  const firstInputEl = useRef(null);
+  // const [data, setData] = useState([]);
+  // const firstInputEl = useRef(null);
 
   const handleSubmit = async () => {
     try {
@@ -188,22 +188,19 @@ const SiginFields = () => {
 
 export default function LandingPage() {
   const [show2fa, setShow2fa] = useState(false);
-  const [code, setCode] = useState("");
 
   const handle42Login = async () => {
     window.location.href = process.env.NEXT_PUBLIC_API_URL + "/auth/login42";
   };
 
   useEffect(() => {
-    console.log("!!!!", window.location);
-    if (typeof window !== undefined && window.location.search.includes("2fa=true")) {
+    if (
+      typeof window !== undefined &&
+      window.location.search.includes("2fa=true")
+    ) {
       setShow2fa(true);
     }
   }, []);
-
-  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setCode(e.target.value);
-  };
 
   return (
     <MainLayout pageIsProtected={false} noLayout>
@@ -284,8 +281,9 @@ LandingPage.getInitialProps = async (ctx: NextPageContext) => {
     // throw new Error("Server-side only");
     return {};
   }
-  if (ctx?.req?.headers?.cookie?.includes("Authentication")
-    && !ctx?.req?.headers?.["2fa"] === "true"
+  if (
+    ctx?.req?.headers?.cookie?.includes("Authentication") &&
+    !ctx?.req?.headers?.["2fa"] === "true"
   ) {
     ctx.res.writeHead(303, { Location: "/home" });
     ctx.res.end();

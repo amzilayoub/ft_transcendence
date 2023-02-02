@@ -57,20 +57,18 @@ const QRModal = ({
         <div className="flex flex-col items-center gap-y-2">
           <p className="text-2xl font-bold">Scan this QR code</p>
           <p className="text-center text-gray-500">
-            To 
-            
+            To
             {actionType === "turn-on" ? " enable " : " disable "}
-             2FA, scan this QR code with your 2FA app.
+            2FA, scan this QR code with your 2FA app.
           </p>
         </div>
-        {
-          actionType === "turn-on" &&
+        {actionType === "turn-on" && (
           <img
             src={process.env.NEXT_PUBLIC_API_URL + "/2fa/qr-code"}
             alt="qr code"
             className="h-[280px] w-[280px] border"
           />
-        }
+        )}
         <div className="flex flex-col items-center gap-y-2">
           <p className="text-2xl font-bold">Enter the 6-digit code</p>
           <TextInput

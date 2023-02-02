@@ -2,12 +2,15 @@ import React, { useCallback, useEffect, useRef, useState } from "react";
 
 import cn from "classnames";
 import Image from "next/image";
+import Link from "next/link";
 import { BsThreeDots } from "react-icons/bs";
 import { RxCross2 } from "react-icons/rx";
 
 import ChatroomSettingsModal from "@components/modals/chat/ChatroomSettingsModal";
 import { ChatdmSettingsModal } from "@components/modals/chat/ChatroomSettingsModal";
+import RoundedImage from "@ui/RoundedImage";
 import basicFetch from "@utils/basicFetch";
+import { truncateString } from "@utils/format";
 import {
   IConversation,
   IMessage,
@@ -20,10 +23,12 @@ import {
 const Message = ({
   message,
   isMe,
+
   senderAvatar,
 }: {
   message: string;
   isMe: boolean;
+
   senderAvatar: string;
 }) => (
   <li className="">
@@ -37,7 +42,7 @@ const Message = ({
         className={cn(
           "flex flex-col order-2 max-w-xs mx-2 space-y-2  text-xs  rounded-lg",
           {
-            "items-end text-white bg-blue-600 rounded-br-none": isMe,
+            "items-end text-white bg-primary rounded-br-none": isMe,
             "items-start text-gray-600 bg-gray-300 rounded-bl-none": !isMe,
           }
         )}
@@ -58,36 +63,11 @@ const Message = ({
         alt="Sender Avatar"
         width={24}
         height={24}
-        className="rounded-full bg-red-400"
+        className="rounded-full"
       />
     </div>
   </li>
 );
-
-// ** Example of the message object
-// const sampleWholeConversation = {
-//   id: "1",
-//   members: [
-//     {
-//       id: "1",
-//       name: "John Doe",
-//       avatarUrl: "https://martinfowler.com/mf.jpg",
-//     },
-//     {
-//       id: "2",
-//       name: "Mike Doe",
-//       avatarUrl: "https://martinfowler.com/mf.jpg",
-//     },
-//   ],
-//   messages: [
-//     {
-//       id: "1",
-//       senderId: "1",
-//       text: "Lorem ipsum dolor sit amet consectetur adipisicing elit. Quisquam, quod. Lorem ipsum dolor sit amet consectetur adipisicing elit. Quisquam, quodZ.",
-//       time: "12:00",
-//     },
-//   ],
-// };
 
 const ChatBox = ({
   conversationMetaData,
@@ -106,8 +86,10 @@ const ChatBox = ({
 }) => {
   const [conversation, setConversation] = useState<IConversation | null>(null);
   const [input, setInput] = useState("");
-  const bottomDiv = useRef<HTMLDivElement>(null);
-  const [ShowChatSettingModal, setShowChatSettingModal] = useState(false);
+  const [showChatSettingModal, setShowChatSettingModal] = useState(false);
+  const [showChatBox, setShowChatBox] = useState(true);
+  const bottomDivRef = useRef<HTMLDivElement>(null);
+  const textareaRef = useRef<HTMLTextAreaElement>(null);
 
   const [conversationData, setConversationData] = useState<IConversation>();
   // --------------- room data sample ----------------
@@ -144,51 +126,45 @@ const ChatBox = ({
     ],
     // updated_at: Date;
   });
-  // ------------------------------ // ------------------------------ //
+
   const handleSendMessage = React.useCallback(
     (e: any) => {
       e.preventDefault();
-      if (!input || input.length > 1000 || input.trim() === "") return;
-      socket.emit(
+      if (!input) {
+        var payload = e.target.value || "";
+      } else {
+        var payload = input;
+      }
+      if (!payload || payload.length > 1000 || payload.trim() === "") return;
+      setInput("");
+      socket?.emit(
         "createMessage",
-        { roomId: conversationMetaData.room_id, message: input },
-        (msg) => {
+        { roomId: conversationMetaData.room_id, message: payload },
+        (msg: any) => {
           if (msg.status != 200) {
             alert(msg.message);
             return;
           }
           msg.data.isMe = true;
-          setConversation((state) => {
+          setConversation((state: IConversation) => {
             return { ...state, messages: [...state?.messages, msg.data] };
           });
         }
       );
-      setInput("");
-      // send message
     },
     [input]
   );
-  // scroll to bottom
-  const scrollToBottom = () => {
-    bottomDiv?.current?.scrollIntoView({ behavior: "smooth" });
-  };
 
   useEffect(() => {
-    scrollToBottom();
+    bottomDivRef?.current?.scrollIntoView({ behavior: "smooth" });
   }, [conversation]);
 
-  // on Enter keydown
-  // make it a callback to avoid infinite loop
-  const handleKeyDown = React.useCallback(
-    (event: any) => {
-      // if only enter key is pressed without shift key
-      if (event.keyCode === 13 && !event.shiftKey) {
-        event.preventDefault();
-        handleSendMessage(event);
-      }
-    },
-    [handleSendMessage]
-  );
+  const handleKeyDown = (event: React.KeyboardEvent<HTMLTextAreaElement>) => {
+    if (event.keyCode === 13 && !event.shiftKey) {
+      event.preventDefault();
+      handleSendMessage(event);
+    }
+  };
 
   const loadMembers = useCallback(async () => {
     const data = await basicFetch.get(
@@ -213,15 +189,13 @@ const ChatBox = ({
   }, [conversationMetaData.room_id]);
 
   const setSocketEvents = () => {
-    socket.on("createMessage", (msg) => {
+    socket?.on("createMessage", (msg: any) => {
       if (msg.status == 200) {
         if (conversationMetaData.room_id == msg.data.roomId) {
           if (msg.clients.includes(socket.id)) {
             msg.data.isMe = true;
           }
-          console.log("socket.id in msg.clients", socket.id in msg.clients);
-          console.log(socket.id, msg);
-          setConversation((state) => {
+          setConversation((state: IConversation) => {
             return { ...state, messages: [...state?.messages, msg.data] };
           });
         }
@@ -244,8 +218,9 @@ const ChatBox = ({
     //   );
   };
   useEffect(() => {
-    const textarea = document.getElementById("textarea");
-    textarea?.addEventListener("keydown", handleKeyDown);
+    // const msg_input_textarea = document.getElementById("msg_input_textarea");
+    // msg_input_textarea?.addEventListener("keydown", handleKeyDown);
+    textareaRef.current.addEventListener("keydown", handleKeyDown);
 
     const prepareData = async () => {
       try {
@@ -258,7 +233,6 @@ const ChatBox = ({
           messages,
         });
       } catch (error) {}
-      // console.log(conversation);
     };
 
     if (loadMembersRef.current) return;
@@ -268,11 +242,12 @@ const ChatBox = ({
     setSocketEvents();
 
     return () => {
-      textarea?.removeEventListener("keydown", handleKeyDown);
+      // msg_input_textarea?.removeEventListener("keydown", handleKeyDown);
+      textareaRef.current.removeEventListener("keydown", handleKeyDown);
       //   socket.off("createMessage");
     };
-  }, [handleKeyDown, conversationMetaData.room_id, loadMessages, loadMembers]);
-  socket.on("block", (resp) => {
+  }, [conversationMetaData.room_id, loadMessages, loadMembers]);
+  socket?.on("block", (resp) => {
     // const newState = [...allConversation];
 
     // newState.forEach((item) => {
@@ -294,61 +269,85 @@ const ChatBox = ({
       return newState;
     });
   });
+
   return (
-    <section className="relative flex h-[500px] w-[340px] flex-col rounded-t-xl border border-gray-200 bg-white">
-      <div className="flex justify-between border-b-2 border-gray-200 p-3 sm:items-center">
-        <div className="relative flex items-center space-x-4">
+    <section
+      className={cn(
+        " transition-height ease-in-out delay-150 relative flex w-[340px] flex-col rounded-t-xl border border-gray-200 bg-white shadow-md",
+        {
+          "h-[500px]": showChatBox,
+          "h-20": !showChatBox,
+        }
+      )}
+    >
+      <div
+        onClick={() => setShowChatBox(!showChatBox)}
+        className="cursor-pointer flex justify-between border-b-2 border-gray-200 p-3 sm:items-center"
+      >
+        {/* <div className="relative flex items-center space-x-4"> */}
+        <Link
+          href={`/u/${conversationMetaData.name}`}
+          className="relative flex items-center space-x-4"
+        >
           <div className="relative">
-            <span className="absolute bottom-0 right-0 text-green-500">
-              <svg width="16" height="16">
-                <circle cx="8" cy="8" r="8" fill="currentColor"></circle>
-              </svg>
-            </span>
-            <Image
+            <RoundedImage
               src={
                 conversationMetaData?.avatar_url ||
                 "/public/images/default_avatar.jpg"
               }
               alt={`${conversationMetaData?.name || "User"}'s avatar`}
-              width={40}
-              height={40}
-              className="rounded-full sm:h-16 sm:w-16"
+              size="60px"
+              className="h-8 w-8"
             />
+            {conversationMetaData.type === "dm" && (
+              <svg
+                id="status-circle"
+                width="13"
+                height="13"
+                className={cn("absolute bottom-0 right-1 ", {
+                  "text-green-500":
+                    conversationMetaData.userStatus === "online",
+                  "text-gray-500":
+                    conversationMetaData.userStatus === "offline",
+                  "text-yellow-500":
+                    conversationMetaData.userStatus === "playing",
+                })}
+              >
+                <circle cx="6" cy="6" r="6" fill="currentColor" />
+              </svg>
+            )}
           </div>
-          <div className="flex flex-col leading-tight">
-            <div className="mt-1 flex items-center text-2xl">
+          <div
+            onClick={(e) => {
+              e.stopPropagation();
+            }}
+            className="flex flex-col leading-tight"
+          >
+            <p className="flex items-center text-xl">
               <span className="mr-3 text-gray-700">
-                {conversationMetaData.name}
+                {truncateString(conversationMetaData.name, 14)}
               </span>
-            </div>
+            </p>
           </div>
-        </div>
+          {/* </div> */}
+        </Link>
         <span
           onClick={onClose}
           className="absolute top-3 right-3 cursor-pointer rounded-full p-1 text-gray-400 duration-300 hover:bg-gray-200 hover:text-slate-600"
         >
           <RxCross2 className="h-5 w-5" />
         </span>
-        <span
-          onClick={(e) => {
-            e.stopPropagation();
-            setShowChatSettingModal(true);
-            console.log("clicked");
-          }}
-          className="absolute top-3 right-10 cursor-pointer rounded-full p-1 text-gray-400 duration-300 hover:bg-gray-200 hover:text-slate-600"
-        >
-          <BsThreeDots className="h-5 w-5" />
-        </span>
-        <span
-          onClick={(e) => {
-            e.stopPropagation();
-            setShowChatSettingModal(true);
-            console.log("clicked");
-          }}
-          className="absolute top-3 right-10 cursor-pointer rounded-full p-1 text-gray-400 duration-300 hover:bg-gray-200 hover:text-slate-600"
-        >
-          <BsThreeDots className="h-5 w-5" />
-        </span>
+        {conversationMetaData.type !== "dm" && (
+          <span
+            onClick={(e) => {
+              e.stopPropagation();
+              setShowChatSettingModal(true);
+            }}
+            className="absolute top-3 right-10 cursor-pointer rounded-full p-1 text-gray-400 duration-300  hover:bg-gray-200 hover:text-slate-600"
+          >
+            <BsThreeDots className="h-5 w-5" />
+          </span>
+        )}
       </div>
       <div className="flex h-full flex-col justify-items-stretch overflow-hidden">
         <ul
@@ -367,7 +366,7 @@ const ChatBox = ({
               isMe={message.isMe}
             />
           ))}
-          <div ref={bottomDiv}></div>
+          <div ref={bottomDivRef}></div>
         </ul>
         {/* inputa */}
         <div className="w-full border-gray-200 p-3 sm:mb-0">
@@ -378,16 +377,21 @@ const ChatBox = ({
               ""
             ) : (
               <textarea
-                id="textarea"
+                id="msg_input_textarea"
+                ref={textareaRef}
                 value={input}
-                onChange={(e) => {
-                  setInput(e.target.value);
-                }}
+                onChange={(e) => setInput(e.target.value)}
                 placeholder="Write your message!"
                 className="w-full resize-none rounded-md bg-gray-200 py-3 pl-3 text-gray-600 placeholder:text-gray-600 focus:outline-none focus:placeholder:text-gray-400"
               />
             )}
-            <div>
+            <div
+              className={cn({
+                "p-2 border-t w-full text-center text-red-500":
+                  conversationMetaData.isBlocked ||
+                  conversationMetaData.amIBlocked,
+              })}
+            >
               {conversationMetaData.isBlocked &&
               conversationMetaData.type == "dm"
                 ? "You blocked this user"
@@ -404,9 +408,12 @@ const ChatBox = ({
               ""
             ) : (
               <button
-                onClick={handleSendMessage}
+                onClick={(e) => {
+                  handleSendMessage(e);
+                  textareaRef.current?.focus();
+                }}
                 type="button"
-                className="inline-flex items-center justify-center rounded-lg bg-blue-500 px-3 py-1 text-white transition duration-500 ease-in-out hover:bg-blue-400 focus:outline-none"
+                className="inline-flex items-center justify-center rounded-lg bg-primary px-3 py-1 text-white transition duration-500 ease-in-out hover:bg-primary/80 focus:outline-none"
               >
                 <svg
                   xmlns="http://www.w3.org/2000/svg"
@@ -421,19 +428,10 @@ const ChatBox = ({
           </div>
         </div>
         <div>
-          {ShowChatSettingModal && roomData.type != "direct" && (
+          {showChatSettingModal && roomData.type != "direct" && (
             <ChatroomSettingsModal
               roomData={conversationMetaData}
-              isOpen={ShowChatSettingModal}
-              onClose={() => setShowChatSettingModal(false)}
-            />
-          )}
-        </div>
-        <div>
-          {ShowChatSettingModal && roomData.type === RoomType.DIRECT && (
-            <ChatdmSettingsModal
-              roomData={roomData}
-              isOpen={ShowChatSettingModal}
+              isOpen={showChatSettingModal}
               onClose={() => setShowChatSettingModal(false)}
             />
           )}

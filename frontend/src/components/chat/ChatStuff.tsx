@@ -37,11 +37,11 @@ const ChatStuff = () => {
     };
 
     if (socket) {
-      socket.on("updateListConversations", async (obj) => {
+      socket?.on("updateListConversations", async (obj) => {
         let targetedRoom = (await getRoomInfo(obj.data.room.room_id))[0];
 
         targetedRoom.userStatus = obj.data.room.userStatus;
-        console.log({ targetedRoom }, { action: obj.data.action });
+        // console.log({ targetedRoom }, { action: obj.data.action });
         setConversationsMetadata((state) => {
           if (obj.data.action == "add") {
             const newState = state.filter((item) => {
@@ -77,7 +77,7 @@ const ChatStuff = () => {
           }
         });
       });
-      socket.on("userConnect", (resp) => {
+      socket?.on("userConnect", (resp) => {
         const userId = resp.data.userId;
         const mode = resp.data.mode;
 
@@ -113,7 +113,7 @@ const ChatStuff = () => {
         socket={socketIO}
         activeBoxes={activeBoxes}
       />
-      <ul className="absolute bottom-0 right-[400px] flex gap-x-3">
+      <ul className="absolute bottom-0 right-[400px] flex gap-x-3 items-end">
         {activeBoxes?.map((item) => (
           <li key={item.id} className="w-full">
             <ChatBox
@@ -122,7 +122,7 @@ const ChatStuff = () => {
               setConversationsMetadata={setConversationsMetadata}
               onClose={() => deleteBox(item["id"])}
               socket={socketIO}
-			  onConversationClick={activateBox}
+              onConversationClick={activateBox}
             />
           </li>
         ))}

@@ -1,7 +1,8 @@
 import React, { useEffect, useState } from "react";
 
 import cn from "classnames";
-import Image from "next/image";
+import "react-tooltip/dist/react-tooltip.css";
+
 import { AiOutlineUserAdd } from "react-icons/ai";
 import { BsThreeDots, BsVolumeMute } from "react-icons/bs";
 import { IoSearchOutline } from "react-icons/io5";
@@ -10,6 +11,7 @@ import { RiMailAddLine } from "react-icons/ri";
 import { SlArrowDown } from "react-icons/sl";
 
 import ChatActionsModal from "@components/modals/chat";
+import RoundedImage from "@ui/RoundedImage";
 import TextInput from "@ui/TextInput";
 import basicFetch from "@utils/basicFetch";
 import { truncateString } from "@utils/format";
@@ -111,42 +113,44 @@ const ConversationMetadata = ({
   userId: number;
   muted: boolean;
   isBlocked: boolean;
-  userStatus: string;
+  userStatus: string; // online, offline, playing
 }) => {
   return (
     <div
       onClick={onConversationClick}
-      className="flex w-full cursor-pointer items-center justify-between border-b border-gray-200 px-3 pt-2 pb-1 hover:bg-slate-200"
+      className="flex w-full cursor-pointer items-center justify-between border-b border-gray-200 px-3 pt-3 hover:bg-slate-200"
     >
       <div className="group w-full cursor-pointer">
         <div className="flex items-center">
-          <Image
-            src={`${avatar}`}
-            alt={`${name} avatar`}
-            width={40}
-            height={40}
-            className="rounded-full"
-          />
+          <div className="relative">
+            <RoundedImage src={avatar} alt={`${name} avatar`} size="60px" />
+            {userId > 0 && (
+              <>
+                {/* <Tooltip anchorId="status-circle" content={userStatus?.toUpperCase()} place="right" /> */}
+                <svg
+                  id="status-circle"
+                  width="13"
+                  height="13"
+                  className={cn("absolute bottom-0 right-1 ", {
+                    "text-green-500": userStatus === "online",
+                    "text-gray-500": userStatus === "offline",
+                    "text-yellow-500": userStatus === "playing",
+                  })}
+                >
+                  <circle cx="6" cy="6" r="6" fill="currentColor" />
+                </svg>
+              </>
+            )}
+          </div>
           <div className="ml-2 flex w-full flex-col">
             <div className="flex h-7 w-full justify-between">
-              <h1 className="text-sm font-semibold">
-                {name}{" "}
-                {userId > 0 ? (
-                  <svg width="16" height="16">
-                    <circle
-                      cx="8"
-                      cy="8"
-                      r="8"
-                      fill={userStatus == "online" ? "green" : "darkgrey"}
-                    ></circle>
-                  </svg>
-                ) : (
-                  ""
-                )}
-              </h1>
+              <h1 className="text-sm font-semibold">{name}</h1>
               <div className="flex flex-col items-center justify-center">
                 <h1 className="text-xs text-gray-500 group-hover:hidden">
-                  {new Date(lastMessageTime).toDateString()}
+                  {new Date(lastMessageTime).toLocaleTimeString([], {
+                    hour: "2-digit",
+                    minute: "2-digit",
+                  })}
                 </h1>
                 {/* eslint-disable-next-line tailwindcss/no-custom-classname */}
                 {type == "dm" ? (
@@ -183,9 +187,9 @@ const ConversationMetadata = ({
             </p>
           </div>
         </div>
-        <div className="mt-1 flex h-4 justify-end">
+        <div className="mb-1 flex h-5 justify-end">
           {unreadMessages > 0 && (
-            <div className="flex h-full w-4 items-center justify-center rounded-full bg-red-500">
+            <div className="flex h-full w-5 items-center justify-center rounded-full bg-red-500">
               <p className="text-xs text-white">
                 {unreadMessages > 9 ? "+9" : unreadMessages}
               </p>
