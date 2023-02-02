@@ -41,7 +41,7 @@ const ChatStuff = () => {
         let targetedRoom = (await getRoomInfo(obj.data.room.room_id))[0];
 
         targetedRoom.userStatus = obj.data.room.userStatus;
-        console.log({ targetedRoom }, { action: obj.data.action });
+        // console.log({ targetedRoom }, { action: obj.data.action });
         setConversationsMetadata((state) => {
           if (obj.data.action == "add") {
             const newState = state.filter((item) => {

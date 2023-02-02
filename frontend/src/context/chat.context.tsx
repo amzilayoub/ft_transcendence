@@ -95,7 +95,6 @@ export const ChatProvider = ({ children }: { children: React.ReactNode }) => {
         const tmp = [...state];
         tmp.forEach((item) => {
           if (item.id === id) {
-            console.log(item);
             item.isActiveBox = false;
           }
         });

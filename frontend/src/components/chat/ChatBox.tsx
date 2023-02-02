@@ -69,31 +69,6 @@ const Message = ({
   </li>
 );
 
-// ** Example of the message object
-// const sampleWholeConversation = {
-//   id: "1",
-//   members: [
-//     {
-//       id: "1",
-//       name: "John Doe",
-//       avatarUrl: "https://martinfowler.com/mf.jpg",
-//     },
-//     {
-//       id: "2",
-//       name: "Mike Doe",
-//       avatarUrl: "https://martinfowler.com/mf.jpg",
-//     },
-//   ],
-//   messages: [
-//     {
-//       id: "1",
-//       senderId: "1",
-//       text: "Lorem ipsum dolor sit amet consectetur adipisicing elit. Quisquam, quod. Lorem ipsum dolor sit amet consectetur adipisicing elit. Quisquam, quodZ.",
-//       time: "12:00",
-//     },
-//   ],
-// };
-
 const ChatBox = ({
   conversationMetaData,
   onClose,
@@ -111,9 +86,10 @@ const ChatBox = ({
 }) => {
   const [conversation, setConversation] = useState<IConversation | null>(null);
   const [input, setInput] = useState("");
-  const bottomDiv = useRef<HTMLDivElement>(null);
   const [ShowChatSettingModal, setShowChatSettingModal] = useState(false);
   const [showChatBox, setShowChatBox] = useState(true);
+  const bottomDivRef = useRef<HTMLDivElement>(null);
+  const textareaRef = useRef<HTMLTextAreaElement>(null);
 
   const [conversationData, setConversationData] = useState<IConversation>();
   // --------------- room data sample ----------------
@@ -150,51 +126,45 @@ const ChatBox = ({
     ],
     // updated_at: Date;
   });
-  // ------------------------------ // ------------------------------ //
+
   const handleSendMessage = React.useCallback(
     (e: any) => {
       e.preventDefault();
-      if (!input || input.length > 1000 || input.trim() === "") return;
-      socket.emit(
+      if (!input) {
+        var payload = e.target.value || "";
+      } else {
+        var payload = input;
+      }
+      if (!payload || payload.length > 1000 || payload.trim() === "") return;
+      setInput("");
+      socket?.emit(
         "createMessage",
-        { roomId: conversationMetaData.room_id, message: input },
-        (msg) => {
+        { roomId: conversationMetaData.room_id, message: payload },
+        (msg: any) => {
           if (msg.status != 200) {
             alert(msg.message);
             return;
           }
           msg.data.isMe = true;
-          setConversation((state) => {
+          setConversation((state: IConversation) => {
             return { ...state, messages: [...state?.messages, msg.data] };
           });
         }
       );
-      setInput("");
-      // send message
     },
     [input]
   );
-  // scroll to bottom
-  const scrollToBottom = () => {
-    bottomDiv?.current?.scrollIntoView({ behavior: "smooth" });
-  };
 
   useEffect(() => {
-    scrollToBottom();
+    bottomDivRef?.current?.scrollIntoView({ behavior: "smooth" });
   }, [conversation]);
 
-  // on Enter keydown
-  // make it a callback to avoid infinite loop
-  const handleKeyDown = React.useCallback(
-    (event: any) => {
-      // if only enter key is pressed without shift key
-      if (event.keyCode === 13 && !event.shiftKey) {
-        event.preventDefault();
-        handleSendMessage(event);
-      }
-    },
-    [handleSendMessage]
-  );
+  const handleKeyDown = (event: React.KeyboardEvent<HTMLTextAreaElement>) => {
+    if (event.keyCode === 13 && !event.shiftKey) {
+      event.preventDefault();
+      handleSendMessage(event);
+    }
+  };
 
   const loadMembers = useCallback(async () => {
     const data = await basicFetch.get(
@@ -245,8 +215,8 @@ const ChatBox = ({
     //   );
   };
   useEffect(() => {
-    const textarea = document.getElementById("textarea");
-    textarea?.addEventListener("keydown", handleKeyDown);
+    const msg_input_textarea = document.getElementById("msg_input_textarea");
+    msg_input_textarea?.addEventListener("keydown", handleKeyDown);
 
     const prepareData = async () => {
       try {
@@ -259,7 +229,6 @@ const ChatBox = ({
           messages,
         });
       } catch (error) {}
-      // console.log(conversation);
     };
 
     if (loadMembersRef.current) return;
@@ -269,10 +238,10 @@ const ChatBox = ({
     setSocketEvents();
 
     return () => {
-      textarea?.removeEventListener("keydown", handleKeyDown);
+      // msg_input_textarea?.removeEventListener("keydown", handleKeyDown);
       //   socket.off("createMessage");
     };
-  }, [handleKeyDown, conversationMetaData.room_id, loadMessages, loadMembers]);
+  }, [conversationMetaData.room_id, loadMessages, loadMembers]);
   socket?.on("block", (resp) => {
     // const newState = [...allConversation];
 
@@ -386,7 +355,7 @@ const ChatBox = ({
               isMe={message.isMe}
             />
           ))}
-          <div ref={bottomDiv}></div>
+          <div ref={bottomDivRef}></div>
         </ul>
         {/* inputa */}
         <div className="w-full border-gray-200 p-3 sm:mb-0">
@@ -397,11 +366,10 @@ const ChatBox = ({
               ""
             ) : (
               <textarea
-                id="textarea"
+                id="msg_input_textarea"
+                ref={textareaRef}
                 value={input}
-                onChange={(e) => {
-                  setInput(e.target.value);
-                }}
+                onChange={(e) => setInput(e.target.value)}
                 placeholder="Write your message!"
                 className="w-full resize-none rounded-md bg-gray-200 py-3 pl-3 text-gray-600 placeholder:text-gray-600 focus:outline-none focus:placeholder:text-gray-400"
               />
@@ -429,7 +397,10 @@ const ChatBox = ({
               ""
             ) : (
               <button
-                onClick={handleSendMessage}
+                onClick={(e) => {
+                  handleSendMessage(e);
+                  textareaRef.current?.focus();
+                }}
                 type="button"
                 className="inline-flex items-center justify-center rounded-lg bg-primary px-3 py-1 text-white transition duration-500 ease-in-out hover:bg-primary/80 focus:outline-none"
               >
