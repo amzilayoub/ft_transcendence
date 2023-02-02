@@ -20,7 +20,18 @@ import {
   MembershipStatus,
 } from "global/types";
 
-const MemberListItem = ({ member }: { member: IRoomMember }) => {
+const MemberListItem = ({
+  member,
+  setSearchResults,
+  roomId,
+  myRole,
+}: {
+  member: IRoomMember;
+  setSearchResults: () => {};
+  roomId: number;
+  myRole: string;
+}) => {
+  myRole = myRole.toLocaleLowerCase();
   const CurrentUser: IRoomMember = {
     id: 1,
     username: "mbif",
@@ -32,17 +43,76 @@ const MemberListItem = ({ member }: { member: IRoomMember }) => {
     isMuted: false,
     mutedUntil: new Date(),
   };
+  const handleMute = async (roomId: number, userId: number, muted: boolean) => {
+    const resp = await basicFetch.post(
+      "/chat/room/mute",
+      {},
+      {
+        roomId,
+        userId,
+        muted,
+      }
+    );
+    if (resp.status == 201) {
+      setSearchResults((state) => {
+        const newState = [...state];
 
-  const handleMute = () => {
-    console.log("mute");
+        newState.forEach((item) => {
+          if (item.id == userId) item.isMuted = muted;
+        });
+        return newState;
+      });
+    }
   };
 
-  const handleBlock = () => {
-    console.log("block");
+  const handleBlock = async (
+    roomId: number,
+    userId: number,
+    banned: boolean
+  ) => {
+    const resp = await basicFetch.post(
+      "/chat/room/ban",
+      {},
+      {
+        roomId,
+        userId,
+        banned,
+      }
+    );
+    if (resp.status == 201) {
+      setSearchResults((state) => {
+        const newState = [...state];
+
+        newState.forEach((item) => {
+          if (item.id == userId) item.isBanned = banned;
+        });
+        return newState;
+      });
+    } else {
+      alert("You don't have enough access rights to complete the action");
+    }
   };
 
-  const handleKick = () => {
-    console.log("kick");
+  const handleKick = async (roomId: number, userId: number) => {
+    const resp = await basicFetch.post(
+      "/chat/room/kickout",
+      {},
+      {
+        roomId,
+        userId,
+      }
+    );
+    if (resp.status == 201) {
+      //   setSearchResults((state) => {
+      //     const newState = [...state];
+      //     newState.forEach((item) => {
+      //       if (item.id == userId) item.isBanned = banned;
+      //     });
+      //     return newState;
+      //   });
+    } else {
+      alert("You don't have enough access rights to complete the action");
+    }
   };
 
   return (
@@ -72,22 +142,41 @@ const MemberListItem = ({ member }: { member: IRoomMember }) => {
             <div>
               <p className="text-sm text-gray-400">{member.membershipStatus}</p>
             </div>
-            <div className="flex gap-2">
-              <RiVolumeMuteLine
-                onClick={handleMute}
-                className="h-8 w-8 rounded-full bg-gray-200 p-1 text-2xl text-red-800 duration-300 hover:bg-gray-300"
-              />
-              <BiBlock
-                onClick={handleBlock}
-                className="h-8 w-8 rounded-full bg-gray-200 p-1 text-2xl text-red-800 duration-300 hover:bg-gray-300"
-              />
-              {CurrentUser.membershipStatus === MembershipStatus.OWNER && (
+            {myRole == "member" ||
+            String(member.membershipStatus).toLocaleLowerCase() == "owner" ? (
+              ""
+            ) : (
+              <div className="flex gap-2">
+                <RiVolumeMuteLine
+                  onClick={async () => {
+                    await handleMute(roomId, member.id, !member.isMuted);
+                  }}
+                  className={
+                    "h-8 w-8 rounded-full p-1 text-2xl duration-300 " +
+                    (member.isMuted
+                      ? "bg-red-800 text-white hover:bg-gray-300"
+                      : "bg-gray-200 text-red-800 hover:bg-white-300")
+                  }
+                />
+                <BiBlock
+                  onClick={async () => {
+                    await handleBlock(roomId, member.id, !member.isBanned);
+                  }}
+                  className={
+                    "h-8 w-8 rounded-full p-1 text-2xl duration-300 " +
+                    (member.isBanned
+                      ? "bg-red-800 text-white hover:bg-gray-300"
+                      : "bg-gray-200 text-red-800 hover:bg-white-300")
+                  }
+                />
                 <IoPersonRemoveOutline
-                  onClick={handleKick}
+                  onClick={async () => {
+                    await handleKick(roomId, member.id);
+                  }}
                   className="h-8 w-8 rounded-full bg-gray-200 p-1 text-2xl text-red-800 duration-300 hover:bg-gray-300"
                 />
-              )}
-            </div>
+              </div>
+            )}
           </div>
         </div>
       </div>
@@ -105,6 +194,7 @@ const ChatroomSettingsModal = ({
   onClose: () => void;
 }) => {
   const [shouldSearch, setShouldSearch] = useState<boolean>(false);
+  const [myRole, setMyRole] = useState("member");
   const searchError = false;
   const searchLoading = false;
   const [searchQuery, setSearchQuery] = useState("");
@@ -137,7 +227,8 @@ const ChatroomSettingsModal = ({
 
   useEffect(() => {
     getRoomMembers().then((data) => {
-      setSearchResults(data);
+      setSearchResults(data.members);
+      setMyRole(data.myRole);
     });
   }, [true]);
 
@@ -170,7 +261,13 @@ const ChatroomSettingsModal = ({
             !searchLoading &&
             searchResults &&
             searchResults?.map((member: IRoomMember, index: number) => (
-              <MemberListItem key={index} member={member} />
+              <MemberListItem
+                key={index}
+                member={member}
+                setSearchResults={setSearchResults}
+                roomId={roomData.room_id}
+                myRole={myRole}
+              />
             ))}
           {searchLoading &&
             [...new Array(6)].map((i) => <UserListItemLoading key={i} />)}
