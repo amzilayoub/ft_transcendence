@@ -1,5 +1,5 @@
 /* eslint-disable no-console */
-import React, { useState, useEffect } from "react";
+import React, { useState } from "react";
 
 import { Switch } from "@headlessui/react";
 import cn from "classnames";
@@ -113,7 +113,7 @@ const SettingsModal = ({
       setButtonText("Save");
     }
   };
-  
+
   return (
     <BaseModal isOpen={isOpen} onClose={onClose}>
       <div className="min-h-[calc(45vh)] p-8">
@@ -301,7 +301,9 @@ const SettingsModal = ({
           isOpen={showQRModal}
           onClose={() => setShowQRModal(false)}
           onSuccess={() => {
-            ctx.loadUserData().then((data) => setSwitchEnabled(data?.isTwoFactorEnabled));
+            ctx
+              .loadUserData()
+              .then((data) => setSwitchEnabled(data?.isTwoFactorEnabled));
             setShowQRModal(false);
           }}
           actionType={switchEnabled ? "turn-off" : "turn-on"}

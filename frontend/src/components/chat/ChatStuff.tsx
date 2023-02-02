@@ -37,7 +37,7 @@ const ChatStuff = () => {
     };
 
     if (socket) {
-      socket.on("updateListConversations", async (obj) => {
+      socket?.on("updateListConversations", async (obj) => {
         let targetedRoom = (await getRoomInfo(obj.data.room.room_id))[0];
 
         targetedRoom.userStatus = obj.data.room.userStatus;
@@ -77,7 +77,7 @@ const ChatStuff = () => {
           }
         });
       });
-      socket.on("userConnect", (resp) => {
+      socket?.on("userConnect", (resp) => {
         const userId = resp.data.userId;
         const mode = resp.data.mode;
 
@@ -122,7 +122,7 @@ const ChatStuff = () => {
               setConversationsMetadata={setConversationsMetadata}
               onClose={() => deleteBox(item["id"])}
               socket={socketIO}
-			  onConversationClick={activateBox}
+              onConversationClick={activateBox}
             />
           </li>
         ))}
