@@ -82,7 +82,6 @@ export class AuthController {
     @UseGuards(JwtTwoFactorGuard)
     @Get('logout')
     async logout(@Req() request: RequestWithUser, @Res() response: Response) {
-        console.log('LOGOUT');
         response.setHeader('Set-Cookie', this.authService.getCookieForLogOut());
         response.send(200);
     }

@@ -62,10 +62,11 @@ export const SearchchatTab = ({
 
   const handleSearch = async (value: any) => {
     const res = await basicFetch.get(
-      `/users/${ctx.user?.username}/friends/${value}`
+      `/users/friends/${value}`
     );
     if (res.status == 200) {
       const data = await res.json();
+      console.log(data);
       return data;
     }
     return [
@@ -132,7 +133,7 @@ export const SearchchatTab = ({
   );
 };
 
-const CreateRoomTab = ({ createRoom }: { createRoom: any }) => {
+const CreateRoomTab = ({ createRoom, onSuccess }: { createRoom: any; onSuccess: () => void }) => {
   const [roomTypes, setRoomTypes] = useState([]);
   const [createRoomInfo, setCreateRoomInfo] = useState({
     name: "",
@@ -168,23 +169,22 @@ const CreateRoomTab = ({ createRoom }: { createRoom: any }) => {
         ...createRoomInfo,
         roomTypeId: roomType["id"],
       },
-      (res: any) => {
-        console.log(res);
-      }
+      (res: any) => onSuccess()
     );
   };
   return (
     <Tab.Group>
       <Tab.List className="flex h-8 w-full items-center justify-center">
-        <div className="flex h-8 w-2/3 items-center justify-center rounded-lg bg-slate-200 ">
-          {["public", "private", "protected"].map((tab) => (
+        <div className="flex items-center justify-center rounded-lg bg-slate-200">
+          {["Public", "Private", "Protected"].map((tab) => (
             <Tab
               key={tab.id}
               className={({ selected }) =>
-                cn({
-                  "bg-slate-400 shadow w-full h-full rounded-lg": selected,
-                  "bg-slate-200  text-blue-400 w-full h-full rounded-lg":
-                    !selected,
+                cn(
+                  "rounded-md py-1 px-4 text-center w-full h-full duration-150",
+                  {
+                  "bg-slate-400 shadow cursor-default": selected,
+                  "  text-blue-400  hover:text-blue-500": !selected,
                 })
               }
             >

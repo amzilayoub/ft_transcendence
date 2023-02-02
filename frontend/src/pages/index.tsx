@@ -187,7 +187,7 @@ const SiginFields = () => {
 };
 
 export default function LandingPage() {
-  const [show2fa, setShow2fa] = useState(false);
+  const [show2fa, setShow2fa] = useState(false);  
 
   const handle42Login = async () => {
     window.location.href = process.env.NEXT_PUBLIC_API_URL + "/auth/login42";

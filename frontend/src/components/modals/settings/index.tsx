@@ -33,6 +33,11 @@ const SettingsModal = ({
   const [deleteButtonText, setDeleteButtonText] = useState("Delete");
   const [isSaving, setIsSaving] = useState(false);
 
+  
+  const [inputFiles, setInputFiles] = useState({
+    avatar: null,
+    cover: null,
+  });
   const avatarInputRef = React.useRef<HTMLInputElement>(null);
   const coverInputRef = React.useRef<HTMLInputElement>(null);
 
@@ -50,29 +55,14 @@ const SettingsModal = ({
     e: React.ChangeEvent<HTMLInputElement>,
     type: string
   ) => {
+    console.count("handleFileInputChange");
     const { files } = e.target;
     if (files && files.length > 0) {
       if (type === "avatar") {
-        setSettings({ ...settings, avatar: files[0] });
+        setInputFiles({ ...inputFiles, avatar: files[0] });
       }
       if (type === "cover") {
-        setSettings({ ...settings, cover: files[0] });
-      }
-    }
-  };
-
-  const handleSwitchChange = async () => {
-    if (!switchEnabled) {
-      setShowQRModal(true);
-    } else {
-      try {
-        const res = await basicFetch.get("/2fa/turn-off");
-        if (res.status === 200) {
-          setSwitchEnabled(false);
-          ctx.loadUserData();
-        }
-      } catch (error) {
-        console.log(error);
+        setInputFiles({ ...inputFiles, cover: files[0] });
       }
     }
   };
@@ -83,26 +73,34 @@ const SettingsModal = ({
     e.preventDefault();
     setIsSaving(true);
     try {
-      if (settings.avatar) {
+      if (inputFiles.avatar) {
         setButtonText("Uploading...");
-        const file_data = await uploadFile(settings.avatar);
-        if (file_data) {
-          delete settings.avatar;
+        const file_data = await uploadFile(inputFiles.avatar);
+        if (file_data) 
           settings.avatar_url = file_data.secure_url || null;
-        }
       }
-      if (settings.cover) {
+      if (inputFiles.cover) {
         setButtonText("Uploading...");
-        const file_data = await uploadFile(settings.cover);
-        if (file_data) {
-          delete settings.cover;
+        const file_data = await uploadFile(inputFiles.cover);
+        if (file_data)
           settings.cover_url = file_data.secure_url || null;
-        }
       }
       setButtonText("Saving...");
       const res = await basicFetch.post("/users/update", {}, settings);
       if (res.ok) {
         setButtonText("Saved!");
+        {
+          /*
+            If the current user is on their profile page and they change their username,
+            we redirect them to the new username page. That's because we use it as the
+            unique identifier for the user. So if the username changes, the URL should change too.
+          */
+          const data = await res.json();
+          if (data.username && data.username !== ctx.user?.username && window.location.pathname === `/u/${ctx.user?.username}`) {
+            window.location.pathname = `/u/${data.username}`;
+          }
+        }
+
         ctx.updateUserData();
         onClose();
       }
@@ -149,7 +147,6 @@ const SettingsModal = ({
                               ? `cover for ${ctx.user?.username}`
                               : "cover placeholder"
                           }
-                          // onClick={() => user?.cover_url && setIsCoverModalOpen(true)}
                           fill
                           className={cn("object-cover rounded-t-xl absolute", {
                             "cursor-pointer": ctx.user?.cover_url,
@@ -170,10 +167,9 @@ const SettingsModal = ({
                         className="hidden"
                       />
                     </figure>
-
-                    <div className="absolute -bottom-12 -left-2 h-[160px] w-[160px] gap-4">
+                    <div className="absolute -bottom-12 left-6 h-[160px] w-[160px] gap-4">
                       <figure
-                        className="group absolute flex h-[160px] w-[160px] cursor-pointer items-center justify-center rounded-full bg-black transition"
+                        className="group absolute flex h-[160px] w-[160px] cursor-pointer items-center justify-center rounded-full bg-black transition ring-4 ring-white"
                         onClick={() => avatarInputRef.current?.click()}
                       >
                         <Image

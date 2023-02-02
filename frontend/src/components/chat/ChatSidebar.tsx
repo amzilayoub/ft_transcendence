@@ -156,13 +156,13 @@ const ConversationMetadata = ({
                 {type == "dm" ? (
                   <div className="group/dots relative hidden h-7 w-7 items-center justify-center text-xs duration-200 hover:bg-gray-300 group-hover:flex">
                     <BsThreeDots />
-                    <div className="absolute top-0 right-0 hidden w-full min-w-min flex-col overflow-hidden rounded-l-lg bg-white group-hover/dots:flex">
+                    <div className="absolute w-28 top-0 right-0 hidden w-full min-w-min flex-col overflow-hidden rounded-l-lg bg-white group-hover/dots:flex">
                       <button
                         onClick={async (e) => {
                           e.stopPropagation();
                           await onMuteClick(!muted);
                         }}
-                        className="flex w-full min-w-min items-center gap-x-2 bg-white px-4 py-2 font-semibold text-red-500 hover:bg-gray-100 hover:text-red-500"
+                        className="flex w-full  items-center gap-x-2 bg-white px-4 py-2 font-semibold text-red-500 hover:bg-gray-100 hover:text-red-500"
                       >
                         <BsVolumeMute />
                         {muted ? "Unmute" : "Mute"}
@@ -352,16 +352,16 @@ const ChatSidebar = ({
     <>
       <div
         className={cn(
-          "transition-height ease-in-out delay-150 flex flex-col w-[360px] items-center bg-white border border-gray-300 overflow-hidden shadow-lg shadow-gray-400 rounded-t-2xl",
+          "transition-chat-sidebar ease-in-out delay-150 flex flex-col w-[340px] items-center bg-white border border-gray-300 overflow-hidden shadow-lg shadow-gray-400 rounded-t-2xl",
           {
             "h-[calc(100vh-32vh)]": showChatSidebar,
-            "h-14": !showChatSidebar,
+            "h-12": !showChatSidebar,
           }
         )}
       >
         <div
           onClick={() => setShowChatSidebar(!showChatSidebar)}
-          className="flex w-full cursor-pointer items-center justify-between border-b p-3 "
+          className="flex w-full cursor-pointer items-center justify-between border-b py-2 px-3 "
         >
           <p className="font-semibold ">Messages</p>
           <div className="flex items-center justify-between gap-x-2">

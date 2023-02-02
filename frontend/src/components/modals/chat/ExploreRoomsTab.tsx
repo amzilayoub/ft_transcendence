@@ -12,13 +12,14 @@ import basicFetch from "@utils/basicFetch";
 import { truncateString } from "@utils/format";
 import { IRoom } from "global/types";
 
-const RoomListItem = ({ room, socket }: { room: IRoom; socket: any }) => {
+const RoomListItem = ({ room, socket, onJoinRoom }: { room: IRoom; socket: any; onJoinRoom: () => void }) => {
   const [showPasswordModal, setShowPasswordModal] = useState<boolean>(false);
   const [passwordIsCoorect, setPasswordIsCorrect] = useState(true);
   const [roomPassword, setRoomPassword] = useState("");
 
   const handleJoinRoom = async () => {
     await joinRoom();
+    onJoinRoom();
   };
 
   const joinRoom = async () => {
@@ -54,7 +55,7 @@ const RoomListItem = ({ room, socket }: { room: IRoom; socket: any }) => {
         if (String(room.type).toLowerCase() === "protected") {
           setShowPasswordModal(true);
         } else {
-          await joinRoom();
+          await handleJoinRoom();
         }
       }}
     >
@@ -128,7 +129,7 @@ const RoomListItem = ({ room, socket }: { room: IRoom; socket: any }) => {
   );
 };
 // const fetcher = (url) => fetch(url).then((res) => res.json());
-const ExploreRoomsTab = ({ socket }: { socket: any }) => {
+const ExploreRoomsTab = ({ socket, onSuccess }: { socket: any; onSuccess: () => void }) => {
   //   const chatCtx = useChatContext();
   const [searchQuery, setSearchQuery] = useState("");
   const [shouldSearch, setShouldSearch] = useState<boolean>(false);
@@ -225,7 +226,7 @@ const ExploreRoomsTab = ({ socket }: { socket: any }) => {
           !searchLoading &&
           searchResults &&
           searchResults?.map((room: IRoom) => (
-            <RoomListItem key={room.id} room={room} socket={socket} />
+            <RoomListItem key={room.id} room={room} socket={socket} onJoinRoom={onSuccess} />
           ))}
         {searchLoading &&
           [...new Array(6)].map((i) => <UserListItemLoading key={i} />)}

@@ -119,6 +119,27 @@ export class UserService {
         return users;
     }
 
+    async searchFriendsByUsername(query: string, offset = 0, limit = 10) {
+        const users = await this.prisma.user.findMany({
+            where: {
+                username: {
+                    contains: query,
+                },
+            },
+            select: {
+                id: true,
+                username: true,
+                first_name: true,
+                last_name: true,
+                avatar_url: true,
+            },
+            skip: offset,
+            take: limit,
+        });
+        return users;
+    }
+
+
     async getFollowers(username: string) {
         return [];
     }

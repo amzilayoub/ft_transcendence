@@ -32,6 +32,18 @@ export class UserController {
         return users;
     }
 
+    /*
+    ** Friend means following or follower or both
+    */
+    @Get('friends/:username')
+    async getFollowings(@Req() req) {
+        const { username } = req.params;
+        const followings = await this.userService.searchFriendsByUsername(
+            username,
+        );
+        return followings;
+    }
+
     @Get('followers/:username')
     async getFollowers(@Req() req) {
         const { username } = req.params;

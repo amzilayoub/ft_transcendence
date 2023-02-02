@@ -154,6 +154,7 @@ const Searchbar = (props: SearchbarProps) => {
         </button>
       </label>
       <input
+        tabIndex={0}
         type="search"
         className={cn(
           "border z-50 h-full w-full rounded-xl py-2 pl-12 text-gray-500 list-none duration-150 outline-none",

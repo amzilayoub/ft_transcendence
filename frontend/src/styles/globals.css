@@ -13,7 +13,22 @@
 	scrollbar-width: none;
   }
 
-  .transition-height {
-    transition: height 0.3s ease;
+  /* Transitions politely borrowed from LinkedIn */
+
+  .transition-close-bubble {
+    transition-duration: 180ms;
+    transition: height 0.3s ease, width 0.3s ease, transform 0.3s ease;
+    transition-timing-function: cubic-bezier(0,0,.2,1);
   }
-  
+
+  .transition-open-bubble {
+    transition-duration: 180ms;
+    transition: height 0.3s ease, width 0.3s ease, transform 0.3s ease;
+    transition-timing-function: cubic-bezier(.4,0,1,1);
+  }
+
+  .transition-chat-sidebar {
+    transition-duration: 180ms;
+    transition: height 0.3s ease;
+    transition-timing-function: cubic-bezier(0,0,.2,1);
+  }

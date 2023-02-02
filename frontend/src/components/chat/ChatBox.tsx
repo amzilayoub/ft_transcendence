@@ -23,12 +23,10 @@ import {
 const Message = ({
   message,
   isMe,
-
   senderAvatar,
 }: {
   message: string;
   isMe: boolean;
-
   senderAvatar: string;
 }) => (
   <li className="">
@@ -47,17 +45,19 @@ const Message = ({
           }
         )}
       >
-        <div>
-          <span className={cn("inline-block px-4 py-2", {})}>
-            {message.split("\n").map((item, key) => (
-              <span key={key}>
-                {item}
-                <br />
-              </span>
-            ))}
-          </span>
-        </div>
+        <span
+          className={cn("inline-block px-4 py-2", {})}>
+          {message.split("\n").map((item, key) => (
+            <span key={key}>
+              {item}
+              <br />
+            </span>
+          ))}
+        </span>
+
+
       </div>
+
       <Image
         src={senderAvatar || "/public/images/default_avatar.jpg"}
         alt="Sender Avatar"
@@ -218,9 +218,7 @@ const ChatBox = ({
     //   );
   };
   useEffect(() => {
-    // const msg_input_textarea = document.getElementById("msg_input_textarea");
-    // msg_input_textarea?.addEventListener("keydown", handleKeyDown);
-    textareaRef.current.addEventListener("keydown", handleKeyDown);
+    textareaRef.current?.addEventListener("keydown", handleKeyDown);
 
     const prepareData = async () => {
       try {
@@ -232,7 +230,7 @@ const ChatBox = ({
           members,
           messages,
         });
-      } catch (error) {}
+      } catch (error) { }
     };
 
     if (loadMembersRef.current) return;
@@ -242,8 +240,7 @@ const ChatBox = ({
     setSocketEvents();
 
     return () => {
-      // msg_input_textarea?.removeEventListener("keydown", handleKeyDown);
-      textareaRef.current.removeEventListener("keydown", handleKeyDown);
+      textareaRef.current?.removeEventListener("keydown", handleKeyDown);
       //   socket.off("createMessage");
     };
   }, [conversationMetaData.room_id, loadMessages, loadMembers]);
@@ -270,67 +267,91 @@ const ChatBox = ({
     });
   });
 
+
   return (
     <section
       className={cn(
-        " transition-height ease-in-out delay-150 relative flex w-[340px] flex-col rounded-t-xl border border-gray-200 bg-white shadow-md",
+        "relative flex flex-col rounded-t-xl border border-gray-200 bg-white shadow-md",
         {
-          "h-[500px]": showChatBox,
-          "h-20": !showChatBox,
+          "transition-close-bubble w-[340px] h-[500px]": showChatBox,
+          "transition-open-bubble h-12 w-[240px]": !showChatBox,
         }
       )}
     >
       <div
         onClick={() => setShowChatBox(!showChatBox)}
-        className="cursor-pointer flex justify-between border-b-2 border-gray-200 p-3 sm:items-center"
+        className={cn("cursor-pointer flex justify-between border-b-2 border-gray-200  sm:items-center h-14", {
+          "p-3": showChatBox,
+          "p-2": !showChatBox,
+        })}
       >
         {/* <div className="relative flex items-center space-x-4"> */}
-        <Link
-          href={`/u/${conversationMetaData.name}`}
+        <div
           className="relative flex items-center space-x-4"
         >
           <div className="relative">
-            <RoundedImage
+            <Image
               src={
                 conversationMetaData?.avatar_url ||
                 "/public/images/default_avatar.jpg"
               }
               alt={`${conversationMetaData?.name || "User"}'s avatar`}
-              size="60px"
-              className="h-8 w-8"
+              width={showChatBox ? 44 : 32}
+              height={showChatBox ? 44 : 32}
+              className="rounded-full"
             />
             {conversationMetaData.type === "dm" && (
               <svg
                 id="status-circle"
-                width="13"
-                height="13"
-                className={cn("absolute bottom-0 right-1 ", {
+                width={showChatBox ? 12 : 9}
+                height={showChatBox ? 12 : 9}
+                className={cn("absolute bottom-0 ", {
                   "text-green-500":
                     conversationMetaData.userStatus === "online",
                   "text-gray-500":
                     conversationMetaData.userStatus === "offline",
                   "text-yellow-500":
                     conversationMetaData.userStatus === "playing",
+                  "right-1": showChatBox,
+                  "right-0": !showChatBox,
                 })}
               >
-                <circle cx="6" cy="6" r="6" fill="currentColor" />
+                {
+
+                  showChatBox ? (<circle cx="6" cy="6" r="6" fill="currentColor" />) : (<circle cx="4" cy="4" r="4" fill="currentColor" />)
+                }
               </svg>
             )}
           </div>
-          <div
-            onClick={(e) => {
-              e.stopPropagation();
-            }}
-            className="flex flex-col leading-tight"
-          >
-            <p className="flex items-center text-xl">
-              <span className="mr-3 text-gray-700">
-                {truncateString(conversationMetaData.name, 14)}
-              </span>
-            </p>
-          </div>
-          {/* </div> */}
-        </Link>
+          {
+            showChatBox ? (
+              <Link
+                href={`/u/${conversationMetaData.name}`}
+                onClick={(e) => {
+                  e.stopPropagation();
+                }}
+                className="flex flex-col leading-tight"
+              >
+                <p className="flex items-center text-xl">
+                  <span className="mr-3 text-gray-800 font-semibold text-base hover:text-gray-600 hover:underline">
+                    {truncateString(conversationMetaData.name, 20)}
+                  </span>
+                </p>
+              </Link>
+            ) : (
+              <div
+                className="flex flex-col leading-tight"
+              >
+                <p className="flex items-center text-xl">
+                  <span className="mr-3 text-gray-800 font-semibold text-base ">
+                    {truncateString(conversationMetaData.name, 14)}
+                  </span>
+                </p>
+              </div>
+            )
+          }
+
+        </div>
         <span
           onClick={onClose}
           className="absolute top-3 right-3 cursor-pointer rounded-full p-1 text-gray-400 duration-300 hover:bg-gray-200 hover:text-slate-600"
@@ -373,7 +394,7 @@ const ChatBox = ({
           <form className="relative flex" onSubmit={handleSendMessage}>
             {(conversationMetaData.isBlocked ||
               conversationMetaData.amIBlocked) &&
-            conversationMetaData.type == "dm" ? (
+              conversationMetaData.type == "dm" ? (
               ""
             ) : (
               <textarea
@@ -393,18 +414,18 @@ const ChatBox = ({
               })}
             >
               {conversationMetaData.isBlocked &&
-              conversationMetaData.type == "dm"
+                conversationMetaData.type == "dm"
                 ? "You blocked this user"
                 : conversationMetaData.amIBlocked &&
                   conversationMetaData.type == "dm"
-                ? "You cannot contact this user"
-                : ""}
+                  ? "You cannot contact this user"
+                  : ""}
             </div>
           </form>
           <div className="flex justify-end py-1">
             {(conversationMetaData.isBlocked ||
               conversationMetaData.amIBlocked) &&
-            conversationMetaData.type == "dm" ? (
+              conversationMetaData.type == "dm" ? (
               ""
             ) : (
               <button

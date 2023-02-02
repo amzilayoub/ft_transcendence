@@ -270,7 +270,7 @@ export default function ProfilePage() {
 
   return (
     <MainLayout
-      title={username ? username + " | " + APP_NAME : APP_NAME}
+      title={username ? `@${username} | ${APP_NAME}` : APP_NAME}
       backgroundColor="bg-gray-100"
     >
       <div className="flex w-full max-w-7xl flex-col gap-3 px-2 xl:px-0">
@@ -294,7 +294,7 @@ export default function ProfilePage() {
           isOpen={isAvatarModalOpen}
           onClose={() => setIsAvatarModalOpen(false)}
         >
-          <div className="flex h-[600px] w-[600px] flex-col items-center justify-center ">
+          <div className="flex h-[600px] w-[600px] flex-col items-center justify-center">
             <Image
               src={user.data?.avatar_url || "/images/default-avatar.jpg"}
               alt={`avatar for ${username}`}

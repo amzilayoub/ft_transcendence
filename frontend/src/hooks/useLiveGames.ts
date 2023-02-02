@@ -48,14 +48,14 @@ const useLiveGames = () => {
     });
 
     if (socket) {
-      socket.on("connect", () => {
+      socket?.on("connect", () => {
         console.log("Live Game: Connected to socket");
         getGames();
       });
-      socket.on("disconnect", () => {
+      socket?.on("disconnect", () => {
         console.log("Live Game: Disconnected from socket");
       });
-      socket.on("liveGames", (data) => {
+      socket?.on("liveGames", (data) => {
         setGames(data);
       });
     }
