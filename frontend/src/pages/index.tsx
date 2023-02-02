@@ -202,7 +202,6 @@ export default function LandingPage() {
     }
   }, []);
 
-
   return (
     <MainLayout pageIsProtected={false} noLayout>
       <div className="grid min-h-screen grid-cols-5">

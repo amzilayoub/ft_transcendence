@@ -9,6 +9,7 @@ import { RiVolumeMuteLine } from "react-icons/ri";
 import { RoomInfo } from "@components/chat/ChatSettingsPanel";
 import BaseModal from "@ui/BaseModal";
 import Button from "@ui/Button";
+import Link from "next/link";
 import UserListItemLoading from "@ui/skeletons/UserSkeletons";
 import TextInput from "@ui/TextInput";
 import basicFetch from "@utils/basicFetch";
@@ -19,6 +20,9 @@ import {
   MemberGameStatus,
   MembershipStatus,
 } from "global/types";
+import { uploadFile } from "@utils/uploadFile";
+import Select from "react-select";
+import ConfirmationModal from "@ui/ConfirmationModal";
 
 const MemberListItem = ({
   member,
@@ -32,18 +36,10 @@ const MemberListItem = ({
   myRole: string;
 }) => {
   myRole = myRole.toLocaleLowerCase();
-  const CurrentUser: IRoomMember = {
-    id: 1,
-    username: "mbif",
-    avatar_url: "https://i.imgur.com/0y0tj9X.png",
-    isOnline: true,
-    gameStatus: MemberGameStatus.IDLE,
-    membershipStatus: MembershipStatus.MEMBER,
-    isBanned: false,
-    isMuted: false,
-    mutedUntil: new Date(),
-  };
-  const handleMute = async (roomId: number, userId: number, muted: boolean) => {
+
+  const [memberRole, setMemberRole] = useState(member.membershipStatus);
+
+  const handleMute = async (userId: number, muted: boolean) => {
     const resp = await basicFetch.post(
       "/chat/room/mute",
       {},
@@ -65,11 +61,7 @@ const MemberListItem = ({
     }
   };
 
-  const handleBlock = async (
-    roomId: number,
-    userId: number,
-    banned: boolean
-  ) => {
+  const handleBlock = async (userId: number, banned: boolean) => {
     const resp = await basicFetch.post(
       "/chat/room/ban",
       {},
@@ -93,7 +85,7 @@ const MemberListItem = ({
     }
   };
 
-  const handleKick = async (roomId: number, userId: number) => {
+  const handleKick = async (userId: number) => {
     const resp = await basicFetch.post(
       "/chat/room/kickout",
       {},
@@ -115,6 +107,23 @@ const MemberListItem = ({
     }
   };
 
+  const handleRoleChange = async (userId: number, role: MembershipStatus) => {
+    const resp = await basicFetch.post(
+      "/chat/room/role",
+      {},
+      {
+        roomId,
+        userId,
+        role,
+      }
+    );
+    if (resp.status == 201) {
+      setMemberRole(role);
+    } else {
+      alert("You don't have enough access rights to complete the action");
+    }
+  };
+
   return (
     <li
       className={cn(
@@ -128,19 +137,44 @@ const MemberListItem = ({
         <div className="flex w-full justify-between gap-x-2">
           <div className="ml-2 flex w-full flex-row items-center justify-between ">
             <div>
-              <div className="ml-2 flex w-32 items-center gap-4">
-                <Image
-                  src={member.avatar_url}
-                  alt={member + " avatar"}
-                  width={40}
-                  height={40}
-                  className="rounded-full"
-                />
+              <Link
+                href={`/u/${member.username}`}
+                className="ml-2 flex w-32 items-center gap-4"
+              >
+                <figure className="relative flex h-8 w-8 items-center justify-center rounded-full">
+                  <Image
+                    src={member.avatar_url}
+                    alt={member + " avatar"}
+                    fill
+                    className="rounded-full object-cover"
+                  />
+                </figure>
+
                 <p className="text-sm font-medium">{member.username}</p>
-              </div>
+              </Link>
             </div>
             <div>
-              <p className="text-sm text-gray-400">{member.membershipStatus}</p>
+              {/* <p className="text-sm text-gray-400">{member.membershipStatus}</p> */}
+              {member.membershipStatus.toLocaleLowerCase() == "owner" ? (
+                <p className="text-sm text-gray-400">Owner</p>
+              ) : (
+                <Select
+                  className="w-32"
+                  options={[
+                    { value: "admin", label: "Admin" },
+                    { value: "moderator", label: "Moderator" },
+                    { value: "member", label: "Member" },
+                  ]}
+                  value={{
+                    value: memberRole,
+                    label:
+                      memberRole.charAt(0).toUpperCase() + memberRole.slice(1),
+                  }}
+                  onChange={(option: any) => {
+                    handleRoleChange(member.id, option.value);
+                  }}
+                />
+              )}
             </div>
             {myRole == "member" ||
             String(member.membershipStatus).toLocaleLowerCase() == "owner" ? (
@@ -149,7 +183,7 @@ const MemberListItem = ({
               <div className="flex gap-2">
                 <RiVolumeMuteLine
                   onClick={async () => {
-                    await handleMute(roomId, member.id, !member.isMuted);
+                    await handleMute(member.id, !member.isMuted);
                   }}
                   className={
                     "h-8 w-8 rounded-full p-1 text-2xl duration-300 " +
@@ -160,7 +194,7 @@ const MemberListItem = ({
                 />
                 <BiBlock
                   onClick={async () => {
-                    await handleBlock(roomId, member.id, !member.isBanned);
+                    await handleBlock(member.id, !member.isBanned);
                   }}
                   className={
                     "h-8 w-8 rounded-full p-1 text-2xl duration-300 " +
@@ -171,7 +205,7 @@ const MemberListItem = ({
                 />
                 <IoPersonRemoveOutline
                   onClick={async () => {
-                    await handleKick(roomId, member.id);
+                    await handleKick(member.id);
                   }}
                   className="h-8 w-8 rounded-full bg-gray-200 p-1 text-2xl text-red-800 duration-300 hover:bg-gray-300"
                 />
@@ -183,6 +217,53 @@ const MemberListItem = ({
     </li>
   );
 };
+
+// const RoomMembers = () => {
+//   return (
+//     <div className="h-2/3 p-8">
+//       <h2 className="text-2xl font-bold">Room Members</h2>
+//       <div className="h-px bg-gray-200 " />
+//       <form
+//         onSubmit={(e) => {
+//           e.preventDefault();
+//           console.log("search");
+//         }}
+//         className="group relative h-10 w-full"
+//       >
+//         <label className="absolute top-3 left-3 flex items-center justify-center text-gray-400">
+//           <button type="submit" className="h-full w-full cursor-default">
+//             <IoSearchOutline className="h-6 w-6 text-gray-400 group-focus-within:text-secondary group-hover:text-secondary" />
+//           </button>
+//         </label>
+//         <TextInput
+//           name="search"
+//           placeholder="Search for a member"
+//           onChange={(e) => handleSearchChange(e)}
+//           inputClassName="pl-12 py-[8px] "
+//         />
+//       </form>
+//       <ul className="no-scrollbar mt-4 flex h-[calc(60vh-160px)] flex-col gap-y-1 overflow-y-scroll scroll-smooth">
+//         {!searchError &&
+//           !searchLoading &&
+//           searchResults &&
+//           searchResults?.map((member: IRoomMember, index: number) => (
+//             <MemberListItem
+//               key={index}
+//               member={member}
+//               setSearchResults={setSearchResults}
+//               roomId={roomData.room_id}
+//               myRole={myRole}
+//             />
+//           ))}
+//         {searchLoading &&
+//           [...new Array(6)].map((i) => <UserListItemLoading key={i} />)}
+//         {!searchError && searchResults?.length === 0 && (
+//           <p className="py-10 text-center text-gray-400">No results found</p>
+//         )}
+//       </ul>
+//     </div>
+//   );
+// };
 
 const ChatroomSettingsModal = ({
   roomData,
@@ -199,6 +280,11 @@ const ChatroomSettingsModal = ({
   const searchLoading = false;
   const [searchQuery, setSearchQuery] = useState("");
   const [searchResults, setSearchResults] = useState([]);
+
+  const [confirmModalOpen, setConfirmModalOpen] = useState(false);
+  const [isSaving, setIsSaving] = useState(false);
+  const [buttonText, setButtonText] = useState("Save");
+
   const CurrentUser: IRoomMember = {
     id: 1,
     username: "mbif",
@@ -232,65 +318,52 @@ const ChatroomSettingsModal = ({
     });
   }, [true]);
 
-  const RoomMembers = () => {
-    return (
-      <div className="h-2/3 p-8">
-        <h2 className="text-2xl font-bold">Room Members</h2>
-        <div className="h-px bg-gray-200 " />
-        <form
-          onSubmit={(e) => {
-            e.preventDefault();
-            console.log("search");
-          }}
-          className="group relative h-10 w-full"
-        >
-          <label className="absolute top-3 left-3 flex items-center justify-center text-gray-400">
-            <button type="submit" className="h-full w-full cursor-default">
-              <IoSearchOutline className="h-6 w-6 text-gray-400 group-focus-within:text-secondary group-hover:text-secondary" />
-            </button>
-          </label>
-          <TextInput
-            name="search"
-            placeholder="Search for a member"
-            onChange={(e) => handleSearchChange(e)}
-            inputClassName="pl-12 py-[8px] "
-          />
-        </form>
-        <ul className="no-scrollbar mt-4 flex h-[calc(60vh-160px)] flex-col gap-y-1 overflow-y-scroll scroll-smooth">
-          {!searchError &&
-            !searchLoading &&
-            searchResults &&
-            searchResults?.map((member: IRoomMember, index: number) => (
-              <MemberListItem
-                key={index}
-                member={member}
-                setSearchResults={setSearchResults}
-                roomId={roomData.room_id}
-                myRole={myRole}
-              />
-            ))}
-          {searchLoading &&
-            [...new Array(6)].map((i) => <UserListItemLoading key={i} />)}
-          {!searchError && searchResults?.length === 0 && (
-            <p className="py-10 text-center text-gray-400">No results found</p>
-          )}
-        </ul>
-      </div>
-    );
+  const handleSave = async (e: React.MouseEvent<HTMLButtonElement>) => {
+    e.preventDefault();
+    setIsSaving(true);
+    setButtonText("Saving...");
+
+    try {
+      if (settings.avatar) {
+        setButtonText("Uploading...");
+        const file_data = await uploadFile(settings.avatar);
+        if (file_data) {
+          delete settings.avatar;
+          settings.avatar_url = file_data.secure_url || null;
+        }
+      }
+      if (settings.cover) {
+        setButtonText("Uploading...");
+        const file_data = await uploadFile(settings.cover);
+        if (file_data) {
+          delete settings.cover;
+          settings.cover_url = file_data.secure_url || null;
+        }
+      }
+      setButtonText("Saving...");
+      const res = await basicFetch.post("/users/update", {}, settings);
+      if (res.ok) {
+        setButtonText("Saved!");
+        ctx.updateUserData();
+        onClose();
+      }
+    } catch (error) {
+      console.log(error);
+    } finally {
+      setIsSaving(false);
+      setButtonText("Save");
+    }
   };
 
-  const [isLoading, setIsLoading] = useState(false);
-  const [buttonText, setButtonText] = useState("Save");
-  const handleSave = (e: React.MouseEvent<HTMLButtonElement>) => {
-    e.preventDefault();
-    setIsLoading(true);
-    setButtonText("Saving...");
-    // Make API call or perform other logic here
-    setTimeout(() => {
-      setIsLoading(false);
-      setButtonText("Save");
-      console.log("data saved successfully");
-    }, 2000);
+  const handleDeleteRoom = async () => {
+    try {
+      const res = await basicFetch.get(`/chat/room/${roomData.room_id}/delete`);
+      if (res.ok) {
+        onClose();
+      }
+    } catch (error) {
+      console.log(error);
+    }
   };
 
   return (
@@ -301,37 +374,82 @@ const ChatroomSettingsModal = ({
             <RoomInfo roomData={roomData} />
           )}
         </div>
-        <RoomMembers />
-      </div>
-      <div className="flex w-full flex-row items-center justify-around pb-4">
-        <Button variant="danger">Delete Room</Button>
-        <Button
-          variant="primary"
-          type="submit"
-          isLoading={isLoading}
-          onClick={handleSave}
-        >
-          {buttonText}
-        </Button>
-      </div>
-    </BaseModal>
-  );
-};
+        {/* <RoomMembers /> */}
 
-export const ChatdmSettingsModal = ({
-  conversationData,
-  roomData,
-  isOpen = false,
-  onClose = () => {},
-}: {
-  conversationData: IConversation;
-  roomData: IRoom;
-  isOpen: boolean;
-  onClose: () => void;
-}) => {
-  return (
-    <BaseModal isOpen={isOpen} onClose={onClose}>
-      <h1>test</h1>
+        <div className=" p-8">
+          <h2 className="text-2xl font-bold">Room Members</h2>
+          <div className="h-px bg-gray-200 " />
+          <div className="pt-4 ">
+            <form
+              onSubmit={(e) => {
+                e.preventDefault();
+                console.log("search");
+              }}
+              className="group relative h-10 w-full "
+            >
+              <label className="absolute top-3 left-3 flex items-center justify-center text-gray-400">
+                <button type="submit" className="h-full w-full cursor-default">
+                  <IoSearchOutline className="h-6 w-6 text-gray-400 group-focus-within:text-secondary group-hover:text-secondary" />
+                </button>
+              </label>
+              <TextInput
+                name="search"
+                placeholder="Search for a member"
+                onChange={(e) => handleSearchChange(e)}
+                inputClassName="pl-12 py-[8px] "
+              />
+            </form>
+            <ul className="no-scrollbar mt-4 flex  flex-col gap-y-1 overflow-y-scroll scroll-smooth">
+              {!searchError &&
+                !searchLoading &&
+                searchResults &&
+                searchResults?.map((member: IRoomMember, index: number) => (
+                  <MemberListItem
+                    key={index}
+                    member={member}
+                    setSearchResults={setSearchResults}
+                    roomId={roomData.room_id}
+                    myRole={myRole}
+                  />
+                ))}
+              {searchLoading &&
+                [...new Array(6)].map((i) => <UserListItemLoading key={i} />)}
+              {!searchError && searchResults?.length === 0 && (
+                <p className="py-10 text-center text-gray-400">
+                  No results found
+                </p>
+              )}
+            </ul>
+          </div>
+          <div className="flex h-full w-full items-end justify-end pt-5">
+            <div className="flex gap-x-2 ">
+              <Button
+                variant="danger"
+                onClick={() => setConfirmModalOpen(true)}
+              >
+                Delete Room
+              </Button>
+              <Button
+                variant="primary"
+                type="submit"
+                isLoading={isSaving}
+                onClick={handleSave}
+              >
+                {buttonText}
+              </Button>
+            </div>
+          </div>
+        </div>
+      </div>
+      {confirmModalOpen && (
+        <ConfirmationModal
+          isOpen={confirmModalOpen}
+          onCancel={() => setConfirmModalOpen(false)}
+          onConfirm={handleDeleteRoom}
+          title="Delete Room"
+          message={`Are you sure you want to delete this room?\nThis action cannot be undone.`}
+        />
+      )}
     </BaseModal>
   );
 };

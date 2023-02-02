@@ -2,34 +2,38 @@ import React, { useState } from "react";
 
 import Image from "next/image";
 import Select from "react-select";
+import { TbCameraPlus } from "react-icons/tb";
 
 import PasswordModal from "@components/modals/chat/RoomPasswordModal";
 import Button from "@ui/Button";
-import TextInput from "@ui/TextInput";
+import TextInput, { TextArea, TextInputLabel } from "@ui/TextInput";
 import { IRoom, RoomType } from "global/types";
 
 export const RoomInfo = ({ roomData }: { roomData: IRoom }) => {
   const [roomCurrentData, setRoomCurrentData] = useState<IRoom>(roomData);
   const [showPasswordModal, setShowPasswordModal] = useState(false);
-  const options = [
+  const roomTypeOptions = [
     { value: "public", label: "Public" },
     { value: "private", label: "Private" },
     { value: "protected", label: "Protected" },
   ];
 
-  const [defaultOption, setDefaultOption] = useState(options[0]);
-  const [currentOption, setCurrentOption] = useState(defaultOption);
+  const [currentRoomTypeOptions, setCurrentRoomTypeOptions] = useState(
+    roomData.type
+  );
+
+  const [roomAvatar, setRoomAvatar] = useState<File | null>(null);
+  const avatarInputRef = React.useRef<HTMLInputElement>(null);
 
   const handleChange = (selectedOption: any) => {
     console.log(`Selected: ${selectedOption.value}`);
-    setCurrentOption(selectedOption);
-    console.log({ selectedOption });
+    setCurrentRoomTypeOptions(selectedOption);
     if (selectedOption.value === "protected") {
+      setShowPasswordModal(true);
       setRoomCurrentData({
         ...roomCurrentData,
         type: RoomType.PROTECTED,
       });
-      setShowPasswordModal(true);
     } else if (selectedOption.value === "private") {
       setRoomCurrentData({
         ...roomCurrentData,
@@ -43,113 +47,136 @@ export const RoomInfo = ({ roomData }: { roomData: IRoom }) => {
     }
   };
 
+  const handleFileInputChange = (
+    e: React.ChangeEvent<HTMLInputElement>,
+    type: string
+  ) => {
+    const { files } = e.target;
+    if (files && files.length > 0) {
+      setRoomAvatar(files[0]);
+    }
+  };
+
   return (
     <div className="w-full p-8">
       <div className="flex justify-between">
         <h2 className="text-2xl font-bold">Room info</h2>
-        <Select
-          defaultValue={defaultOption}
-          options={options}
-          value={currentOption}
-          onChange={handleChange}
-        />
       </div>
       <div className="h-px bg-gray-200 " />
-      <div className="flex w-full flex-row items-center justify-between gap-4">
-        <div className="flex w-full flex-col items-start justify-center gap-4">
-          <div className="w-5/6">
-            <TextInput
-              label="Room Name"
-              type="text"
-              value={roomCurrentData.name}
-              onChange={(e) => {
-                e.preventDefault();
-                setRoomCurrentData({
-                  ...roomCurrentData,
-                  name: e.target.value,
-                });
-              }}
-              required
-            />
-          </div>
-        </div>
-        <div
-          className="group  flex w-1/4 cursor-pointer items-center justify-center rounded-full bg-black transition"
-          onClick={() => {
-            console.log("clicked");
-          }}
-        >
-          <Image
-            src="/public/images/default-avatar.jpg"
-            width={150}
-            height={150}
-            alt={"ss"}
-            className="rounded-full shadow-inner duration-300 hover:opacity-50"
-          />
-          <h1 className="pointer-events-none absolute hidden text-white  duration-300 group-hover:block">
-            upload a photo
-          </h1>
-        </div>
-      </div>
-      <textarea
-        className="mt-5 h-24 w-full rounded-md border border-gray-300 p-2 focus:border-transparent focus:outline-none focus:ring-1 focus:ring-primary/90"
-        placeholder="Enter room description"
-        value={roomCurrentData.description}
-        onChange={(e) => {
-          e.preventDefault();
-          setRoomCurrentData({
-            ...roomCurrentData,
-            description: e.target.value,
-          });
-        }}
-      />
-      {roomCurrentData.type === RoomType.PROTECTED && showPasswordModal && (
-        <div className="">
-          <h2 className="mt-8 text-2xl font-bold">Security</h2>
-          <div className="h-px bg-gray-200 " />
-          <div className="mt-4 flex flex-col gap-4">
-            <TextInput
-              label="New Password"
-              type="password"
-              value={roomCurrentData.password}
-              onChange={(e) => {
-                e.preventDefault();
-                setRoomCurrentData({
-                  ...roomCurrentData,
-                  password: e.target.value,
-                });
-              }}
-              required
-            />
-            <TextInput
-              label="Confirm Password"
-              type="password"
-              value={roomCurrentData.password}
-              onChange={(e) => {
-                e.preventDefault();
-                setRoomCurrentData({
-                  ...roomCurrentData,
-                  password: e.target.value,
-                });
-              }}
-              required
-            />
-            <Button variant="secondary" size="small">
-              Change Password
-            </Button>
-            {showPasswordModal && (
-              <PasswordModal
-                setCurrentOption={setCurrentOption}
-                defaultOption={defaultOption}
-                showPasswordModal={showPasswordModal}
-                setShowPasswordModal={setShowPasswordModal}
-                setRoomCurrentData={setRoomCurrentData}
-                roomCurrentData={roomCurrentData}
+      <div className="flex w-full flex-row items-center justify-between gap-4 pt-4 relative">
+        <div className="flex w-full justify-between">
+          <div className="flex w-full flex-col gap-y-4 pr-4">
+            <div className="flex w-full gap-x-4 ">
+              <TextInput
+                label="Room Name"
+                type="text"
+                value={roomCurrentData.name}
+                onChange={(e) => {
+                  e.preventDefault();
+                  setRoomCurrentData({
+                    ...roomCurrentData,
+                    name: e.target.value,
+                  });
+                }}
+                required
+                inputClassName="py-[6px] w-full"
               />
-            )}
+              <div className="w-40">
+                <TextInputLabel label="Room Type" />
+
+                <Select
+                  value={currentRoomTypeOptions}
+                  options={roomTypeOptions}
+                  onChange={handleChange}
+                />
+              </div>
+            </div>
+            <TextArea
+              label="Room Description"
+              placeholder="Room Description"
+              value={roomCurrentData.description}
+              onChange={(e) => {
+                e.preventDefault();
+              }}
+            />
           </div>
+
+          <figure
+            className="group relative flex h-[160px] w-[400px] cursor-pointer items-center justify-center rounded-2xl bg-black transition"
+            onClick={() => avatarInputRef.current?.click()}
+          >
+            <Image
+              src={
+                avatarInputRef.current?.files?.length > 0
+                  ? URL.createObjectURL(avatarInputRef.current?.files[0])
+                  : roomCurrentData.avatar || "/images/default-avatar.jpg"
+              }
+              alt={`avatar for ${roomCurrentData.name}`}
+              fill
+              className="object-cover opacity-70 shadow-inner duration-300 rounded-2xl hover:opacity-50"
+            />
+            <span className="pointer-events-none absolute rounded-full bg-black/50 p-2 text-white duration-300 group-hover:block">
+              <TbCameraPlus className="h-5 w-5" />
+            </span>
+            <input
+              ref={avatarInputRef}
+              onChange={(event) => handleFileInputChange(event, "avatar")}
+              accept="image/jpeg,image/png,image/webp"
+              tabindex="-1"
+              type="file"
+              className="hidden"
+            />
+          </figure>
         </div>
-      )}
+
+        {roomCurrentData.type === RoomType.PROTECTED && showPasswordModal && (
+          <div className="">
+            <h2 className="mt-8 text-2xl font-bold">Security</h2>
+            <div className="h-px bg-gray-200 " />
+            <div className="mt-4 flex flex-col gap-4">
+              <TextInput
+                label="New Password"
+                type="password"
+                value={roomCurrentData.password}
+                onChange={(e) => {
+                  e.preventDefault();
+                  setRoomCurrentData({
+                    ...roomCurrentData,
+                    password: e.target.value,
+                  });
+                }}
+                required
+              />
+              <TextInput
+                label="Confirm Password"
+                type="password"
+                value={roomCurrentData.password}
+                onChange={(e) => {
+                  e.preventDefault();
+                  setRoomCurrentData({
+                    ...roomCurrentData,
+                    password: e.target.value,
+                  });
+                }}
+                required
+              />
+              <Button variant="secondary" size="small">
+                Change Password
+              </Button>
+              {showPasswordModal && (
+                <PasswordModal
+                  setCurrentOption={setCurrentRoomTypeOptions}
+                  defaultOption={currentRoomTypeOptions}
+                  showPasswordModal={showPasswordModal}
+                  setShowPasswordModal={setShowPasswordModal}
+                  setRoomCurrentData={setRoomCurrentData}
+                  roomCurrentData={roomCurrentData}
+                />
+              )}
+            </div>
+          </div>
+        )}
+      </div>
     </div>
   );
 };

@@ -113,7 +113,7 @@ const ChatStuff = () => {
         socket={socketIO}
         activeBoxes={activeBoxes}
       />
-      <ul className="absolute bottom-0 right-[400px] flex gap-x-3">
+      <ul className="absolute bottom-0 right-[400px] flex gap-x-3 items-end">
         {activeBoxes?.map((item) => (
           <li key={item.id} className="w-full">
             <ChatBox

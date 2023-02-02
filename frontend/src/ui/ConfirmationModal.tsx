@@ -33,7 +33,14 @@ const ConfirmationModal = ({
         {title}
       </Dialog.Title>
       <div className="mt-2">
-        <p className="text-sm text-gray-500">{message}</p>
+        <p className="text-sm text-gray-500 text-center">
+          {message?.split("\n").map((item, key) => (
+            <span key={key}>
+              {item}
+              <br />
+            </span>
+          ))}
+        </p>
       </div>
 
       <div className="mt-4 flex w-full justify-center gap-x-2">

@@ -86,7 +86,7 @@ const ChatBox = ({
 }) => {
   const [conversation, setConversation] = useState<IConversation | null>(null);
   const [input, setInput] = useState("");
-  const [ShowChatSettingModal, setShowChatSettingModal] = useState(false);
+  const [showChatSettingModal, setShowChatSettingModal] = useState(false);
   const [showChatBox, setShowChatBox] = useState(true);
   const bottomDivRef = useRef<HTMLDivElement>(null);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
@@ -189,15 +189,13 @@ const ChatBox = ({
   }, [conversationMetaData.room_id]);
 
   const setSocketEvents = () => {
-    socket?.on("createMessage", (msg) => {
+    socket?.on("createMessage", (msg: any) => {
       if (msg.status == 200) {
         if (conversationMetaData.room_id == msg.data.roomId) {
           if (msg.clients.includes(socket.id)) {
             msg.data.isMe = true;
           }
-          console.log("socket.id in msg.clients", socket.id in msg.clients);
-          console.log(socket.id, msg);
-          setConversation((state) => {
+          setConversation((state: IConversation) => {
             return { ...state, messages: [...state?.messages, msg.data] };
           });
         }
@@ -430,19 +428,10 @@ const ChatBox = ({
           </div>
         </div>
         <div>
-          {ShowChatSettingModal && roomData.type != "direct" && (
+          {showChatSettingModal && roomData.type != "direct" && (
             <ChatroomSettingsModal
               roomData={conversationMetaData}
-              isOpen={ShowChatSettingModal}
-              onClose={() => setShowChatSettingModal(false)}
-            />
-          )}
-        </div>
-        <div>
-          {ShowChatSettingModal && roomData.type === RoomType.DIRECT && (
-            <ChatdmSettingsModal
-              roomData={roomData}
-              isOpen={ShowChatSettingModal}
+              isOpen={showChatSettingModal}
               onClose={() => setShowChatSettingModal(false)}
             />
           )}

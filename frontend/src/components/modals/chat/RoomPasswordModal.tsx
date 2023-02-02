@@ -83,32 +83,33 @@ const PasswordModal = ({
   return (
     <BaseModal
       isOpen={showPasswordModal}
-      onClose={() => {
-        setCurrentOption(defaultOption);
-        setShowPasswordModal(false);
-      }}
+      onClose={() => setShowPasswordModal(false)}
     >
       <div className="p-8">
         <form onSubmit={handlePasswordSubmit}>
-          <div className="flex flex-col items-center justify-center gap-4">
-            <h1 className="text-2xl font-bold">Set a password</h1>
-            <TextInput
-              label="Password"
-              type="password"
-              value={password}
-              onChange={handlePasswordChange}
-              required
-            />
-            <TextInput
-              label="Confirm password"
-              type="password"
-              value={passwordConfirmation}
-              onChange={handlePasswordConfirmationChange}
-              required
-            />
-            <Button type="submit" className="w-1/2">
-              Set password
-            </Button>
+          <div className="flex flex-col items-center justify-center gap-4 ">
+            <h1 className="text-2xl font-bold">Set the room password</h1>
+            <div className="w-full flex flex-col gap-4">
+              <TextInput
+                label="Password"
+                type="password"
+                value={password}
+                onChange={handlePasswordChange}
+                required
+                inputClassName="w-full max-w-none"
+              />
+              <TextInput
+                label="Confirm password"
+                type="password"
+                value={passwordConfirmation}
+                onChange={handlePasswordConfirmationChange}
+                required
+                inputClassName="w-full max-w-none"
+              />
+            </div>
+            <div className="flex">
+              <Button type="submit">Set password</Button>
+            </div>
           </div>
         </form>
       </div>
