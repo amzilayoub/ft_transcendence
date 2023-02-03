@@ -405,10 +405,10 @@ export default class pongScene extends Scene {
   };
 
   controlPaddle = (paddle: Phaser.Physics.Arcade.Sprite, newDir: number) => {
-    if (gameStarted && p2 && !newDir) {
-      newDir = Math.sign(ball.y - paddle.y);
-      newDir = Math.abs(ball.y - paddle.y) > 8 ? newDir : 0;
-    }
+    // if (gameStarted && p2 && !newDir) {
+    //   newDir = Math.sign(ball.y - paddle.y);
+    //   newDir = Math.abs(ball.y - paddle.y) > 8 ? newDir : 0;
+    // }
     if (dir === newDir) return;
 
     if (!paddle.body.velocity.y && !newDir) return;
@@ -453,9 +453,11 @@ export default class pongScene extends Scene {
         );
       }
       if (state === 1) {
-        if (ball.x < 32) {
+        console.log(paddle1.x, paddle2.x);
+
+        if (ball.x < paddle1.x) {
           this.score(false);
-        } else if (ball.x > width - 32) {
+        } else if (ball.x > paddle2.x) {
           this.score(true);
         }
       }
