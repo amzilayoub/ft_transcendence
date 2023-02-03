@@ -45,7 +45,7 @@
 //           },
 //         };
 
-//         socket.volatile.emit("ball_sync", newBall);
+//         socket.emit("ball_sync", newBall);
 //       }
 //     });
 //     return paddle;
