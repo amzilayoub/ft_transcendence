@@ -1,12 +1,15 @@
 import { useEffect, useRef, useState } from "react";
 
 import { IGame } from "@utils/game/IGame";
+import { useAuthContext } from "context/auth.context";
 import { useRouter } from "next/router";
 import { io, Socket } from "socket.io-client";
 
 const Game = () => {
   const [games, setGames] = useState<Array<IGame>>([]);
   const router = useRouter();
+
+  const ctx = useAuthContext();
   // : Map<string, IGame>
   // useffect block
   const socketRef = useRef<Socket>();
@@ -24,7 +27,7 @@ const Game = () => {
 
         socketRef.current.on("get_info", (newGames) => {
           setGames(newGames);
-          console.log(newGames);
+          console.log(newGames, newGames.length);
         });
         // var id = crypto.randomBytes(8).toString("hex");
       } catch (error: any) {
@@ -35,14 +38,17 @@ const Game = () => {
   }, []);
   console.log(router.query.error);
 
+  if (!ctx.isAuthenticated) return;
+
   return (
     <div>
       {games.map((game) =>
         game.roomID ? (
           <div key={game.roomID}>
             <h1>
-              {game.roomID}: {game.p1 || "undefined"} - {game.p2 || "undefined"}{" "}
-              --- {game.spectators}
+              {game.mode} ({game.roomID}): [{game.p1?.userID || "-"}] vs [
+              {game.p2?.userID || "-"}] --- spectators:{" "}
+              {game.spectators.map((spectator) => spectator.userID).join(", ")}
             </h1>
           </div>
         ) : null

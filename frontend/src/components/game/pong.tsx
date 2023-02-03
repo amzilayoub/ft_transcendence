@@ -47,7 +47,6 @@ const Pong = ({
         gameRef.current.cache.text.add("mode", mode);
         gameRef.current.cache.text.add("userID", `${userID}`);
       } catch (error: any) {
-        // router.replace(`/game?error=${error.message}`, "/game");
         console.log(error.message);
       }
     };
