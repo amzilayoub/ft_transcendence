@@ -27,6 +27,7 @@ import { AuthService } from 'src/auth/auth.service';
 import RequestWithUser from 'src/auth/inrefaces/requestWithUser.interface';
 import { JwtService } from '@nestjs/jwt';
 import * as argon2 from 'argon2';
+import { room_user_rel } from '@prisma/client';
 
 @UseGuards(JwtGuard)
 /*
@@ -50,8 +51,8 @@ export class ChatController {
         const user = await this.authService.getMe(request.user.id);
         const userId = joinRoomDto.userId || user['id'];
         const isJoined = (
-            await this.chatService.isJoined(user.id, joinRoomDto.roomId)
-        )[0];
+            await this.chatService.isJoined(userId, joinRoomDto.roomId)
+        )[0]; // if an error happened later on f join room, it's probably here, change it to user.id
         let shouldJoin = false;
         if (!isJoined) {
             const roomData = (
@@ -181,7 +182,9 @@ export class ChatController {
                 banFromRoom.banned,
             );
         else throw new HttpException('Forbidden', HttpStatus.FORBIDDEN);
-        return true;
+        return {
+            status: HttpStatus.OK,
+        };
     }
 
     @Post('room/kickout')
@@ -190,12 +193,71 @@ export class ChatController {
         @Body() kickoutDto: KickoutDto,
     ) {
         /*
-		 ** first check if the user has the admin/ownership access rights
+         ** first check if the user has the admin/ownership access rights
          ** check first if the user is the owner of the channel,
          ** if so, then move the ownership to the firt admin
          ** otherwise, remove the record
          */
-        console.log(kickoutDto);
+        const user = await this.authService.getMe(request.user.id);
+        let returnVal = {
+            status: HttpStatus.OK,
+            userId: -1,
+        };
+
+        const myRole = (
+            await this.chatService.getMyRole(user.id, kickoutDto.roomId)
+        )[0];
+        if (['admin', 'owner'].includes(myRole.role.toLowerCase())) {
+            const getRoomInfo = (
+                await this.chatService.getRoomInfo(kickoutDto.roomId)
+            )[0];
+            if (getRoomInfo?.owner_id == kickoutDto.userId) {
+                const roomAdmins = await this.chatService.getRoomUsersByRole(
+                    kickoutDto.roomId,
+                    getRoomInfo?.owner_id,
+                    'Admin',
+                );
+                if (roomAdmins.length) {
+                    await this.chatService.setRoomOwnerShip(
+                        kickoutDto.roomId,
+                        roomAdmins[0].user_id,
+                    );
+                    returnVal = {
+                        status: HttpStatus.CONTINUE,
+                        userId: roomAdmins[0].user_id,
+                    };
+                } else {
+                    const roomMembers =
+                        await this.chatService.getRoomUsersByRole(
+                            kickoutDto.roomId,
+                            getRoomInfo?.owner_id,
+                            'Member',
+                        );
+                    if (roomMembers.length) {
+                        await this.chatService.setRoomOwnerShip(
+                            kickoutDto.roomId,
+                            roomMembers[0].user_id,
+                        );
+                        returnVal = {
+                            status: HttpStatus.CONTINUE,
+                            userId: roomMembers[0].user_id,
+                        };
+                    } else {
+                        await this.chatService.deleteRoom(kickoutDto.roomId);
+                        return {
+                            status: HttpStatus.NO_CONTENT,
+                            type: 'delete',
+                        };
+                    }
+                }
+            }
+
+            await this.chatService.kickout(
+                kickoutDto.userId,
+                kickoutDto.roomId,
+            );
+        } else throw new HttpException('Forbidden', HttpStatus.FORBIDDEN);
+        return returnVal;
     }
 
     @Post('room/change-password')
