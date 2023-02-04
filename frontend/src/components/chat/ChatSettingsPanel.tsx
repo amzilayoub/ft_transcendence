@@ -9,7 +9,15 @@ import Button from "@ui/Button";
 import TextInput, { TextArea, TextInputLabel } from "@ui/TextInput";
 import { IRoom, RoomType } from "global/types";
 
-export const RoomInfo = ({ roomData }: { roomData: IRoom }) => {
+export const RoomInfo = ({
+  roomData,
+  setAvatar,
+  setSettings,
+}: {
+  roomData: IRoom;
+  setAvatar: (url: any) => void;
+  setSettings: () => {};
+}) => {
   const [roomCurrentData, setRoomCurrentData] = useState<IRoom>(roomData);
   const [showPasswordModal, setShowPasswordModal] = useState(false);
   const roomTypeOptions = [
@@ -34,15 +42,24 @@ export const RoomInfo = ({ roomData }: { roomData: IRoom }) => {
         ...roomCurrentData,
         type: RoomType.PROTECTED,
       });
+      setSettings((state) => {
+        return { ...state, roomeType: RoomType.PROTECTED };
+      });
     } else if (selectedOption.value === "private") {
       setRoomCurrentData({
         ...roomCurrentData,
         type: RoomType.PRIVATE,
       });
+      setSettings((state) => {
+        return { ...state, roomeType: RoomType.PRIVATE };
+      });
     } else {
       setRoomCurrentData({
         ...roomCurrentData,
         type: RoomType.PUBLIC,
+      });
+      setSettings((state) => {
+        return { ...state, roomeType: RoomType.PUBLIC };
       });
     }
   };
@@ -54,6 +71,7 @@ export const RoomInfo = ({ roomData }: { roomData: IRoom }) => {
     const { files } = e.target;
     if (files && files.length > 0) {
       setRoomAvatar(files[0]);
+      setAvatar(files[0]);
     }
   };
 
@@ -77,6 +95,9 @@ export const RoomInfo = ({ roomData }: { roomData: IRoom }) => {
                     ...roomCurrentData,
                     name: e.target.value,
                   });
+				  setSettings((state) => {
+					return {...state, name: e.target.value}
+				  })
                 }}
                 required
                 inputClassName="py-[6px] w-full"
@@ -109,7 +130,7 @@ export const RoomInfo = ({ roomData }: { roomData: IRoom }) => {
               src={
                 avatarInputRef.current?.files?.length > 0
                   ? URL.createObjectURL(avatarInputRef.current?.files[0])
-                  : roomCurrentData.avatar || "/images/default-avatar.jpg"
+                  : roomCurrentData.avatar_url || "/images/default-avatar.jpg"
               }
               alt={`avatar for ${roomCurrentData.name}`}
               fill

@@ -21,6 +21,7 @@ import {
     KickoutDto,
     MuteUserDto,
     UpdateRoomPassword,
+    RoomInfoDto,
 } from './dto/chat_common.dto';
 import JwtGuard from 'src/common/guards/jwt_guard';
 import { AuthService } from 'src/auth/auth.service';
@@ -258,6 +259,21 @@ export class ChatController {
             );
         } else throw new HttpException('Forbidden', HttpStatus.FORBIDDEN);
         return returnVal;
+    }
+
+    @Post('room/update-info')
+    async updateRoomInfo(@Body() roomInfoDto) {
+        await this.chatService.updateRoomInfo(
+            roomInfoDto.name,
+            roomInfoDto.avatarUrl,
+            roomInfoDto.roomId,
+        );
+
+        const roomType = await this.chatService.getRoomType(
+            roomInfoDto.roomTypeName,
+        );
+        await this.chatService.updateRoomType(roomInfoDto.roomId, roomType.id);
+        return { status: 'done' };
     }
 
     @Post('room/change-password')

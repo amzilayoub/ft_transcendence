@@ -389,6 +389,9 @@ const ChatroomSettingsModal = ({
   const [isSaving, setIsSaving] = useState(false);
   const [buttonText, setButtonText] = useState("Save");
 
+  const [roomAvatar, setRoomAvatar] = useState(null);
+  const [settings, setSettings] = useState({});
+
   const CurrentUser: IRoomMember = {
     id: 1,
     username: "mbif",
@@ -432,29 +435,40 @@ const ChatroomSettingsModal = ({
     setButtonText("Saving...");
 
     try {
-      if (settings.avatar) {
+      if (roomAvatar) {
         setButtonText("Uploading...");
-        const file_data = await uploadFile(settings.avatar);
+        console.log({ settings });
+        const file_data = await uploadFile(roomAvatar);
         if (file_data) {
-          delete settings.avatar;
-          settings.avatar_url = file_data.secure_url || null;
-          console.log(settings.avatar_url);
+          const resp = await basicFetch.post(
+            "/chat/room/update-info",
+            {},
+            {
+              name: settings.name,
+              roomTypeName: settings.roomeType || "public",
+              avatarUrl: file_data.secure_url || null,
+              roomId: roomData.room_id,
+            }
+          );
+
+          if (resp.status == 201) {
+            await resp.json();
+            setConversationsMetadata((state) => {
+              const newState = [...state];
+              newState.forEach((item) => {
+                if (item.room_id == roomData.room_id) {
+                  console.log({ item });
+                  item.avatar_url = file_data.secure_url || null;
+                  item.name = settings.name;
+                }
+              });
+              return newState;
+            });
+            setButtonText("Saving...");
+            setIsSaving(false);
+            setButtonText("Save");
+          }
         }
-      }
-      if (settings.cover) {
-        setButtonText("Uploading...");
-        const file_data = await uploadFile(settings.cover);
-        if (file_data) {
-          delete settings.cover;
-          settings.cover_url = file_data.secure_url || null;
-        }
-      }
-      setButtonText("Saving...");
-      const res = await basicFetch.post("/users/update", {}, settings);
-      if (res.ok) {
-        setButtonText("Saved!");
-        ctx.updateUserData();
-        onClose();
       }
     } catch (error) {
       console.log(error);
@@ -480,7 +494,11 @@ const ChatroomSettingsModal = ({
       <div className=" max-h-[1000px] w-[800px]">
         <div className="flex h-1/3 items-center justify-between">
           {CurrentUser.membershipStatus === MembershipStatus.OWNER && (
-            <RoomInfo roomData={roomData} />
+            <RoomInfo
+              roomData={roomData}
+              setAvatar={setRoomAvatar}
+              setSettings={setSettings}
+            />
           )}
         </div>
         {/* <RoomMembers /> */}
