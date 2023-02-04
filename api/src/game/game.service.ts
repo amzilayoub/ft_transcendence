@@ -1,33 +1,78 @@
 import { Injectable } from '@nestjs/common';
 import { CreateGameDto } from './dto/create-game.dto';
-import { UpdateGameDto } from './dto/update-game.dto';
+import { PrismaService } from 'src/prisma/prisma.service';
+import { PrismaClientKnownRequestError } from '@prisma/client/runtime';
+
 
 @Injectable()
 export class GameService {
-  create(createGameDto: CreateGameDto) {
-    return 'This action adds a new game';
-  }
+    constructor(private readonly prisma: PrismaService) {}
+    async create(createGameDto: CreateGameDto) {
+        console.log('createGameDto', createGameDto);
 
-  findAll() {
-    return `This action returns all game`;
-  }
+        try {
+            const game = await this.prisma.games.create({
+                data: {
+                    ...createGameDto,
+                    winner: createGameDto.player_1_score > createGameDto.player_2_score ? createGameDto.player_1 : createGameDto.player_2,
+                },
+            });
+            return game;
+        } catch (error) {
+            console.log('error:', error);
+            if (error instanceof PrismaClientKnownRequestError) {
+                throw error;
+            } 
+        }
+    }
 
-  findOne(id: number) {
-    return `This action returns a #${id} game`;
-  }
+    async findAll(
+      userID: number,
+        offset = 0,
+        limit = 10,
+    ) {
+      try {
+        const games = await this.prisma.games.findMany({
+          skip: offset,
+          take: limit,
+          where: {
+            OR: [
+              {
+                player_1: userID,
+              },
+              {
+                player_2: userID,
+              },
+            ],
+          },
+        });
+        return games;
+      } catch (error) {
+        if (error instanceof PrismaClientKnownRequestError) {
+          throw error;
+        }
+      }
+    }
 
-  update(id: number, updateGameDto: UpdateGameDto) {
-    return `This action updates a #${id} game`;
-  }
 
-  remove(id: number) {
-    return `This action removes a #${id} game`;
-  }
-  
-  findLiveGames (
-    offset = 0,
-    limit = 10,
+    async getTopUsers(
+      offset = 0,
+      limit = 10,
   ) {
-    return `This action returns all live games`;
+      const users = await this.prisma.user.findMany({
+          select: {
+              id: true,
+              username: true,
+              avatar_url: true,
+              score: true,
+          },
+          orderBy: {
+              score: 'desc',
+          },
+          skip: offset,
+          take: limit,
+      });
+      return users;
   }
+
 }

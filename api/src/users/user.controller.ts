@@ -33,8 +33,8 @@ export class UserController {
     }
 
     /*
-    ** Friend means following or follower or both
-    */
+     ** Friend means following or follower or both
+     */
     @Get('friends/:username')
     async getFollowings(@Req() req) {
         const { username } = req.params;
@@ -101,4 +101,6 @@ export class UserController {
         });
         return user;
     }
+
+
 }

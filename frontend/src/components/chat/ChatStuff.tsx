@@ -7,6 +7,8 @@ import { useChatContext } from "context/chat.context";
 
 import ChatBox from "./ChatBox";
 import ChatSidebar from "./ChatSidebar";
+import { toastNewMessage } from "@components/toast";
+import { useAuthContext } from "context/auth.context";
 
 const ChatStuff = () => {
   let [socketIO, setSocketIO] = useState(null);
@@ -19,6 +21,7 @@ const ChatStuff = () => {
     setShowChatSidebar,
     setConversationsMetadata,
   } = useChatContext(socketIO);
+  const ctx = useAuthContext();
 
   useEffect(() => {
     let socket = io(`${process.env.NEXT_PUBLIC_SOCKET_URL}/chat`, {
@@ -35,9 +38,16 @@ const ChatStuff = () => {
         return resp.json();
       }
     };
-
     if (socket) {
       socket?.on("updateListConversations", async (obj) => {
+        if (ctx?.user?.id != obj.data.userId) {
+        toastNewMessage(
+          obj.data.room.avatar_url,
+          obj.data.room.name,
+          obj.data.room.lastMessage,
+          // obj.data.room.room_id
+        );
+        }
         let targetedRoom = (await getRoomInfo(obj.data.room.room_id))[0];
 
         targetedRoom.userStatus = obj.data.room.userStatus;
@@ -77,6 +87,11 @@ const ChatStuff = () => {
           }
         });
       });
+
+      socket?.on("sendInvite", (obj) => {
+        console.log("@@@@@@@@@@@@", obj);
+      });
+
       socket?.on("userConnect", (resp) => {
         const userId = resp.data.userId;
         const mode = resp.data.mode;

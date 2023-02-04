@@ -5,6 +5,9 @@ import Image from "next/image";
 import Link from "next/link";
 import { BsThreeDots } from "react-icons/bs";
 import { RxCross2 } from "react-icons/rx";
+import { GrGamepad } from "react-icons/gr"
+
+import { useRouter } from "next/router";
 
 import ChatroomSettingsModal from "@components/modals/chat/ChatroomSettingsModal";
 import { ChatdmSettingsModal } from "@components/modals/chat/ChatroomSettingsModal";
@@ -19,6 +22,7 @@ import {
   MembershipStatus,
   RoomType,
 } from "global/types";
+import { toastNewMessage } from "@components/toast";
 
 const Message = ({
   message,
@@ -84,6 +88,7 @@ const ChatBox = ({
   allConversation: any;
   onConversationClick: () => void;
 }) => {
+  const router = useRouter();
   const [conversation, setConversation] = useState<IConversation | null>(null);
   const [input, setInput] = useState("");
   const [showChatSettingModal, setShowChatSettingModal] = useState(false);
@@ -149,6 +154,22 @@ const ChatBox = ({
           setConversation((state: IConversation) => {
             return { ...state, messages: [...state?.messages, msg.data] };
           });
+        }
+      );
+    },
+    [input]
+  );
+  const handleSendInvite = React.useCallback(
+    (e: any) => {
+      e.preventDefault();
+      socket?.emit(
+        "sendInvite",
+        { roomId: conversationMetaData.user_id, message: router.asPath },
+        (msg: any) => {
+          if (msg.status != 200) {
+            alert(msg.message);
+            return;
+          }
         }
       );
     },
@@ -267,6 +288,7 @@ const ChatBox = ({
     });
   });
 
+  const checkIfUserIsWaitingForGame = () => router.query?.mode && router.query.mode !== 'spectate';
 
   return (
     <section
@@ -280,9 +302,10 @@ const ChatBox = ({
     >
       <div
         onClick={() => setShowChatBox(!showChatBox)}
-        className={cn("cursor-pointer flex justify-between border-b-2 border-gray-200  sm:items-center h-14", {
+        className={cn("cursor-pointer flex justify-between border-b-2 rounded-t-xl  border-gray-200  sm:items-center h-14", {
           "p-3": showChatBox,
           "p-2": !showChatBox,
+          "bg-primary/80": conversationMetaData.type !== "dm",
         })}
       >
         {/* <div className="relative flex items-center space-x-4"> */}
@@ -317,7 +340,6 @@ const ChatBox = ({
                 })}
               >
                 {
-
                   showChatBox ? (<circle cx="6" cy="6" r="6" fill="currentColor" />) : (<circle cx="4" cy="4" r="4" fill="currentColor" />)
                 }
               </svg>
@@ -358,17 +380,32 @@ const ChatBox = ({
         >
           <RxCross2 className="h-5 w-5" />
         </span>
-        {conversationMetaData.type !== "dm" && (
-          <span
-            onClick={(e) => {
-              e.stopPropagation();
-              setShowChatSettingModal(true);
-            }}
-            className="absolute top-3 right-10 cursor-pointer rounded-full p-1 text-gray-400 duration-300  hover:bg-gray-200 hover:text-slate-600"
-          >
-            <BsThreeDots className="h-5 w-5" />
-          </span>
-        )}
+        {conversationMetaData.type === "dm" && checkIfUserIsWaitingForGame() &&
+          (
+            <span
+              onClick={(e) => {
+                e.stopPropagation();
+                handleSendInvite(e)} }
+              className="absolute top-3 right-10 cursor-pointer rounded-full p-1 text-gray-400 duration-300  hover:bg-gray-200 hover:text-slate-600"
+            >
+              <GrGamepad className="h-5 w-5" />
+            </span>
+
+          )}
+
+        {
+          conversationMetaData.type !== "dm" &&
+          (
+            <span
+              onClick={(e) => {
+                e.stopPropagation();
+                setShowChatSettingModal(true);
+              }}
+              className="absolute top-3 right-10 cursor-pointer rounded-full p-1 text-gray-400 duration-300  hover:bg-gray-200 hover:text-slate-600"
+            >
+              <BsThreeDots className="h-5 w-5" />
+            </span>
+          )}
       </div>
       <div className="flex h-full flex-col justify-items-stretch overflow-hidden">
         <ul

@@ -190,7 +190,7 @@ export class ChatController {
         @Body() kickoutDto: KickoutDto,
     ) {
         /*
-		 ** first check if the user has the admin/ownership access rights
+         ** first check if the user has the admin/ownership access rights
          ** check first if the user is the owner of the channel,
          ** if so, then move the ownership to the firt admin
          ** otherwise, remove the record

@@ -7,6 +7,7 @@ import { TwoFactorAuthenticationModule } from './2FA/2fa.module';
 import { UserModule } from './users/user.module';
 import { TestJwtModule } from './test_jwt/test_jwt.module';
 import { NotificationModule } from './notification/notification.module';
+import { GameModule } from './game/game.module';
 
 @Module({
     imports: [
@@ -14,6 +15,7 @@ import { NotificationModule } from './notification/notification.module';
         AuthModule,
         TwoFactorAuthenticationModule,
         UserModule,
+        GameModule,
         ChatModule,
         PrismaModule,
         TestJwtModule,

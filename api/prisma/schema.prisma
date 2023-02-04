@@ -183,6 +183,11 @@ model notification_type {
     notifications notifications[]
 }
 
+enum GAME_MODE {
+    CLASSIC
+    POWER_UP
+}
+
 model games {
     id Int @id @default(autoincrement())
 
@@ -192,6 +197,13 @@ model games {
     userLink2 user @relation("userLink2", fields: [player_2], references: [id], onDelete: Cascade)
     player_2  Int
 
+    player_1_score Int
+    player_2_score Int
+
+    winner Int
+    mode GAME_MODE
+
     created_at DateTime @default(now())
     updated_at DateTime @updatedAt
 }
+

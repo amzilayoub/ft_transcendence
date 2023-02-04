@@ -1,24 +1,27 @@
+import basicFetch from "@utils/basicFetch";
 import { IGame } from "@utils/game/IGame";
 import { Server as IOServer } from "socket.io";
 
-const { Client } = require("pg");
+// import { Client } from "pg";
 
 const handler = (req, res) => {
-  const client = new Client({
-    user: process.env.DB_USERNAME,
-    host: "postgres",
-    database: process.env.DB_DATABASE_NAME,
-    password: process.env.DB_PASSWORD,
-    port: 5432,
-  });
-  client.connect(function (err) {
-    // if (err) throw err;
-    console.log("Connected!");
-  });
-  client.query("SELECT * FROM room_type", function (err, result) {
-    if (err) throw err;
-    // console.log(result.rows);
-  });
+  // const client = new Client({
+  //   user: process.env.DB_USERNAME,
+  //   host: process.env.DB_HOST,
+  //   database: process.env.DB_DATABASE_NAME,
+  //   password: process.env.DB_PASSWORD,
+  //   port: 5432,
+  // });
+
+  // client.connect(function (err) {
+  //   // if (err) throw err;
+  //   console.log("Connected!");
+  // });
+
+  // client.query("SELECT * FROM room_type", function (err, result) {
+  //   if (err) throw err;
+  //   // console.log(result.rows);
+  // });
   let games = new Array<IGame>();
 
   let roomKeys: { [key: string]: number } = {};
@@ -59,8 +62,8 @@ const handler = (req, res) => {
         io.to("subscribers").emit("get_info", games);
       });
 
-      socket.on("join_room", (roomID, userID, mode) => {
-        console.log("joining roomID:", roomID);
+      socket.on("join_room", (roomID, userID, mode, username, avatar_url) => {
+        console.log(username, "joining roomID:", roomID);
 
         const socketRooms = Array.from(socket.rooms.values()).filter(
           (id) => id !== socket.id
@@ -97,6 +100,8 @@ const handler = (req, res) => {
               userID: userID,
               score: 0,
               socketID: socket.id,
+              username: username,
+              avatar_url: avatar_url,
             };
           } else if (game.p2 === undefined) {
             if (mode !== game.mode) {
@@ -108,7 +113,9 @@ const handler = (req, res) => {
               userID: userID,
               score: 0,
               socketID: socket.id,
-            };
+              username: username,
+              avatar_url: avatar_url,
+              };
           } else {
             socket.emit("error", "room_is_full");
             return;
@@ -145,7 +152,7 @@ const handler = (req, res) => {
           io.to(roomID!).emit("moved", { p2: dir, p1: undefined }); // diha fmok
         }
       });
-
+      
       socket.on("ping", (t0) => {
         socket.emit("ping", t0);
       });
@@ -229,7 +236,7 @@ const handler = (req, res) => {
         io.to(roomID!).emit("powerup", powerUp);
       });
 
-      const gameEnd = (win: boolean, userID: string) => {
+      const gameEnd = async (win: boolean, userID: string) => {
         // pls dont hak me
         const roomID = Array.from(socket.rooms.values()).find(
           (id) => id !== socket.id
@@ -237,19 +244,33 @@ const handler = (req, res) => {
 
         game = games[roomKeys[roomID!]];
         if (!game) return;
+        
         game.gameStarted = false;
-
         io.to(roomID!).emit("stop_game", win);
 
-        client.query(
-          "INSERT INTO games (player_1, player_2, updated_at) VALUES ($1, $2, NOW())",
-          [userID, 2]
-        );
-        client.query("UPDATE users SET score = score + 1 WHERE id = $1", [
-          userID,
-        ]);
+        try {
+          const resp = await basicFetch.post(
+            "/games",
+            {},
+            {
+              player_1: +game.p1.userID,
+              player_2: +game.p2.userID,
+              player_1_score: game.p1.score,
+              player_2_score: game.p2.score,
+              winner: win ? game.p1.userID : game.p2.userID,
+              
+            }
+          );
+          if (resp.data) {
+            console.log(resp.data);
+          }
+        } catch (err) {
+          console.log(err);
+        }
+        
         game.p1.score = 0;
         game.p2.score = 0;
+
       };
 
       socket.on("score", (goalOf, userID) => {
@@ -295,6 +316,8 @@ const handler = (req, res) => {
         if (roomID === "subscribers") return;
         game = games[roomKeys[roomID!]]; // i fucking HATE socket io
 
+        console.log("game: ",game);
+        
         if (!game) return;
 
         if (game.p1?.socketID === socket.id) {

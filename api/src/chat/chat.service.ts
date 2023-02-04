@@ -242,7 +242,7 @@ export class ChatService {
             additionalCond = `AND users.username LIKE '%${username}%'`;
 
         const query = `
-			-- Here we get firs the owner
+			-- Here we get first the owner
 			(
 				SELECT users.id, users.username AS username, users.avatar_url,
 						'Owner' AS "membershipStatus",room_user_rel.banned AS "isBanned",

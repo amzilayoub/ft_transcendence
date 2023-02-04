@@ -11,6 +11,7 @@ import LoadingPage from "@ui/LoadingPage";
 import { APP_NAME } from "@utils/constants";
 import { useAuthContext } from "context/auth.context";
 import { useUIContext } from "context/ui.context";
+import { ToastContainer } from "react-toastify";
 
 interface MainLayoutProps {
   children: React.ReactNode;
@@ -38,7 +39,6 @@ const MainLayout: React.FC<MainLayoutProps> = ({
     //   ctx?.isAuthenticated,
     //   window.location.pathname !== "/"
     // );
-
     if (
       pageIsProtected &&
       !ctx.loadingUser &&
@@ -79,6 +79,7 @@ const MainLayout: React.FC<MainLayoutProps> = ({
               />
             )}
           </main>
+          <ToastContainer />
         </>
       ) : (
         <LoadingPage message="Not authenticated, redirecting to login page..." />

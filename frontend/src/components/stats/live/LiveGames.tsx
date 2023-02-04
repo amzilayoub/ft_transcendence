@@ -7,8 +7,7 @@ import Link from "next/link";
 import useLiveGames, { ILiveGame } from "@hooks/useLiveGames";
 import TitledCard from "@ui/TitledCard";
 import { truncateString } from "@utils/format";
-
-// import { GameSummary } from "../History";
+import { IGame } from "@utils/game/IGame";
 
 const GameSummary = dynamic(
   () => import("@components/stats/History").then((mod) => mod.GameSummary),
@@ -17,7 +16,7 @@ const GameSummary = dynamic(
   }
 );
 
-const MOCK_GAMES: ILiveGame[] = [
+const MOCK_GAMES: IGame[] = [
   {
     id: "1",
     viewsCount: 3,
@@ -38,39 +37,43 @@ const MOCK_GAMES: ILiveGame[] = [
   },
 ];
 
-const LiveGame = ({ game }: { game: ILiveGame }) => (
+const LiveGame = ({ game }: { game: IGame }) => (
   <div className="flex w-full items-center justify-between rounded-lg px-3 py-2 shadow-lg hover:shadow-xl">
     <div className="flex w-full flex-col">
       <p className="pb-2 text-lg font-normal">
-        {truncateString(game.player1.username, 14)}
+        {truncateString(game.p1.username, 14)}
       </p>
       <div className="flex justify-around gap-x-4">
         <img
-          src={game.player1.avatar_url}
-          alt={game.player1.username}
+          src={game.p1.avatar_url}
+          alt={game.p1.username}
           className="h-10 w-10 rounded-full"
         />
         <div className="flex">
-          <p className="ml-2 text-lg font-bold">{game.player1.score}</p>
+          <p className="ml-2 text-lg font-bold">{game.p1.score}</p>
           <span className="ml-2  font-semibold">-</span>
-          <p className="ml-2 text-lg font-bold">{game.player2.score}</p>
+          <p className="ml-2 text-lg font-bold">{game.p2.score}</p>
         </div>
         <img
-          src={game.player2.avatar_url}
-          alt={game.player2.username}
+          src={game.p2.avatar_url}
+          alt={game.p2.username}
           className="h-10 w-10 rounded-full"
         />
       </div>
       <p className="pt-2 text-right text-lg font-normal">
-        {truncateString(game.player2.username, 14)}
+        {truncateString(game.p2.username, 14)}
       </p>
     </div>
   </div>
 );
 
-const LiveGames = () => {
-  const { refresh, isRefetching } = useLiveGames();
-  const games = new Array(4).fill(MOCK_GAMES).flat();
+const LiveGames = (
+  {
+    liveGames,
+  } : {
+    liveGames: IGame[],
+  }
+) => {
 
   return (
     <div className="w-full">
@@ -93,7 +96,7 @@ const LiveGames = () => {
           </button>
         }
       >
-        {games?.length === 0 && (
+        {liveGames?.length === 0 && (
           <div className="py-6">
             <p className="text-center text-lg text-gray-500 ">
               No games are currently live, be the first to start a game!
@@ -101,10 +104,10 @@ const LiveGames = () => {
           </div>
         )}
         <ul className="flex flex-wrap justify-center gap-3">
-          {games?.map((game) => (
+          {liveGames?.map((game) => (
             <Link
-              key={game.id}
-              href={`/game/${game.id}`}
+              key={game.roomID}
+              href={`/game/${game.roomID}/spectate`}
               className="flex w-fit min-w-min flex-col gap-y-3 rounded-lg border duration-200"
             >
               <LiveGame game={game} />

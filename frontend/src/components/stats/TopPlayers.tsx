@@ -6,6 +6,9 @@ import Link from "next/link";
 import RoundedImage from "@ui/RoundedImage";
 import TitledCard from "@ui/TitledCard";
 import { getOrdinal } from "@utils/format";
+import { fetcher } from "@utils/swr.fetcher";
+import useSWR from "swr";
+
 
 interface IPlayer {
   id: string;
@@ -15,14 +18,14 @@ interface IPlayer {
   rank: number;
 }
 
-const MOCK_PLAYER: IPlayer = {
-  id: "1",
-  username: "Aristotle",
-  avatar_url:
-    "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSZpSv4PVhx_Bc7QOyklw0fNTpHr6K1px9Rzw&usqp=CAU",
-  xp: 1585,
-  rank: 2,
-};
+// const MOCK_PLAYER: IPlayer = {
+//   id: "1",
+//   username: "Aristotle",
+//   avatar_url:
+//     "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSZpSv4PVhx_Bc7QOyklw0fNTpHr6K1px9Rzw&usqp=CAU",
+//   xp: 1585,
+//   rank: 2,
+// };
 
 const OrdinalBadge = ({ rank }: { rank: number }) => (
   <div
@@ -71,11 +74,13 @@ const PlayerInfo = (player: IPlayer) => (
 );
 
 const TopPlayers = () => {
-  // const { data: players, error } = useSWR("/stats/top-players", fetcher, {
-  //   revalidateOnFocus: false,
-  // });
+  const { data: players, error } = useSWR("/games/top-players", fetcher, {
+    revalidateOnFocus: false,
+  });
+  console.log({players});
+  
   return (
-    <div className="w-full sm:max-w-max">
+    <div className="w-full sm:max-w-max min-w-[300px]">
       <TitledCard
         title="Top Players"
         actions={
@@ -88,7 +93,14 @@ const TopPlayers = () => {
         }
       >
         <ul className="flex flex-col gap-y-3 p-2">
-          {[...new Array(5).fill(MOCK_PLAYER)]?.map((player: IPlayer, idx) => (
+          {
+            !players?.length && (
+
+                <p className="text-gray-500 text-center">No players yet</p>
+
+            )
+          }
+          {players?.map((player: IPlayer, idx: number) => (
             <li
               key={player.id}
               className="flex flex-col gap-y-3 rounded-lg border shadow-lg  duration-200 hover:shadow-xl"

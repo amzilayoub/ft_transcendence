@@ -1,26 +1,17 @@
+interface IPlayer {
+    userID: string;
+    username: string;
+    avatar_url: string;
+    score: number;
+    socketID: string;
+  }
+
 export interface IGame {
   roomID: string;
-  p1:
-    | {
-        userID: string;
-        score: number;
-        socketID: string;
-      }
-    | undefined;
-  p2:
-    | {
-        userID: string;
-        score: number;
-        socketID: string;
-      }
-    | undefined;
-
-  spectators: {
-    socketID: string;
-    userID: string;
-  }[];
-
+  p1: IPlayer | undefined;
+  p2: IPlayer | undefined;
+  spectators: Partial<IPlayer>[];
   gameReady: boolean;
   gameStarted: boolean;
-  mode: string | undefined;
+  mode: "classic" | "blitz" | "powerUp" | undefined;
 }

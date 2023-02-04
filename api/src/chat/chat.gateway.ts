@@ -55,6 +55,7 @@ export class ChatGateway {
                 clientId: client.id,
                 status: 'online',
                 duplicatedSockets: [],
+                clientSocket: client,
             };
         }
         userRooms.forEach((element) => {
@@ -163,6 +164,32 @@ export class ChatGateway {
         return { status: 200, data: newRoom };
     }
 
+    
+
+    @SubscribeMessage('sendInvite')
+    sendInvite(
+        @ConnectedSocket() client: any,
+        @MessageBody() body: CreateMessageDto,
+    ) {
+        const user = this.getUserInfo(client);
+        if (user === null) return { status: 401 };
+        
+        let clientId = this.connectedClient[body.roomId].clientSocket
+        clientId?.join(body.message)
+        this.connectedClient[body.roomId]['duplicatedSockets'].forEach((item) => {
+            item.join(body.message)
+        })
+        // clientId?.emit('sendInvite', {
+        //     message: body.message
+        // })
+
+        this.server.to(body.message).emit('sendInvite', {
+            message: body.message,
+        });
+        // console.log("@", clientId);
+        // clientId.leave('/game')
+        return {status: 200}
+    }
     /*
      ** if there's a userId in the coming request
      ** that means it's a DM, so we should first check if
@@ -336,6 +363,7 @@ export class ChatGateway {
             data: {
                 room: room,
                 clientId: client.id,
+                userId: user['id'],
                 action: joinRoomDto.action || 'add', // needs to check later on
             },
         });
@@ -345,6 +373,7 @@ export class ChatGateway {
                     status: 200,
                     data: {
                         room: room,
+                        userId: user['id'],
                         clientId: client.id,
                         action: joinRoomDto.action || 'add', // needs to check later on
                     },
@@ -466,6 +495,7 @@ export class ChatGateway {
                 data: {
                     room: room,
                     clientId: client.id,
+                    userId: userId,
                     action,
                 },
             });
@@ -500,6 +530,9 @@ export class ChatGateway {
     }
 
     getTokenFromCookie(@ConnectedSocket() client: any) {
+        // if (!client.handshake.headers.cookie)
+        //     return null;
+        // console.log("@@@@@@@@@@@@", client.handshake.headers.cookie)
         const authToken = this.cookie.parse(client.handshake.headers.cookie)[
             'Authentication'
         ];

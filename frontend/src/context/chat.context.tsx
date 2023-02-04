@@ -36,7 +36,7 @@ export const ChatContext = createContext<IChatContext>(initialState);
 
 export const ChatProvider = ({ children }: { children: React.ReactNode }) => {
   const authCtx = useAuthContext();
-  const [showChatSidebar, setShowChatSidebar] = React.useState(true);
+  const [showChatSidebar, setShowChatSidebar] = React.useState(false);
   const [activeBoxes, setActiveBoxes] = React.useState<any[]>([]);
   const [conversationsMetadata, setConversationsMetadata] = React.useState(
     initialState.conversationsMetadata
