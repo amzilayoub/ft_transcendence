@@ -61,12 +61,10 @@ export const SearchchatTab = ({
   }, []);
 
   const handleSearch = async (value: any) => {
-    const res = await basicFetch.get(
-      `/users/friends/${value}`
-    );
+    const res = await basicFetch.get(`/users/friends/${value}`);
     if (res.status == 200) {
       const data = await res.json();
-      console.log(data);
+      //console.log(data);
       return data;
     }
     return [
@@ -133,7 +131,13 @@ export const SearchchatTab = ({
   );
 };
 
-const CreateRoomTab = ({ createRoom, onSuccess }: { createRoom: any; onSuccess: () => void }) => {
+const CreateRoomTab = ({
+  createRoom,
+  onSuccess,
+}: {
+  createRoom: any;
+  onSuccess: () => void;
+}) => {
   const [roomTypes, setRoomTypes] = useState([]);
   const [createRoomInfo, setCreateRoomInfo] = useState({
     name: "",
@@ -156,7 +160,7 @@ const CreateRoomTab = ({ createRoom, onSuccess }: { createRoom: any; onSuccess: 
 
   const handleCreateRoomInput = (e: any, field: string) => {
     e.preventDefault();
-    console.log(e.target.value);
+    //console.log(e.target.value);
     setCreateRoomInfo((state) => {
       return { ...state, [field]: e.target.value };
     });
@@ -183,9 +187,10 @@ const CreateRoomTab = ({ createRoom, onSuccess }: { createRoom: any; onSuccess: 
                 cn(
                   "rounded-md py-1 px-4 text-center w-full h-full duration-150",
                   {
-                  "bg-slate-400 shadow cursor-default": selected,
-                  "  text-blue-400  hover:text-blue-500": !selected,
-                })
+                    "bg-slate-400 shadow cursor-default": selected,
+                    "  text-blue-400  hover:text-blue-500": !selected,
+                  }
+                )
               }
             >
               {tab}

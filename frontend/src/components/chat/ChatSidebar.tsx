@@ -105,8 +105,8 @@ const ConversationMetadata = ({
   lastMessageTime: Date;
   unreadMessages: number;
   onConversationClick: () => void;
-  onMuteClick: () => void;
-  onBlockClick: () => void;
+  onMuteClick: (muted: boolean) => Promise<void>;
+  onBlockClick: (blocked: boolean) => Promise<void>;
   socket: any;
   type: string;
   id: number;
@@ -156,7 +156,7 @@ const ConversationMetadata = ({
                 {type == "dm" ? (
                   <div className="group/dots relative hidden h-7 w-7 items-center justify-center text-xs duration-200 hover:bg-gray-300 group-hover:flex">
                     <BsThreeDots />
-                    <div className="absolute w-28 top-0 right-0 hidden w-full min-w-min flex-col overflow-hidden rounded-l-lg bg-white group-hover/dots:flex">
+                    <div className="absolute w-28 top-0 right-0 hidden min-w-min flex-col overflow-hidden rounded-l-lg bg-white group-hover/dots:flex">
                       <button
                         onClick={async (e) => {
                           e.stopPropagation();
@@ -258,7 +258,8 @@ const ChatSidebar = ({
       setSearchResults(await loadSearch());
     };
     setSearchData();
-  }, [searchQuery, conversationsMetadata]);
+    // }, [searchQuery, conversationsMetadata]);
+  }, [searchQuery, conversationsMetadata, loadSearch]);
 
   const muteUser = async (roomId: number, userId: number, muted: boolean) => {
     const resp = await basicFetch.post(
@@ -306,11 +307,11 @@ const ChatSidebar = ({
 
         // onConversationClick((state) => {
         //   const newState = [...state];
-        //   console.log({ newState });
+        //   //console.log({ newState });
         //   //   newState.forEach((item) => {
         //   //     if (item.user_id == blockedUserId) {
         //   //       item.isBlocked = resp.data.value;
-        //   //       console.log({ user: item.user_id });
+        //   //       //console.log({ user: item.user_id });
         //   //     }
         //   //   });
         //   return newState;
@@ -473,7 +474,6 @@ const ChatSidebar = ({
                 id={item.room_id}
                 userId={item.user_id}
                 isBlocked={item.isBlocked}
-                muted={item.muted}
                 userStatus={item.userStatus}
               />
             ))

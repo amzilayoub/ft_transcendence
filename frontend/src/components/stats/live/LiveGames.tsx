@@ -4,7 +4,6 @@ import React from "react";
 import dynamic from "next/dynamic";
 import Link from "next/link";
 
-import useLiveGames, { ILiveGame } from "@hooks/useLiveGames";
 import TitledCard from "@ui/TitledCard";
 import { truncateString } from "@utils/format";
 import { IGame } from "@utils/game/IGame";
@@ -67,14 +66,7 @@ const LiveGame = ({ game }: { game: IGame }) => (
   </div>
 );
 
-const LiveGames = (
-  {
-    liveGames,
-  } : {
-    liveGames: IGame[],
-  }
-) => {
-
+const LiveGames = ({ liveGames }: { liveGames: IGame[] }) => {
   return (
     <div className="w-full">
       <TitledCard

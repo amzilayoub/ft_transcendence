@@ -1,10 +1,8 @@
 /* eslint-disable @next/next/no-img-element */
 import React from "react";
 
-import dynamic from "next/dynamic";
 import Link from "next/link";
 
-import useLiveGames, { ILiveGame } from "@hooks/useLiveGames";
 import TitledCard from "@ui/TitledCard";
 import { truncateString } from "@utils/format";
 import { IGame } from "@utils/game/IGame";
@@ -22,20 +20,14 @@ const WaitingPlayer = ({ game }: { game: IGame }) => (
         />
       </div>
       <p className="pb-2 text-lg font-normal">
-        {truncateString('@' + game.p1?.username, 14)}
+        {truncateString("@" + game.p1?.username, 14)}
       </p>
     </div>
   </div>
 );
 
-const WaitingPlayers = (
-  {
-    waitingPlayers,
-  } : {
-    waitingPlayers: IGame[],
-  }
-) => {
-  console.log(waitingPlayers);
+const WaitingPlayers = ({ waitingPlayers }: { waitingPlayers: IGame[] }) => {
+  //console.log(waitingPlayers);
   return (
     <div className="w-full">
       <TitledCard

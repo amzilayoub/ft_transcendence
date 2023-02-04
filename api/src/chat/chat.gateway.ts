@@ -184,9 +184,10 @@ export class ChatGateway {
         // })
 
         this.server.to(body.message).emit('sendInvite', {
+            username: user['username'],
             message: body.message,
         });
-        // console.log("@", clientId);
+        // //console.log("@", clientId);
         // clientId.leave('/game')
         return {status: 200}
     }
@@ -532,7 +533,7 @@ export class ChatGateway {
     getTokenFromCookie(@ConnectedSocket() client: any) {
         // if (!client.handshake.headers.cookie)
         //     return null;
-        // console.log("@@@@@@@@@@@@", client.handshake.headers.cookie)
+        // //console.log("@@@@@@@@@@@@", client.handshake.headers.cookie)
         const authToken = this.cookie.parse(client.handshake.headers.cookie)[
             'Authentication'
         ];

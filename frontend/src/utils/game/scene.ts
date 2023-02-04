@@ -47,7 +47,6 @@ let userID!: string;
 let pressedKeys = new Set<string>();
 
 export class pongScene extends Scene {
-
   public socket!: Socket;
   createPaddle = (x: number, y: number) => {
     const paddle = this.physics.add
@@ -64,12 +63,12 @@ export class pongScene extends Scene {
 
         // Generate a random angle within the range
 
-        // console.log(ball.body.velocity.x > 0 ? 0 : 1);
+        // //console.log(ball.body.velocity.x > 0 ? 0 : 1);
         let angle =
           MIN_ANGLE +
           Math.random() * (MAX_ANGLE - MIN_ANGLE) +
           Math.PI * (ball.body.velocity.x > 0 ? 0 : 1);
-        // console.log(ball.body.velocity.angle(), angle);
+        // //console.log(ball.body.velocity.angle(), angle);
 
         ball.setVelocity(
           Math.cos(angle) * ballSpeed,
@@ -108,7 +107,7 @@ export class pongScene extends Scene {
         socket.emit("not_ready");
       }
     });
-    
+
     this.game.events.on("resume", () => {
       if (p1 || p2) {
         ready = true;
@@ -291,10 +290,6 @@ export class pongScene extends Scene {
         gameStarted = serverGameStarted;
       });
 
-      socket.on("broadcast", (res) =>
-        console.log("################\n", res, "\n################\n")
-      );
-
       socket.on("stop_game", (win) => {
         if (!gameStarted) return;
 
@@ -302,7 +297,7 @@ export class pongScene extends Scene {
         midGame = false;
 
         this.switchUI(gameStarted);
-        // console.log("stop_game", win);
+        // //console.log("stop_game", win);
 
         if (p2 || p1)
           startText.text = (win && p2) || (!win && p1) ? "you lost" : "you won";
@@ -368,7 +363,7 @@ export class pongScene extends Scene {
       });
 
       socket.on("powerup", (serverPowerUp) => {
-        console.log("powerup", serverPowerUp);
+        //console.log("powerup", serverPowerUp);
         powerUp.setX(p2 ? width - serverPowerUp.x : serverPowerUp.x);
         powerUp.setY(serverPowerUp.y);
         powerUp.setVisible(true);
@@ -388,7 +383,7 @@ export class pongScene extends Scene {
     try {
       socketInitializer();
     } catch (e) {
-      console.log(e);
+      //console.log(e);
     }
   }
 
@@ -463,7 +458,7 @@ export class pongScene extends Scene {
         );
       }
       if (state === 1) {
-        console.log(paddle1.x, paddle2.x);
+        //console.log(paddle1.x, paddle2.x);
 
         if (ball.x < ball.body.halfWidth + paddle1.x + paddle1.body.halfWidth) {
           this.score(false);
@@ -495,7 +490,7 @@ export class pongScene extends Scene {
           lastTime = lastTime || time;
 
           if (time - lastTime >= 10000 && !powerUp.visible) {
-            console.log("powerup");
+            //console.log("powerup");
 
             socket.emit("powerup", {
               effect:

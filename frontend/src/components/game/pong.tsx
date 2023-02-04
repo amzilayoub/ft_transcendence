@@ -7,7 +7,7 @@ const Pong = ({
   mode,
   userID,
   username,
-  avatar_url
+  avatar_url,
 }: {
   roomID: string;
   mode: string;
@@ -19,7 +19,7 @@ const Pong = ({
   useEffect(() => {
     const initPhaser = async () => {
       try {
-        console.log(roomID, mode, userID);
+        //console.log(roomID, mode, userID);
         const Phaser = await import("phaser");
         const { pongScene } = await import("@utils/game/scene");
 
@@ -51,16 +51,14 @@ const Pong = ({
         gameRef.current.cache.text.add("userID", `${userID}`);
         gameRef.current.cache.text.add("username", username);
         gameRef.current.cache.text.add("avatar_url", avatar_url);
-        
       } catch (error: any) {
-        console.log(error.message);
+        //console.log(error.message);
       }
     };
 
     initPhaser();
-
   }, [roomID]);
-  
+
   useEffect(() => {
     return () => gameRef.current?.scene?.scenes[0]?.socket?.disconnect();
   }, []);

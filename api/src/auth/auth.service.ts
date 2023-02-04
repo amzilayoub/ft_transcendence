@@ -56,7 +56,7 @@ export class AuthService {
             });
             return user;
         } catch (error) {
-            console.log('error:', error);
+            //console.log('error:', error);
             if (error instanceof PrismaClientKnownRequestError) {
                 throw error;
             }

@@ -101,7 +101,7 @@ export class AuthController {
     @Get('me')
     async getMe(@Req() request: RequestWithUser, @Res() response: Response) {
         const user = await this.authService.getMe(request.user.id);
-        // console.log("INSIDE", user);
+        // //console.log("INSIDE", user);
         response.send(user);
     }
 }

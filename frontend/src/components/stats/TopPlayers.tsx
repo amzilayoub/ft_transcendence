@@ -2,13 +2,12 @@ import React from "react";
 
 import cn from "classnames";
 import Link from "next/link";
+import useSWR from "swr";
 
 import RoundedImage from "@ui/RoundedImage";
 import TitledCard from "@ui/TitledCard";
 import { getOrdinal } from "@utils/format";
 import { fetcher } from "@utils/swr.fetcher";
-import useSWR from "swr";
-
 
 interface IPlayer {
   id: string;
@@ -77,8 +76,8 @@ const TopPlayers = () => {
   const { data: players, error } = useSWR("/games/top-players", fetcher, {
     revalidateOnFocus: false,
   });
-  console.log({players});
-  
+  //console.log({ players });
+
   return (
     <div className="w-full sm:max-w-max min-w-[300px]">
       <TitledCard
@@ -93,13 +92,9 @@ const TopPlayers = () => {
         }
       >
         <ul className="flex flex-col gap-y-3 p-2">
-          {
-            !players?.length && (
-
-                <p className="text-gray-500 text-center">No players yet</p>
-
-            )
-          }
+          {!players?.length && (
+            <p className="text-gray-500 text-center">No players yet</p>
+          )}
           {players?.map((player: IPlayer, idx: number) => (
             <li
               key={player.id}

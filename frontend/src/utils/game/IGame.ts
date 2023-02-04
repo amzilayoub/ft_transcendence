@@ -1,10 +1,10 @@
 interface IPlayer {
-    userID: string;
-    username: string;
-    avatar_url: string;
-    score: number;
-    socketID: string;
-  }
+  userID: string;
+  username: string;
+  avatar_url: string;
+  score: number;
+  socketID: string;
+}
 
 export interface IGame {
   roomID: string;

@@ -1,19 +1,12 @@
-import React, {
-  useEffect,
-  useRef,
-  useState,
-} from "react";
+import React, { useEffect, useRef, useState } from "react";
 
-import { useRouter } from "next/router";
-import { IGame } from "@utils/game/IGame";
-
-import { io, Socket } from "socket.io-client";
 import cn from "classnames";
-
 import Image from "next/image";
+import { useRouter } from "next/router";
+import { io, Socket } from "socket.io-client";
 
 import TitledCard from "@ui/TitledCard";
-import WaitingPlayersModal from "@components/modals/WaitingPlayersModal";
+import { IGame } from "@utils/game/IGame";
 
 const GameMode = ({
   title,
@@ -34,9 +27,11 @@ const GameMode = ({
     onClick={() => !amIalreadyInAGameOrWaiting && isQueueEmpty && onClick()}
     className="flex h-64 cursor-pointer flex-col items-center justify-center gap-y-2 rounded-xl border p-6 shadow-xl duration-150 hover:border-black/20 hover:shadow-2xl"
   >
-    <div className={cn("flex flex-col items-center justify-center gap-y-2", {
-      "opacity-50": amIalreadyInAGameOrWaiting || !isQueueEmpty,
-    })}>
+    <div
+      className={cn("flex flex-col items-center justify-center gap-y-2", {
+        "opacity-50": amIalreadyInAGameOrWaiting || !isQueueEmpty,
+      })}
+    >
       <div className="h-24 w-24">
         <Image
           src={icon}
@@ -78,25 +73,25 @@ export const GameModes = ({
 
         socketRef.current.on("get_info", (newGames) => {
           setGames(newGames);
-          console.log(newGames, newGames.length);
+          //console.log(newGames, newGames.length);
         });
       } catch (error: any) {
-        console.log(error.message);
+        //console.log(error.message);
       }
     };
     initSocket();
   }, []);
 
   const handleJoinGame = (mode: string) => {
-    console.log(mode);
-      const game = games.find((game) => game.mode === mode);
-      if (game) {
-        setShowWaitingPlayerModal(true);
-        // router.push(`/game/${game.roomID}/${mode}`);
-      } else {
-        const roomID = Math.random().toString(36).substring(2, 10);
-        router.push(`/game/${roomID}/${mode}`);
-      }
+    //console.log(mode);
+    const game = games.find((game) => game.mode === mode);
+    if (game) {
+      setShowWaitingPlayerModal(true);
+      // router.push(`/game/${game.roomID}/${mode}`);
+    } else {
+      const roomID = Math.random().toString(36).substring(2, 10);
+      router.push(`/game/${roomID}/${mode}`);
+    }
   };
 
   return (
@@ -107,15 +102,21 @@ export const GameModes = ({
             title="Classic"
             description="Play the classic Pong game"
             icon="/ping-pong-logo.png"
-            isQueueEmpty={waitingPlayers.filter((game) => game.mode === "classic").length === 0}
+            isQueueEmpty={
+              waitingPlayers.filter((game) => game.mode === "classic")
+                .length === 0
+            }
             amIalreadyInAGameOrWaiting={amIalreadyInAGameOrWaiting}
             onClick={() => handleJoinGame("classic")}
-            />
+          />
           <GameMode
             title="Power Up"
             description="Play the not classic Pong game"
             icon="/table-tennis.png"
-            isQueueEmpty={waitingPlayers.filter((game) => game.mode === "powerUp").length === 0}
+            isQueueEmpty={
+              waitingPlayers.filter((game) => game.mode === "powerUp")
+                .length === 0
+            }
             amIalreadyInAGameOrWaiting={amIalreadyInAGameOrWaiting}
             onClick={() => handleJoinGame("powerUp")}
           />

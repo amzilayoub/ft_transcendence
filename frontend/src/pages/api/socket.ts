@@ -1,6 +1,7 @@
+import { Server as IOServer } from "socket.io";
+
 import basicFetch from "@utils/basicFetch";
 import { IGame } from "@utils/game/IGame";
-import { Server as IOServer } from "socket.io";
 
 // import { Client } from "pg";
 
@@ -15,12 +16,12 @@ const handler = (req, res) => {
 
   // client.connect(function (err) {
   //   // if (err) throw err;
-  //   console.log("Connected!");
+  //   //console.log("Connected!");
   // });
 
   // client.query("SELECT * FROM room_type", function (err, result) {
   //   if (err) throw err;
-  //   // console.log(result.rows);
+  //   // //console.log(result.rows);
   // });
   let games = new Array<IGame>();
 
@@ -38,7 +39,7 @@ const handler = (req, res) => {
     io.on("connection", (socket) => {
       // spectate as much as you want...
       socket.on("spectate_room", (roomID, userID) => {
-        console.log("spectating roomID:", roomID);
+        //console.log("spectating roomID:", roomID);
         socket.join(roomID!);
 
         if (
@@ -63,7 +64,7 @@ const handler = (req, res) => {
       });
 
       socket.on("join_room", (roomID, userID, mode, username, avatar_url) => {
-        console.log(username, "joining roomID:", roomID);
+        //console.log(username, "joining roomID:", roomID);
 
         const socketRooms = Array.from(socket.rooms.values()).filter(
           (id) => id !== socket.id
@@ -115,7 +116,7 @@ const handler = (req, res) => {
               socketID: socket.id,
               username: username,
               avatar_url: avatar_url,
-              };
+            };
           } else {
             socket.emit("error", "room_is_full");
             return;
@@ -152,7 +153,7 @@ const handler = (req, res) => {
           io.to(roomID!).emit("moved", { p2: dir, p1: undefined }); // diha fmok
         }
       });
-      
+
       socket.on("ping", (t0) => {
         socket.emit("ping", t0);
       });
@@ -231,7 +232,7 @@ const handler = (req, res) => {
         const roomID = Array.from(socket.rooms.values()).find(
           (id) => id !== socket.id
         );
-        console.log("powerup from server");
+        //console.log("powerup from server");
 
         io.to(roomID!).emit("powerup", powerUp);
       });
@@ -244,7 +245,7 @@ const handler = (req, res) => {
 
         game = games[roomKeys[roomID!]];
         if (!game) return;
-        
+
         game.gameStarted = false;
         io.to(roomID!).emit("stop_game", win);
 
@@ -258,19 +259,17 @@ const handler = (req, res) => {
               player_1_score: game.p1.score,
               player_2_score: game.p2.score,
               winner: win ? game.p1.userID : game.p2.userID,
-              
             }
           );
           if (resp.data) {
-            console.log(resp.data);
+            //console.log(resp.data);
           }
         } catch (err) {
-          console.log(err);
+          //console.log(err);
         }
-        
+
         game.p1.score = 0;
         game.p2.score = 0;
-
       };
 
       socket.on("score", (goalOf, userID) => {
@@ -312,12 +311,12 @@ const handler = (req, res) => {
         const roomID = Array.from(socket.rooms.values()).find(
           (id) => id !== socket.id
         );
-        console.log(socket.id, "disconnecting from", roomID);
+        //console.log(socket.id, "disconnecting from", roomID);
         if (roomID === "subscribers") return;
         game = games[roomKeys[roomID!]]; // i fucking HATE socket io
 
-        console.log("game: ",game);
-        
+        //console.log("game: ", game);
+
         if (!game) return;
 
         if (game.p1?.socketID === socket.id) {

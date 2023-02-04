@@ -3,15 +3,12 @@ import React, { useCallback, useEffect, useRef, useState } from "react";
 import cn from "classnames";
 import Image from "next/image";
 import Link from "next/link";
-import { BsThreeDots } from "react-icons/bs";
-import { RxCross2 } from "react-icons/rx";
-import { GrGamepad } from "react-icons/gr"
-
 import { useRouter } from "next/router";
+import { BsThreeDots } from "react-icons/bs";
+import { GrGamepad } from "react-icons/gr";
+import { RxCross2 } from "react-icons/rx";
 
 import ChatroomSettingsModal from "@components/modals/chat/ChatroomSettingsModal";
-import { ChatdmSettingsModal } from "@components/modals/chat/ChatroomSettingsModal";
-import RoundedImage from "@ui/RoundedImage";
 import basicFetch from "@utils/basicFetch";
 import { truncateString } from "@utils/format";
 import {
@@ -22,7 +19,6 @@ import {
   MembershipStatus,
   RoomType,
 } from "global/types";
-import { toastNewMessage } from "@components/toast";
 
 const Message = ({
   message,
@@ -49,8 +45,7 @@ const Message = ({
           }
         )}
       >
-        <span
-          className={cn("inline-block px-4 py-2", {})}>
+        <span className={cn("inline-block px-4 py-2", {})}>
           {message.split("\n").map((item, key) => (
             <span key={key}>
               {item}
@@ -58,8 +53,6 @@ const Message = ({
             </span>
           ))}
         </span>
-
-
       </div>
 
       <Image
@@ -251,7 +244,7 @@ const ChatBox = ({
           members,
           messages,
         });
-      } catch (error) { }
+      } catch (error) {}
     };
 
     if (loadMembersRef.current) return;
@@ -288,7 +281,8 @@ const ChatBox = ({
     });
   });
 
-  const checkIfUserIsWaitingForGame = () => router.query?.mode && router.query.mode !== 'spectate';
+  const checkIfUserIsWaitingForGame = () =>
+    router.query?.mode && router.query.mode !== "spectate";
 
   return (
     <section
@@ -302,16 +296,17 @@ const ChatBox = ({
     >
       <div
         onClick={() => setShowChatBox(!showChatBox)}
-        className={cn("cursor-pointer flex justify-between border-b-2 rounded-t-xl  border-gray-200  sm:items-center h-14", {
-          "p-3": showChatBox,
-          "p-2": !showChatBox,
-          "bg-primary/80": conversationMetaData.type !== "dm",
-        })}
+        className={cn(
+          "cursor-pointer flex justify-between border-b-2 rounded-t-xl  border-gray-200  sm:items-center h-14",
+          {
+            "p-3": showChatBox,
+            "p-2": !showChatBox,
+            "bg-primary/80": conversationMetaData.type !== "dm",
+          }
+        )}
       >
         {/* <div className="relative flex items-center space-x-4"> */}
-        <div
-          className="relative flex items-center space-x-4"
-        >
+        <div className="relative flex items-center space-x-4">
           <div className="relative">
             <Image
               src={
@@ -339,40 +334,37 @@ const ChatBox = ({
                   "right-0": !showChatBox,
                 })}
               >
-                {
-                  showChatBox ? (<circle cx="6" cy="6" r="6" fill="currentColor" />) : (<circle cx="4" cy="4" r="4" fill="currentColor" />)
-                }
+                {showChatBox ? (
+                  <circle cx="6" cy="6" r="6" fill="currentColor" />
+                ) : (
+                  <circle cx="4" cy="4" r="4" fill="currentColor" />
+                )}
               </svg>
             )}
           </div>
-          {
-            showChatBox ? (
-              <Link
-                href={`/u/${conversationMetaData.name}`}
-                onClick={(e) => {
-                  e.stopPropagation();
-                }}
-                className="flex flex-col leading-tight"
-              >
-                <p className="flex items-center text-xl">
-                  <span className="mr-3 text-gray-800 font-semibold text-base hover:text-gray-600 hover:underline">
-                    {truncateString(conversationMetaData.name, 20)}
-                  </span>
-                </p>
-              </Link>
-            ) : (
-              <div
-                className="flex flex-col leading-tight"
-              >
-                <p className="flex items-center text-xl">
-                  <span className="mr-3 text-gray-800 font-semibold text-base ">
-                    {truncateString(conversationMetaData.name, 14)}
-                  </span>
-                </p>
-              </div>
-            )
-          }
-
+          {showChatBox ? (
+            <Link
+              href={`/u/${conversationMetaData.name}`}
+              onClick={(e) => {
+                e.stopPropagation();
+              }}
+              className="flex flex-col leading-tight"
+            >
+              <p className="flex items-center text-xl">
+                <span className="mr-3 text-gray-800 font-semibold text-base hover:text-gray-600 hover:underline">
+                  {truncateString(conversationMetaData.name, 20)}
+                </span>
+              </p>
+            </Link>
+          ) : (
+            <div className="flex flex-col leading-tight">
+              <p className="flex items-center text-xl">
+                <span className="mr-3 text-gray-800 font-semibold text-base ">
+                  {truncateString(conversationMetaData.name, 14)}
+                </span>
+              </p>
+            </div>
+          )}
         </div>
         <span
           onClick={onClose}
@@ -380,32 +372,29 @@ const ChatBox = ({
         >
           <RxCross2 className="h-5 w-5" />
         </span>
-        {conversationMetaData.type === "dm" && checkIfUserIsWaitingForGame() &&
-          (
-            <span
-              onClick={(e) => {
-                e.stopPropagation();
-                handleSendInvite(e)} }
-              className="absolute top-3 right-10 cursor-pointer rounded-full p-1 text-gray-400 duration-300  hover:bg-gray-200 hover:text-slate-600"
-            >
-              <GrGamepad className="h-5 w-5" />
-            </span>
+        {conversationMetaData.type === "dm" && checkIfUserIsWaitingForGame() && (
+          <span
+            onClick={(e) => {
+              e.stopPropagation();
+              handleSendInvite(e);
+            }}
+            className="absolute top-3 right-10 cursor-pointer rounded-full p-1 text-gray-400 duration-300  hover:bg-gray-200 hover:text-slate-600"
+          >
+            <GrGamepad className="h-5 w-5" />
+          </span>
+        )}
 
-          )}
-
-        {
-          conversationMetaData.type !== "dm" &&
-          (
-            <span
-              onClick={(e) => {
-                e.stopPropagation();
-                setShowChatSettingModal(true);
-              }}
-              className="absolute top-3 right-10 cursor-pointer rounded-full p-1 text-gray-400 duration-300  hover:bg-gray-200 hover:text-slate-600"
-            >
-              <BsThreeDots className="h-5 w-5" />
-            </span>
-          )}
+        {conversationMetaData.type !== "dm" && (
+          <span
+            onClick={(e) => {
+              e.stopPropagation();
+              setShowChatSettingModal(true);
+            }}
+            className="absolute top-3 right-10 cursor-pointer rounded-full p-1 text-gray-400 duration-300  hover:bg-gray-200 hover:text-slate-600"
+          >
+            <BsThreeDots className="h-5 w-5" />
+          </span>
+        )}
       </div>
       <div className="flex h-full flex-col justify-items-stretch overflow-hidden">
         <ul
@@ -431,7 +420,7 @@ const ChatBox = ({
           <form className="relative flex" onSubmit={handleSendMessage}>
             {(conversationMetaData.isBlocked ||
               conversationMetaData.amIBlocked) &&
-              conversationMetaData.type == "dm" ? (
+            conversationMetaData.type == "dm" ? (
               ""
             ) : (
               <textarea
@@ -451,18 +440,18 @@ const ChatBox = ({
               })}
             >
               {conversationMetaData.isBlocked &&
-                conversationMetaData.type == "dm"
+              conversationMetaData.type == "dm"
                 ? "You blocked this user"
                 : conversationMetaData.amIBlocked &&
                   conversationMetaData.type == "dm"
-                  ? "You cannot contact this user"
-                  : ""}
+                ? "You cannot contact this user"
+                : ""}
             </div>
           </form>
           <div className="flex justify-end py-1">
             {(conversationMetaData.isBlocked ||
               conversationMetaData.amIBlocked) &&
-              conversationMetaData.type == "dm" ? (
+            conversationMetaData.type == "dm" ? (
               ""
             ) : (
               <button

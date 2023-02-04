@@ -12,7 +12,15 @@ import basicFetch from "@utils/basicFetch";
 import { truncateString } from "@utils/format";
 import { IRoom } from "global/types";
 
-const RoomListItem = ({ room, socket, onJoinRoom }: { room: IRoom; socket: any; onJoinRoom: () => void }) => {
+const RoomListItem = ({
+  room,
+  socket,
+  onJoinRoom,
+}: {
+  room: IRoom;
+  socket: any;
+  onJoinRoom: () => void;
+}) => {
   const [showPasswordModal, setShowPasswordModal] = useState<boolean>(false);
   const [passwordIsCoorect, setPasswordIsCorrect] = useState(true);
   const [roomPassword, setRoomPassword] = useState("");
@@ -129,7 +137,13 @@ const RoomListItem = ({ room, socket, onJoinRoom }: { room: IRoom; socket: any; 
   );
 };
 // const fetcher = (url) => fetch(url).then((res) => res.json());
-const ExploreRoomsTab = ({ socket, onSuccess }: { socket: any; onSuccess: () => void }) => {
+const ExploreRoomsTab = ({
+  socket,
+  onSuccess,
+}: {
+  socket: any;
+  onSuccess: () => void;
+}) => {
   //   const chatCtx = useChatContext();
   const [searchQuery, setSearchQuery] = useState("");
   const [shouldSearch, setShouldSearch] = useState<boolean>(false);
@@ -226,7 +240,12 @@ const ExploreRoomsTab = ({ socket, onSuccess }: { socket: any; onSuccess: () => 
           !searchLoading &&
           searchResults &&
           searchResults?.map((room: IRoom) => (
-            <RoomListItem key={room.id} room={room} socket={socket} onJoinRoom={onSuccess} />
+            <RoomListItem
+              key={room.id}
+              room={room}
+              socket={socket}
+              onJoinRoom={onSuccess}
+            />
           ))}
         {searchLoading &&
           [...new Array(6)].map((i) => <UserListItemLoading key={i} />)}

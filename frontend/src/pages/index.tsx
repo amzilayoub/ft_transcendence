@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect } from "react";
 
 import { NextPageContext } from "next";
 import Image from "next/image";
@@ -35,15 +35,15 @@ const TwoFactorAuthForm = () => {
         setIsCodeInvalid(true);
       }
     } catch (error) {
-      console.log(error);
+      //console.log(error);
     } finally {
       setIsSubmitting(false);
     }
   };
 
   // const handleOtpInput = (e) => {
-  //   console.log("#####", e.target.value);
-  //   console.log("@@", e.target.nextSibling);
+  //   //console.log("#####", e.target.value);
+  //   //console.log("@@", e.target.nextSibling);
 
   //   if (e.key === "Backspace") {
   //     e.target.value = "";
@@ -51,7 +51,7 @@ const TwoFactorAuthForm = () => {
   //     return
   //   }
   //   else if ("0123456789".includes(e.key)) {
-  //     console.log("!!!!!!", e.target.nextSibling);
+  //     //console.log("!!!!!!", e.target.nextSibling);
   //     e.target.nextSibling && e.target.nextSibling.focus();
   //   }
   // };
@@ -187,7 +187,7 @@ const SiginFields = () => {
 };
 
 export default function LandingPage() {
-  const [show2fa, setShow2fa] = useState(false);  
+  const [show2fa, setShow2fa] = useState(false);
 
   const handle42Login = async () => {
     window.location.href = process.env.NEXT_PUBLIC_API_URL + "/auth/login42";

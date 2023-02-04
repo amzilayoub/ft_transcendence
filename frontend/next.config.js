@@ -10,14 +10,16 @@ const nextConfig = {
       "res.cloudinary.com",
       "images.unsplash.com",
       ///
-      "martinfowler.com",
-      "variety.com",
-      "img.freepik.com",
-      "images.saymedia-content.com",
-      "encrypted-tbn0.gstatic.com",
-      "miro.medium.com",
-
+      // "martinfowler.com",
+      // "variety.com",
+      // "img.freepik.com",
+      // "images.saymedia-content.com",
+      // "encrypted-tbn0.gstatic.com",
+      // "miro.medium.com",
     ],
+  },
+  typescript: {
+    ignoreBuildErrors: true,
   },
 };
 

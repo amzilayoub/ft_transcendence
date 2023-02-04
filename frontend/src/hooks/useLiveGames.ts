@@ -26,7 +26,7 @@ const useLiveGames = () => {
   const [games, setGames] = useState<ILiveGame[]>([]);
 
   const getGames = async () => {
-    console.log("Live Game: Fetching games");
+    //console.log("Live Game: Fetching games");
     setIsRefetching(true);
     try {
       const resp = await basicFetch.get(`/games/live`);
@@ -49,11 +49,11 @@ const useLiveGames = () => {
 
     if (socket) {
       socket?.on("connect", () => {
-        console.log("Live Game: Connected to socket");
+        //console.log("Live Game: Connected to socket");
         getGames();
       });
       socket?.on("disconnect", () => {
-        console.log("Live Game: Disconnected from socket");
+        //console.log("Live Game: Disconnected from socket");
       });
       socket?.on("liveGames", (data) => {
         setGames(data);

@@ -18,7 +18,7 @@ export class UserService {
             });
             return user;
         } catch (error) {
-            console.log(error);
+            //console.log(error);
             if (error instanceof PrismaClientKnownRequestError) {
                 throw error;
             }
@@ -33,7 +33,7 @@ export class UserService {
             });
             return users;
         } catch (error) {
-            console.log(error);
+            //console.log(error);
             if (error instanceof PrismaClientKnownRequestError) {
                 throw error;
             }
@@ -49,7 +49,7 @@ export class UserService {
             });
             return user;
         } catch (error) {
-            console.log(error);
+            //console.log(error);
             if (error instanceof PrismaClientKnownRequestError) {
                 throw error;
             }
@@ -73,7 +73,7 @@ export class UserService {
             });
             return user;
         } catch (error) {
-            console.log(error);
+            //console.log(error);
             if (error instanceof PrismaClientKnownRequestError) {
                 throw error;
             }
@@ -89,7 +89,7 @@ export class UserService {
             });
             return user;
         } catch (error) {
-            console.log(error);
+            //console.log(error);
             if (error instanceof PrismaClientKnownRequestError) {
                 throw error;
             }

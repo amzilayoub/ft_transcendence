@@ -2,24 +2,22 @@ import { Injectable } from '@nestjs/common';
 import { CreateGameDto } from './dto/create-game.dto';
 import { PrismaService } from 'src/prisma/prisma.service';
 import { PrismaClientKnownRequestError } from '@prisma/client/runtime';
+import { Prisma } from '@prisma/client';
 
 
 @Injectable()
 export class GameService {
     constructor(private readonly prisma: PrismaService) {}
     async create(createGameDto: CreateGameDto) {
-        console.log('createGameDto', createGameDto);
-
+      
         try {
-            const game = await this.prisma.games.create({
-                data: {
-                    ...createGameDto,
-                    winner: createGameDto.player_1_score > createGameDto.player_2_score ? createGameDto.player_1 : createGameDto.player_2,
-                },
-            });
-            return game;
+          return this.prisma.$queryRaw(Prisma.sql`
+            INSERT INTO games (player_1, player_2, winner, mode)
+            VALUES (${createGameDto.player_1}, ${createGameDto.player_2}, ${createGameDto.winner}, ${createGameDto.mode})
+          `);
+
         } catch (error) {
-            console.log('error:', error);
+            //console.log('error:', error);
             if (error instanceof PrismaClientKnownRequestError) {
                 throw error;
             } 

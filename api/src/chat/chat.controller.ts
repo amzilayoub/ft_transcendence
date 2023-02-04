@@ -195,7 +195,7 @@ export class ChatController {
          ** if so, then move the ownership to the firt admin
          ** otherwise, remove the record
          */
-        console.log(kickoutDto);
+        //console.log(kickoutDto);
     }
 
     @Post('room/change-password')

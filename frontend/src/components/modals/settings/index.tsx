@@ -33,7 +33,6 @@ const SettingsModal = ({
   const [deleteButtonText, setDeleteButtonText] = useState("Delete");
   const [isSaving, setIsSaving] = useState(false);
 
-  
   const [inputFiles, setInputFiles] = useState({
     avatar: null,
     cover: null,
@@ -76,14 +75,12 @@ const SettingsModal = ({
       if (inputFiles.avatar) {
         setButtonText("Uploading...");
         const file_data = await uploadFile(inputFiles.avatar);
-        if (file_data) 
-          settings.avatar_url = file_data.secure_url || null;
+        if (file_data) settings.avatar_url = file_data.secure_url || null;
       }
       if (inputFiles.cover) {
         setButtonText("Uploading...");
         const file_data = await uploadFile(inputFiles.cover);
-        if (file_data)
-          settings.cover_url = file_data.secure_url || null;
+        if (file_data) settings.cover_url = file_data.secure_url || null;
       }
       setButtonText("Saving...");
       const res = await basicFetch.post("/users/update", {}, settings);
@@ -96,7 +93,11 @@ const SettingsModal = ({
             unique identifier for the user. So if the username changes, the URL should change too.
           */
           const data = await res.json();
-          if (data.username && data.username !== ctx.user?.username && window.location.pathname === `/u/${ctx.user?.username}`) {
+          if (
+            data.username &&
+            data.username !== ctx.user?.username &&
+            window.location.pathname === `/u/${ctx.user?.username}`
+          ) {
             window.location.pathname = `/u/${data.username}`;
           }
         }
@@ -105,7 +106,7 @@ const SettingsModal = ({
         onClose();
       }
     } catch (error) {
-      console.log(error);
+      //console.log(error);
     } finally {
       setIsSaving(false);
       setButtonText("Save");

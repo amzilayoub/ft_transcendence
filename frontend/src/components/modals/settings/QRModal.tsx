@@ -39,7 +39,7 @@ const QRModal = ({
         onSuccess();
       }
     } catch (error) {
-      console.log(error);
+      //console.log(error);
     } finally {
       setIsSubmitting(false);
     }
@@ -53,7 +53,7 @@ const QRModal = ({
 
   return (
     <BaseModal isOpen={isOpen} onClose={onClose}>
-      <div className="flex w-[400px] w-full flex-col items-center justify-center gap-y-5 p-8">
+      <div className="flex w-[400px] flex-col items-center justify-center gap-y-5 p-8">
         <div className="flex flex-col items-center gap-y-2">
           <p className="text-2xl font-bold">Scan this QR code</p>
           <p className="text-center text-gray-500">

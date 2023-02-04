@@ -2,13 +2,13 @@ import React, { useEffect, useState } from "react";
 
 import { io } from "socket.io-client";
 
+import { toastNewMessage } from "@components/toast";
 import basicFetch from "@utils/basicFetch";
+import { useAuthContext } from "context/auth.context";
 import { useChatContext } from "context/chat.context";
 
 import ChatBox from "./ChatBox";
 import ChatSidebar from "./ChatSidebar";
-import { toastNewMessage } from "@components/toast";
-import { useAuthContext } from "context/auth.context";
 
 const ChatStuff = () => {
   let [socketIO, setSocketIO] = useState(null);
@@ -41,17 +41,17 @@ const ChatStuff = () => {
     if (socket) {
       socket?.on("updateListConversations", async (obj) => {
         if (ctx?.user?.id != obj.data.userId) {
-        toastNewMessage(
-          obj.data.room.avatar_url,
-          obj.data.room.name,
-          obj.data.room.lastMessage,
-          // obj.data.room.room_id
-        );
+          toastNewMessage(
+            obj.data.room.avatar_url,
+            obj.data.room.name,
+            obj.data.room.lastMessage
+            // obj.data.room.room_id
+          );
         }
         let targetedRoom = (await getRoomInfo(obj.data.room.room_id))[0];
 
         targetedRoom.userStatus = obj.data.room.userStatus;
-        // console.log({ targetedRoom }, { action: obj.data.action });
+        // //console.log({ targetedRoom }, { action: obj.data.action });
         setConversationsMetadata((state) => {
           if (obj.data.action == "add") {
             const newState = state.filter((item) => {
@@ -89,7 +89,7 @@ const ChatStuff = () => {
       });
 
       socket?.on("sendInvite", (obj) => {
-        console.log("@@@@@@@@@@@@", obj);
+        toastNewMessage(obj.data.room.avatar_url);
       });
 
       socket?.on("userConnect", (resp) => {
@@ -123,7 +123,7 @@ const ChatStuff = () => {
         setShowChatSidebar={setShowChatSidebar}
         onConversationClick={activateBox}
         conversationsMetadata={conversationsMetadata}
-        onNewConversationClick={() => console.log("new conversation")}
+        onNewConversationClick={() => {}}
         setConversationsMetadata={setConversationsMetadata}
         socket={socketIO}
         activeBoxes={activeBoxes}

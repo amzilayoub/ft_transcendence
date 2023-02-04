@@ -33,9 +33,9 @@ export class JwtTwoFactorStrategy extends PassportStrategy(
         const user = await this.authService.getMe(
             payload.user?.id || payload.id,
         );
-        // console.log('payloaddddddd', payload.isSecondFactorAuthenticated);
+        // //console.log('payloaddddddd', payload.isSecondFactorAuthenticated);
         if (!user) return false;
-        // console.log(payload.isSecondFactorAuthenticated);
+        // //console.log(payload.isSecondFactorAuthenticated);
         if (!user.isTwoFactorEnabled) {
             return user;
         }
