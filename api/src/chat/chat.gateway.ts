@@ -177,15 +177,20 @@ export class ChatGateway {
     ) {
         const user = this.getUserInfo(client);
         if (user === null) return { status: 401 };
-        /*
-         ** check for muted
-         */
         const targetedJoinedRecord = (
             await this.chatService.targetedJoinedRecord(
                 createMessage.roomId,
                 user['id'],
             )
         )[0];
+        if (!targetedJoinedRecord)
+            return {
+                status: 401,
+                message: 'you are not part of this channel',
+            };
+        /*
+         ** check for muted
+         */
         if (targetedJoinedRecord.muted) {
             return {
                 status: 401,
@@ -194,6 +199,9 @@ export class ChatGateway {
             };
         }
 
+        /*
+         ** check for ban
+         */
         if (targetedJoinedRecord.banned) {
             return {
                 status: 401,

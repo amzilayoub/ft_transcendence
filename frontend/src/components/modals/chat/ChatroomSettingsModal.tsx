@@ -23,17 +23,27 @@ import {
 import { uploadFile } from "@utils/uploadFile";
 import Select from "react-select";
 import ConfirmationModal from "@ui/ConfirmationModal";
+import { AiOutlineUserAdd } from "react-icons/ai";
+import { Socket } from "socket.io-client";
 
 const MemberListItem = ({
   member,
   setSearchResults,
   roomId,
   myRole,
+  onClose,
+  setConversationsMetadata,
+  onCloseActiveBox,
+  socket,
 }: {
   member: IRoomMember;
   setSearchResults: () => {};
   roomId: number;
   myRole: string;
+  onClose: () => {};
+  setConversationsMetadata: () => {};
+  onCloseActiveBox: () => {};
+  socket: any;
 }) => {
   myRole = myRole.toLocaleLowerCase();
 
@@ -95,16 +105,80 @@ const MemberListItem = ({
       }
     );
     if (resp.status == 201) {
-      //   setSearchResults((state) => {
-      //     const newState = [...state];
-      //     newState.forEach((item) => {
-      //       if (item.id == userId) item.isBanned = banned;
-      //     });
-      //     return newState;
-      //   });
+      const respObj = await resp.json();
+      if (respObj.status != 200) {
+        onCloseActiveBox();
+        onClose();
+        setConversationsMetadata((allConv) => {
+          return allConv.filter((cnv) => cnv.room_id != roomId);
+        });
+      } else {
+        setSearchResults((state: any) => {
+          const newState = [...state];
+          if ((respObj.status = 200))
+            return newState.filter((item) => {
+              return item.id != userId;
+            });
+          return newState;
+        });
+      }
     } else {
       alert("You don't have enough access rights to complete the action");
     }
+  };
+
+  const handleAddUser = async (roomId: number, userId: number) => {
+    const res = await basicFetch.post(
+      "/chat/room/join",
+      {},
+      {
+        roomId,
+        userId,
+      }
+    );
+    if (res.status == 201) {
+      socket.emit(
+        "joinRoom",
+        {
+          roomId,
+          userId,
+        },
+        (resp) => {
+          if (resp.status == 200) {
+            setSearchResults((state) => {
+              const newState = [...state];
+              newState.forEach((item) => {
+                if (item.id == userId) {
+                  item.membershipStatus = "Member";
+                }
+              });
+              return newState;
+            });
+          }
+        }
+      );
+    }
+    // const resp = await basicFetch.post(
+    //   "/chat/room/add",
+    //   {},
+    //   {
+    //     roomId,
+    //     userId,
+    //   }
+    // );
+    // if (resp.status == 201) {
+    //   setSearchResults((state) => {
+    //     const newState = [...state];
+    //     newState.forEach((item) => {
+    //       if (item.id == userId) {
+    //         item.membershipStatus = "Member";
+    //       }
+    //       return newState;
+    //     });
+    //   });
+    // } else {
+    //   alert("You don't have enough access rights to complete the action");
+    // }
   };
 
   const handleRoleChange = async (userId: number, role: MembershipStatus) => {
@@ -158,59 +232,83 @@ const MemberListItem = ({
               {member.membershipStatus.toLocaleLowerCase() == "owner" ? (
                 <p className="text-sm text-gray-400">Owner</p>
               ) : (
-                <Select
-                  className="w-32"
-                  options={[
-                    { value: "admin", label: "Admin" },
-                    { value: "moderator", label: "Moderator" },
-                    { value: "member", label: "Member" },
-                  ]}
-                  value={{
-                    value: memberRole,
-                    label:
-                      memberRole.charAt(0).toUpperCase() + memberRole.slice(1),
-                  }}
-                  onChange={(option: any) => {
-                    handleRoleChange(member.id, option.value);
-                  }}
-                />
+                <>
+                  {member.membershipStatus.toLocaleLowerCase() == "user" ? (
+                    ""
+                  ) : (
+                    <Select
+                      className="w-32"
+                      options={[
+                        { value: "admin", label: "Admin" },
+                        { value: "moderator", label: "Moderator" },
+                        { value: "member", label: "Member" },
+                      ]}
+                      value={{
+                        value: memberRole,
+                        label:
+                          memberRole.charAt(0).toUpperCase() +
+                          memberRole.slice(1),
+                      }}
+                      onChange={(option: any) => {
+                        handleRoleChange(member.id, option.value);
+                      }}
+                    />
+                  )}
+                </>
               )}
             </div>
-            {myRole == "member" ||
-            String(member.membershipStatus).toLocaleLowerCase() == "owner" ? (
-              ""
-            ) : (
-              <div className="flex gap-2">
-                <RiVolumeMuteLine
-                  onClick={async () => {
-                    await handleMute(member.id, !member.isMuted);
-                  }}
-                  className={
-                    "h-8 w-8 rounded-full p-1 text-2xl duration-300 " +
-                    (member.isMuted
-                      ? "bg-red-800 text-white hover:bg-gray-300"
-                      : "bg-gray-200 text-red-800 hover:bg-white-300")
-                  }
-                />
-                <BiBlock
-                  onClick={async () => {
-                    await handleBlock(member.id, !member.isBanned);
-                  }}
-                  className={
-                    "h-8 w-8 rounded-full p-1 text-2xl duration-300 " +
-                    (member.isBanned
-                      ? "bg-red-800 text-white hover:bg-gray-300"
-                      : "bg-gray-200 text-red-800 hover:bg-white-300")
-                  }
-                />
+            <div className="flex gap-2">
+              {myRole == "member" ||
+              String(member.membershipStatus).toLocaleLowerCase() == "owner" ? (
+                ""
+              ) : (
+                <>
+                  {member.membershipStatus.toLocaleLowerCase() == "user" ? (
+                    ""
+                  ) : (
+                    <>
+                      <RiVolumeMuteLine
+                        onClick={async () => {
+                          await handleMute(member.id, !member.isMuted);
+                        }}
+                        className={
+                          "h-8 w-8 rounded-full p-1 text-2xl duration-300 " +
+                          (member.isMuted
+                            ? "bg-red-800 text-white hover:bg-gray-300"
+                            : "bg-gray-200 text-red-800 hover:bg-white-300")
+                        }
+                      />
+                      <BiBlock
+                        onClick={async () => {
+                          await handleBlock(member.id, !member.isBanned);
+                        }}
+                        className={
+                          "h-8 w-8 rounded-full p-1 text-2xl duration-300 " +
+                          (member.isBanned
+                            ? "bg-red-800 text-white hover:bg-gray-300"
+                            : "bg-gray-200 text-red-800 hover:bg-white-300")
+                        }
+                      />
+                    </>
+                  )}
+                </>
+              )}
+              {member.membershipStatus.toLocaleLowerCase() != "user" ? (
                 <IoPersonRemoveOutline
                   onClick={async () => {
                     await handleKick(member.id);
                   }}
                   className="h-8 w-8 rounded-full bg-gray-200 p-1 text-2xl text-red-800 duration-300 hover:bg-gray-300"
                 />
-              </div>
-            )}
+              ) : (
+                <AiOutlineUserAdd
+                  onClick={() => {
+                    handleAddUser(roomId, member.id);
+                  }}
+                  className="h-8 w-8 rounded-full bg-gray-200 p-1 text-2xl text-green-800 duration-300 hover:bg-gray-300"
+                />
+              )}
+            </div>
           </div>
         </div>
       </div>
@@ -269,10 +367,16 @@ const ChatroomSettingsModal = ({
   roomData,
   isOpen = false,
   onClose = () => {},
+  setConversationsMetadata,
+  onCloseActiveBox,
+  socket,
 }: {
   roomData: IRoom;
   isOpen: boolean;
   onClose: () => void;
+  setConversationsMetadata: () => {};
+  onCloseActiveBox: () => {};
+  socket: any;
 }) => {
   const [shouldSearch, setShouldSearch] = useState<boolean>(false);
   const [myRole, setMyRole] = useState("member");
@@ -298,12 +402,16 @@ const ChatroomSettingsModal = ({
   };
 
   const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setSearchQuery(e.target.value);
+    getRoomMembers(e.target.value).then((data) => {
+      setSearchResults(data.members);
+    });
     setShouldSearch(false);
   };
 
-  const getRoomMembers = async () => {
-    const resp = await basicFetch.get(`/chat/room/${roomData.room_id}/members`);
+  const getRoomMembers = async (username: string = "") => {
+    const resp = await basicFetch.get(
+      `/chat/room/${roomData.room_id}/members/${username}`
+    );
 
     if (resp.status == 200) {
       return await resp.json();
@@ -330,6 +438,7 @@ const ChatroomSettingsModal = ({
         if (file_data) {
           delete settings.avatar;
           settings.avatar_url = file_data.secure_url || null;
+          console.log(settings.avatar_url);
         }
       }
       if (settings.cover) {
@@ -410,6 +519,10 @@ const ChatroomSettingsModal = ({
                     setSearchResults={setSearchResults}
                     roomId={roomData.room_id}
                     myRole={myRole}
+                    onClose={onClose}
+                    setConversationsMetadata={setConversationsMetadata}
+                    onCloseActiveBox={onCloseActiveBox}
+                    socket={socket}
                   />
                 ))}
               {searchLoading &&

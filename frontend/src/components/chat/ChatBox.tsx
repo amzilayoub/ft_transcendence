@@ -76,6 +76,7 @@ const ChatBox = ({
   setConversationsMetadata,
   allConversation,
   onConversationClick,
+  setActiveBoxes,
 }: {
   conversationMetaData: any;
   onClose: any;
@@ -83,6 +84,7 @@ const ChatBox = ({
   setConversationsMetadata: () => void;
   allConversation: any;
   onConversationClick: () => void;
+  setActiveBoxes: () => {};
 }) => {
   const [conversation, setConversation] = useState<IConversation | null>(null);
   const [input, setInput] = useState("");
@@ -263,7 +265,17 @@ const ChatBox = ({
       newState.forEach((item) => {
         if (item.user_id == conversationMetaData.user_id) {
           item.amIBlocked = resp.data.value;
-          if (item.isActiveBox) onConversationClick(item);
+          if (item.isActiveBox) {
+            setActiveBoxes((boxState) => {
+              const listBox = [...boxState];
+              listBox.forEach((box) => {
+                if (box.room_id == conversationMetaData.user_id) {
+                  item.amIBlocked = resp.data.value;
+                }
+              });
+              return listBox;
+            });
+          }
         }
       });
       return newState;
@@ -388,8 +400,9 @@ const ChatBox = ({
             <div
               className={cn({
                 "p-2 border-t w-full text-center text-red-500":
-                  conversationMetaData.isBlocked ||
-                  conversationMetaData.amIBlocked,
+                  (conversationMetaData.isBlocked ||
+                    conversationMetaData.amIBlocked) &&
+                  conversationMetaData.type == "dm",
               })}
             >
               {conversationMetaData.isBlocked &&
@@ -433,6 +446,9 @@ const ChatBox = ({
               roomData={conversationMetaData}
               isOpen={showChatSettingModal}
               onClose={() => setShowChatSettingModal(false)}
+              setConversationsMetadata={setConversationsMetadata}
+              onCloseActiveBox={onClose}
+			  socket={socket}
             />
           )}
         </div>

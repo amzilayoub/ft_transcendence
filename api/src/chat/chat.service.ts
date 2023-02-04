@@ -184,7 +184,7 @@ export class ChatService {
 
     getRoomInfo(roomId: number) {
         return this.prismaService.$queryRaw(Prisma.sql`
-			SELECT room_details.name, room_type.type,
+			SELECT room_details.name, room_type.type, room.owner_id,
 				(
 					SELECT room_rules.rule
 					FROM room_rules
@@ -271,7 +271,22 @@ export class ChatService {
 				AND room.owner_id != room_user_rel.user_id
 				${additionalCond}
 				ORDER BY room_user_rel.role ASC
-			)`;
+			)
+			UNION
+			(
+				SELECT users.id, users.username AS username, users.avatar_url,
+						'User' AS "membershipStatus",
+						false AS "isBanned",
+						false AS "isMuted"
+				FROM users
+				WHERE id NOT IN (
+					SELECT room_user_rel.user_id
+					FROM room_user_rel
+					WHERE room_user_rel.room_id = ${roomId}
+				)
+				${additionalCond}
+			)
+			`;
         return this.prismaService.$queryRaw(Prisma.raw(query));
     }
 
@@ -480,6 +495,43 @@ export class ChatService {
 				FROM room_user_rel
 				WHERE user_id = ${userId}
 				AND room_id = ${roomId}
+		`);
+    }
+
+    kickout(userId: number, roomId: number) {
+        return this.prismaService.$queryRaw(Prisma.sql`
+			DELETE FROM room_user_rel
+			WHERE room_id = ${roomId}
+			AND user_id = ${userId}
+		`);
+    }
+
+    getRoomUsersByRole(
+        roomId: number,
+        actualOwnerId: number,
+        role: string,
+    ): Promise<room_user_rel[]> {
+        return this.prismaService.$queryRaw(Prisma.sql`
+			SELECT *
+			FROM room_user_rel
+			WHERE role LIKE ${role}
+			AND room_id = ${roomId}
+			AND user_id != ${actualOwnerId}
+		`);
+    }
+
+    setRoomOwnerShip(roomId: number, newOwnerId: number) {
+        return this.prismaService.$queryRaw(Prisma.sql`
+			UPDATE room
+			SET owner_id = ${newOwnerId}
+			WHERE id = ${roomId}
+		`);
+    }
+
+    deleteRoom(roomId: number) {
+        return this.prismaService.$queryRaw(Prisma.sql`
+			DELETE FROM room
+			WHERE id = ${roomId}
 		`);
     }
 }
