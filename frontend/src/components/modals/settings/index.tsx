@@ -89,14 +89,14 @@ const SettingsModal = ({
         settings.last_name?.length === 0 ||
         settings.nickname?.length === 0
       ) {
-        delete settings.first_name;
+        throw new Error("Fields cannot be empty");
       }
       if (
         settings.first_name?.length > 16 ||
         settings.last_name?.length > 16 ||
         settings.nickname?.length > 16
-      ) {
-        return;
+        ) {
+          throw new Error("Fields cannot be longer than 16 characters");
       }
       setButtonText("Saving...");
       const res = await basicFetch.post("/users/update", {}, settings);

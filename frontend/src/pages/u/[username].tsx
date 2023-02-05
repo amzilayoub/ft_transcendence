@@ -20,6 +20,10 @@ import { removeUser } from "@utils/local-storage";
 import { useAuthContext } from "context/auth.context";
 import { useUIContext } from "context/ui.context";
 import { IUser, SetStateFunc } from "global/types";
+import FriendsList from "@components/lists/FriendsList";
+import basicFetch from "@utils/basicFetch";
+import { useSWRConfig } from 'swr'
+
 
 const LastGames = dynamic(() => import("@components/stats/History"), {
   ssr: false,
@@ -148,7 +152,43 @@ const UserInfoHeader = ({
   setIsCoverModalOpen: SetStateFunc<boolean>;
   setIsAvatarModalOpen: SetStateFunc<boolean>;
 }) => {
+  const { mutate } = useSWRConfig()
+
   const { setIsSettingsOpen } = useUIContext();
+  const [
+    followState, setFollowState,
+  ] = useState<"following" | "not-following" | "loading">(
+    "loading",
+  );
+
+  const handleFollow = async () => {
+    if (!user) return;
+    const resp = await basicFetch.get(`/users/${
+      followState === "following" ? "unfollow" : "follow"
+    }/${user.username}`);
+    if (resp.ok) {
+      setFollowState((prev) => (prev === "following" ? "not-following" : "following"));
+      mutate(`/users/${username}/friends`);
+    }
+  };
+
+  useEffect(() => {
+    if (!user) return;
+    const fetchFollowState = async () => {
+      try {
+        const resp = await basicFetch.get(`/users/is-following/${user.username}`);
+        if (resp.ok) {
+          setFollowState("following");
+        } else {
+          setFollowState("not-following");
+        }
+      } catch (error) {
+        
+      }
+    };
+    fetchFollowState();
+  }, [user]);
+
   return (
     <div className="flex w-full flex-col gap-y-2 ">
       <div className="flex w-full justify-between gap-x-2 shadow-lg">
@@ -211,12 +251,18 @@ const UserInfoHeader = ({
                       />
                     ) : (
                       <Button
-                        onClick={() => {}}
+                        onClick={handleFollow}
                         className={cn({
-                          "bg-opacity-70": user?.is_following,
+                          "bg-opacity-70": followState !== "not-following",
                         })}
                       >
-                        <p>{user?.is_following ? "Following" : "Follow"}</p>
+                        {followState === "following" ? (
+                          <p>Following</p>
+                        ) : followState === "not-following" ? (
+                          <p>Follow</p>
+                        ) : (
+                          <p>Loading...</p>
+                        )}
                       </Button>
                     )}
                   </div>
@@ -258,6 +304,7 @@ export default function ProfilePage() {
   const [isCoverModalOpen, setIsCoverModalOpen] = useState(false);
   const user = useUser(username, router.isReady);
 
+
   useEffect(() => {
     if (
       router.isReady &&
@@ -285,12 +332,18 @@ export default function ProfilePage() {
             user={user.data}
             username={username}
             isMyProfile={isMyProfile}
+            
             setIsAvatarModalOpen={setIsAvatarModalOpen}
             setIsCoverModalOpen={setIsCoverModalOpen}
           />
           <UserStats userID={user.data?.id} />
         </div>
-        <LastGames userId={user.data?.id} />
+        <div
+          className="flex w-full gap-x-3"
+        >
+          <LastGames userId={user.data?.id} />
+          <FriendsList username={username} />
+        </div>
       </div>
 
       {/* Modals */}

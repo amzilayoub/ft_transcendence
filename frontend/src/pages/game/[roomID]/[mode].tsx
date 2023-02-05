@@ -43,16 +43,6 @@ const Game = () => {
           username={ctx.user?.username || ""}
           avatar_url={ctx.user?.avatar_url || ""}
         />
-        <div className="it flex flex-col items-center w-full h-full gap-y-4">
-          {
-            <Button
-              // onClick={() => {
-              variant="danger"
-            >
-              Leave Game
-            </Button>
-          }
-        </div>
       </div>
     </MainLayout>
   );

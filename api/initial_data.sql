@@ -8,4 +8,4 @@ VALUES
 
 -- NOTIFICATION_TYPE TABLE
 INSERT INTO notification_type(name, updated_at)
-VALUES('notification', NOW())
+VALUES('notification', NOW());

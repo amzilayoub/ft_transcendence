@@ -16,7 +16,7 @@ export const RoomInfo = ({
 }: {
   roomData: IRoom;
   setAvatar: (url: any) => void;
-  setSettings: () => {};
+  setSettings: (settings: any) => void;
 }) => {
   const [roomCurrentData, setRoomCurrentData] = useState<IRoom>(roomData);
   const [showPasswordModal, setShowPasswordModal] = useState(false);

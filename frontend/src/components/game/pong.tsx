@@ -60,7 +60,9 @@ const Pong = ({
   }, [roomID]);
 
   useEffect(() => {
-    return () => gameRef.current?.scene?.scenes[0]?.socket?.disconnect();
+    return () => {
+      gameRef.current?.scene?.scenes[0]?.socket?.disconnect()
+    };
   }, []);
 
   return <div id="phaser-game"></div>;

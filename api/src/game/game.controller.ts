@@ -3,12 +3,11 @@ import {
     Get,
     Post,
     Body,
-    Patch,
     Param,
-    Delete,
+    HttpException,
+    HttpStatus,
 } from '@nestjs/common';
 import { GameService } from './game.service';
-import { CreateGameDto } from './dto/create-game.dto';
 
 @Controller('games')
 export class GameController {
@@ -25,14 +24,10 @@ export class GameController {
         return this.gameService.findAll(userId);
     }
 
-    @Get('top-players')
-    async getTopUsers() {
-        const users = await this.gameService.getTopUsers();
-        return users;
-    }
 
     @Get('stats/:userId')
     async getStats(@Param('userId') userId: number) {
+        if (isNaN(userId)) throw new HttpException('Invalid user id', HttpStatus.BAD_REQUEST);
         const stats = await this.gameService.getStats(userId);
         return stats;
     }

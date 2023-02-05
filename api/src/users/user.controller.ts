@@ -13,8 +13,13 @@ export class UserController {
     async getMe(@Req() request: RequestWithUser) {
         const { id } = request.user;
         const user = await this.userService.findOneById(id);
-
         return user;
+    }
+
+    @Get('stats/top-players')
+    async getTopUsers() {
+        const users = await this.userService.getTopUsers();
+        return users;
     }
 
     @Get(':username')
@@ -42,6 +47,13 @@ export class UserController {
             username,
         );
         return followings;
+    }
+
+    @Get(':username/friends')
+    async getFriends(@Req() req) {
+        const { username } = req.params;
+        const friends = await this.userService.getFriends(username);
+        return friends;
     }
 
     @Get('followers/:username')
@@ -75,15 +87,16 @@ export class UserController {
     }
 
     // checks if user follows another user
-    @Get('follows/:username')
+    @Get('is-following/:username')
     async followsUser(@Req() req, @Res() res) {
         const { username } = req.params;
         const { id } = req.user;
-        const follows = await this.userService.followsUser(id, username);
+        const follows = await this.userService.isfollowingsUser(id, username);
+        console.log({follows});
         if (follows) {
-            res.status(204).send();
+            return res.status(200).send();
         }
-        res.status(404).send();
+        return res.status(404).send();
     }
 
     @Post('update')
@@ -101,4 +114,8 @@ export class UserController {
         });
         return user;
     }
+
+    
+
+    
 }

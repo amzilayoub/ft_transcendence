@@ -4,6 +4,7 @@ interface IPlayer {
   avatar_url: string;
   score: number;
   socketID: string;
+  ready: boolean;
 }
 
 export interface IGame {

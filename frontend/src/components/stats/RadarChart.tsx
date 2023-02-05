@@ -12,28 +12,40 @@ import { Radar } from "react-chartjs-2";
 
 ChartJS.register(RadialLinearScale, PointElement, LineElement, Filler, Tooltip);
 
-const total_Games = 17;
-const wins = 10;
-const losses = 7;
-const serves = 10; // how many times you served
-const total_points = wins * 2 - losses * 1;
+const PlayerStatsChart = ({
+  data = {
+    wins: 0,
+    losses: 0,
+    winRate: 0,
+    total_points: 0,
+    total_games: 0,
 
-export const data = {
-  labels: ["Total Games", "Total Points", "Losses", "Serves", "Wins"],
-  datasets: [
-    {
-      data: [total_Games, total_points, losses, serves, wins * 1.2],
-      backgroundColor: "rgba(255, 159, 64, 0.8)",
-      borderColor: "rgba(255, 159, 64, 1)",
-      borderWidth: 0.5,
-    },
-  ],
-};
 
-const PlayerStatsChart = () => {
+}} : {
+  data: {
+    wins: number,
+    losses: number,
+    winRate: number,
+    total_points: number,
+    total_games: number,
+  }
+}
+) => {
   return (
     <Radar
-      data={data}
+      data={
+      {
+        labels: ["Total Games", "Total Points", "Losses", "Win Rate", "Wins"],
+        datasets: [
+          {
+            data: [data.total_games, data.total_points, data.losses, data.winRate, data.wins * 1.2],
+            backgroundColor: "rgba(255, 159, 64, 0.8)",
+            borderColor: "rgba(255, 159, 64, 1)",
+            borderWidth: 0.5,
+          },
+        ],
+      }
+      }
       options={{
         responsive: true,
       }}
