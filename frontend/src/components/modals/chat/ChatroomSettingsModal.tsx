@@ -43,7 +43,17 @@ const MemberListItem = ({
   onCloseActiveBox: () => {};
   socket: any;
 }) => {
-  myRole = myRole.toLocaleLowerCase();
+  useEffect(() => {
+    console.log();
+    if (myRole == undefined) {
+      onCloseActiveBox();
+      onClose();
+      setConversationsMetadata((allConv) => {
+        return allConv.filter((cnv) => cnv.room_id != roomId);
+      });
+      console.log("You don't have access to this room");
+    } else myRole = myRole.toLocaleLowerCase();
+  }, []);
 
   const [memberRole, setMemberRole] = useState(member.membershipStatus);
 
@@ -94,35 +104,50 @@ const MemberListItem = ({
   };
 
   const handleKick = async (userId: number) => {
-    const resp = await basicFetch.post(
-      "/chat/room/kickout",
-      {},
+    socket.emit(
+      "room/kickout",
       {
         roomId,
         userId,
+      },
+      (resp) => {
+        if (resp.status != 401) {
+          const respObj = resp;
+          if (
+            myRole.toLocaleLowerCase() == "member" ||
+            resp.status == 205 ||
+            resp.status == 204
+          ) {
+            onCloseActiveBox();
+            onClose();
+            setConversationsMetadata((allConv) => {
+              return allConv.filter((cnv) => cnv.room_id != roomId);
+            });
+          } else {
+            setSearchResults((state: any) => {
+              const newState = [...state];
+              if ((respObj.status = 200))
+                newState.forEach((item) => {
+                  if (item.id == userId) {
+                    item.membershipStatus = "User";
+                  }
+                });
+              return newState;
+            });
+          }
+        } else {
+          alert("You don't have enough access rights to complete the action");
+        }
       }
     );
-    if (resp.status == 201) {
-      const respObj = await resp.json();
-      if (respObj.status != 200) {
-        onCloseActiveBox();
-        onClose();
-        setConversationsMetadata((allConv) => {
-          return allConv.filter((cnv) => cnv.room_id != roomId);
-        });
-      } else {
-        setSearchResults((state: any) => {
-          const newState = [...state];
-          if ((respObj.status = 200))
-            return newState.filter((item) => {
-              return item.id != userId;
-            });
-          return newState;
-        });
-      }
-    } else {
-      alert("You don't have enough access rights to complete the action");
-    }
+    // const resp = await basicFetch.post(
+    //   "/chat/room/kickout",
+    //   {},
+    //   {
+    //     roomId,
+    //     userId,
+    //   }
+    // );
   };
 
   const handleAddUser = async (roomId: number, userId: number) => {
@@ -132,6 +157,7 @@ const MemberListItem = ({
       {
         roomId,
         userId,
+        passCheck: true,
       }
     );
     if (res.status == 201) {
@@ -256,42 +282,42 @@ const MemberListItem = ({
               )}
             </div>
             <div className="flex gap-2">
-              {myRole == "member" ||
-              String(member.membershipStatus).toLocaleLowerCase() == "owner" ? (
-                ""
-              ) : (
+              {!["owner", "user"].includes(
+                String(member.membershipStatus).toLocaleLowerCase()
+              ) &&
+              (myRole == "owner" ||
+                (myRole == "admin" &&
+                  String(member.membershipStatus).toLocaleLowerCase() ==
+                    "member")) ? (
                 <>
-                  {member.membershipStatus.toLocaleLowerCase() == "user" ? (
-                    ""
-                  ) : (
-                    <>
-                      <RiVolumeMuteLine
-                        onClick={async () => {
-                          await handleMute(member.id, !member.isMuted);
-                        }}
-                        className={
-                          "h-8 w-8 rounded-full p-1 text-2xl duration-300 " +
-                          (member.isMuted
-                            ? "bg-red-800 text-white hover:bg-gray-300"
-                            : "bg-gray-200 text-red-800 hover:bg-white-300")
-                        }
-                      />
-                      <BiBlock
-                        onClick={async () => {
-                          await handleBlock(member.id, !member.isBanned);
-                        }}
-                        className={
-                          "h-8 w-8 rounded-full p-1 text-2xl duration-300 " +
-                          (member.isBanned
-                            ? "bg-red-800 text-white hover:bg-gray-300"
-                            : "bg-gray-200 text-red-800 hover:bg-white-300")
-                        }
-                      />
-                    </>
-                  )}
+                  <RiVolumeMuteLine
+                    onClick={async () => {
+                      await handleMute(member.id, !member.isMuted);
+                    }}
+                    className={
+                      "h-8 w-8 rounded-full p-1 text-2xl duration-300 " +
+                      (member.isMuted
+                        ? "bg-red-800 text-white hover:bg-gray-300"
+                        : "bg-gray-200 text-red-800 hover:bg-white-300")
+                    }
+                  />
+                  <BiBlock
+                    onClick={async () => {
+                      await handleBlock(member.id, !member.isBanned);
+                    }}
+                    className={
+                      "h-8 w-8 rounded-full p-1 text-2xl duration-300 " +
+                      (member.isBanned
+                        ? "bg-red-800 text-white hover:bg-gray-300"
+                        : "bg-gray-200 text-red-800 hover:bg-white-300")
+                    }
+                  />
                 </>
+              ) : (
+                ""
               )}
-              {member.membershipStatus.toLocaleLowerCase() == "user" ? (
+              {member.membershipStatus.toLocaleLowerCase() == "user" &&
+              ["admin", "owner"].includes(myRole) ? (
                 <AiOutlineUserAdd
                   onClick={() => {
                     handleAddUser(roomId, member.id);

@@ -103,6 +103,10 @@ export class JoinRoomDto {
     @IsOptional()
     @IsString()
     action?: string;
+
+    @IsOptional()
+    @IsBoolean()
+    passCheck?: boolean;
 }
 
 export class CreateMessageDto {

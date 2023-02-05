@@ -56,7 +56,8 @@ export class ChatController {
             await this.chatService.isJoined(userId, joinRoomDto.roomId)
         )[0]; // if an error happened later on f join room, it's probably here, change it to user.id
         let shouldJoin = false;
-        if (!isJoined) {
+        if (joinRoomDto.passCheck) shouldJoin = true;
+        if (!isJoined && !shouldJoin) {
             const roomData = (
                 await this.chatService.getRoomInfo(joinRoomDto.roomId)
             )[0];
@@ -198,72 +199,70 @@ export class ChatController {
         @Req() request: RequestWithUser,
         @Body() kickoutDto: KickoutDto,
     ) {
-        /*
-         ** first check if the user has the admin/ownership access rights
-         ** check first if the user is the owner of the channel,
-         ** if so, then move the ownership to the firt admin
-         ** otherwise, remove the record
-         */
-        const user = await this.authService.getMe(request.user.id);
-        let returnVal = {
-            status: HttpStatus.OK,
-            userId: -1,
-        };
-
-        const myRole = (
-            await this.chatService.getMyRole(user.id, kickoutDto.roomId)
-        )[0];
-        if (['admin', 'owner'].includes(myRole.role.toLowerCase())) {
-            const getRoomInfo = (
-                await this.chatService.getRoomInfo(kickoutDto.roomId)
-            )[0];
-            if (getRoomInfo?.owner_id == kickoutDto.userId) {
-                const roomAdmins = await this.chatService.getRoomUsersByRole(
-                    kickoutDto.roomId,
-                    getRoomInfo?.owner_id,
-                    'Admin',
-                );
-                if (roomAdmins.length) {
-                    await this.chatService.setRoomOwnerShip(
-                        kickoutDto.roomId,
-                        roomAdmins[0].user_id,
-                    );
-                    returnVal = {
-                        status: HttpStatus.CONTINUE,
-                        userId: roomAdmins[0].user_id,
-                    };
-                } else {
-                    const roomMembers =
-                        await this.chatService.getRoomUsersByRole(
-                            kickoutDto.roomId,
-                            getRoomInfo?.owner_id,
-                            'Member',
-                        );
-                    if (roomMembers.length) {
-                        await this.chatService.setRoomOwnerShip(
-                            kickoutDto.roomId,
-                            roomMembers[0].user_id,
-                        );
-                        returnVal = {
-                            status: HttpStatus.CONTINUE,
-                            userId: roomMembers[0].user_id,
-                        };
-                    } else {
-                        await this.chatService.deleteRoom(kickoutDto.roomId);
-                        return {
-                            status: HttpStatus.NO_CONTENT,
-                            type: 'delete',
-                        };
-                    }
-                }
-            }
-
-            await this.chatService.kickout(
-                kickoutDto.userId,
-                kickoutDto.roomId,
-            );
-        } else throw new HttpException('Forbidden', HttpStatus.FORBIDDEN);
-        return returnVal;
+        // /*
+        //  ** first check if the user has the admin/ownership access rights
+        //  ** check first if the user is the owner of the channel,
+        //  ** if so, then move the ownership to the firt admin
+        //  ** otherwise, remove the record
+        //  */
+        // const user = await this.authService.getMe(request.user.id);
+        // let returnVal = {
+        //     status: HttpStatus.OK,
+        //     userId: -1,
+        // };
+        // const myRole = (
+        //     await this.chatService.getMyRole(user.id, kickoutDto.roomId)
+        // )[0];
+        // if (['admin', 'owner'].includes(myRole.role.toLowerCase())) {
+        //     const getRoomInfo = (
+        //         await this.chatService.getRoomInfo(kickoutDto.roomId)
+        //     )[0];
+        //     if (getRoomInfo?.owner_id == kickoutDto.userId) {
+        //         const roomAdmins = await this.chatService.getRoomUsersByRole(
+        //             kickoutDto.roomId,
+        //             getRoomInfo?.owner_id,
+        //             'Admin',
+        //         );
+        //         if (roomAdmins.length) {
+        //             await this.chatService.setRoomOwnerShip(
+        //                 kickoutDto.roomId,
+        //                 roomAdmins[0].user_id,
+        //             );
+        //             returnVal = {
+        //                 status: HttpStatus.CONTINUE,
+        //                 userId: roomAdmins[0].user_id,
+        //             };
+        //         } else {
+        //             const roomMembers =
+        //                 await this.chatService.getRoomUsersByRole(
+        //                     kickoutDto.roomId,
+        //                     getRoomInfo?.owner_id,
+        //                     'Member',
+        //                 );
+        //             if (roomMembers.length) {
+        //                 await this.chatService.setRoomOwnerShip(
+        //                     kickoutDto.roomId,
+        //                     roomMembers[0].user_id,
+        //                 );
+        //                 returnVal = {
+        //                     status: HttpStatus.CONTINUE,
+        //                     userId: roomMembers[0].user_id,
+        //                 };
+        //             } else {
+        //                 await this.chatService.deleteRoom(kickoutDto.roomId);
+        //                 return {
+        //                     status: HttpStatus.NO_CONTENT,
+        //                     type: 'delete',
+        //                 };
+        //             }
+        //         }
+        //     }
+        //     await this.chatService.kickout(
+        //         kickoutDto.userId,
+        //         kickoutDto.roomId,
+        //     );
+        // } else throw new HttpException('Forbidden', HttpStatus.FORBIDDEN);
+        // return returnVal;
     }
 
     @Post('room/update-info')
