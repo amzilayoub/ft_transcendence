@@ -239,7 +239,7 @@ export class ChatService {
         });
     }
 
-    getRoomMembers(roomId: number, username?: string) {
+    getRoomMembers(roomId: number, userId: number, username?: string) {
         let additionalCond = '';
         if (username)
             additionalCond = `AND users.username LIKE '%${username}%'`;
@@ -249,7 +249,13 @@ export class ChatService {
 			(
 				SELECT users.id, users.username AS username, users.avatar_url,
 						'Owner' AS "membershipStatus",room_user_rel.banned AS "isBanned",
-						room_user_rel.muted AS "isMuted"
+						room_user_rel.muted AS "isMuted",
+						CASE
+							WHEN users.id = ${userId}
+								THEN true
+							ELSE
+								false
+						END AS "isMe"
 				FROM room_user_rel
 				INNER JOIN room ON room.id = room_user_rel.room_id
 				INNER JOIN users ON users.id = room_user_rel.user_id
@@ -266,7 +272,13 @@ export class ChatService {
 				SELECT users.id, users.username AS username, users.avatar_url,
 						room_user_rel.role AS "membershipStatus",
 						room_user_rel.banned AS "isBanned",
-						room_user_rel.muted AS "isMuted"
+						room_user_rel.muted AS "isMuted",
+						CASE
+							WHEN users.id = ${userId}
+								THEN true
+							ELSE
+								false
+						END AS "isMe"
 				FROM room_user_rel
 				INNER JOIN room ON room.id = room_user_rel.room_id
 				INNER JOIN users ON users.id = room_user_rel.user_id
@@ -280,7 +292,8 @@ export class ChatService {
 				SELECT users.id, users.username AS username, users.avatar_url,
 						'User' AS "membershipStatus",
 						false AS "isBanned",
-						false AS "isMuted"
+						false AS "isMuted",
+						false AS "isMe"
 				FROM users
 				WHERE id NOT IN (
 					SELECT room_user_rel.user_id

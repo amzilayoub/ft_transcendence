@@ -113,7 +113,11 @@ export class ChatController {
     ) {
         const user = await this.authService.getMe(request.user.id);
         const myRole = (await this.chatService.getMyRole(user.id, roomId))[0];
-        const members = await this.chatService.getRoomMembers(roomId, username);
+        const members = await this.chatService.getRoomMembers(
+            roomId,
+            user.id,
+            username,
+        );
         return {
             myRole: myRole?.role,
             members,

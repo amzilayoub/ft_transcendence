@@ -293,20 +293,31 @@ const MemberListItem = ({
                   )}
                 </>
               )}
-              {member.membershipStatus.toLocaleLowerCase() != "user" ? (
-                <IoPersonRemoveOutline
-                  onClick={async () => {
-                    await handleKick(member.id);
-                  }}
-                  className="h-8 w-8 rounded-full bg-gray-200 p-1 text-2xl text-red-800 duration-300 hover:bg-gray-300"
-                />
-              ) : (
+              {member.membershipStatus.toLocaleLowerCase() == "user" ? (
                 <AiOutlineUserAdd
                   onClick={() => {
                     handleAddUser(roomId, member.id);
                   }}
                   className="h-8 w-8 rounded-full bg-gray-200 p-1 text-2xl text-green-800 duration-300 hover:bg-gray-300"
                 />
+              ) : (
+                <>
+                  {member.isMe ||
+                  myRole == "owner" ||
+                  (myRole == "admin" &&
+                    ["admin", "member"].includes(
+                      member.membershipStatus.toLocaleLowerCase()
+                    )) ? (
+                    <IoPersonRemoveOutline
+                      onClick={async () => {
+                        await handleKick(member.id);
+                      }}
+                      className="h-8 w-8 rounded-full bg-gray-200 p-1 text-2xl text-red-800 duration-300 hover:bg-gray-300"
+                    />
+                  ) : (
+                    ""
+                  )}
+                </>
               )}
             </div>
           </div>

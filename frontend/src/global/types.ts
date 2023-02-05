@@ -135,4 +135,5 @@ export interface IRoomMember {
   isBanned: boolean;
   isMuted: boolean;
   mutedUntil: Date;
+  isMe: boolean;
 }
