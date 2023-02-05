@@ -41,6 +41,7 @@ model user {
     userGames2    games[]         @relation("userLink2")
 
     score         Int             @default(0)
+    status        String?         @default("offline")
     notifications notifications[]
 
     @@map("users")
@@ -184,7 +185,6 @@ model notification_type {
     notifications notifications[]
 }
 
-
 model games {
     id Int @id @default(autoincrement())
 
@@ -198,8 +198,7 @@ model games {
     player_2_score Int
 
     winner Int
-    mode  String
+    mode   String
 
     created_at DateTime @default(now())
 }
-
