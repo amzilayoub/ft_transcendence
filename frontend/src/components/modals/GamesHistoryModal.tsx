@@ -5,15 +5,15 @@ import BaseModal from "@ui/BaseModal";
 import PaginationActions from "@ui/PaginationActions";
 
 const GamesHistoryModal = ({
-  username,
+  userId,
   isOpen = false,
   onClose = () => {},
 }: {
-  username: string;
+  userId: number;
   isOpen: boolean;
   onClose: () => void;
 }) => {
-  //   const { data, isLoading } = useSWR(`/stats/${username}/history`, fetcher);
+  // const { data, isLoading } = useSWR(`/stats/${username}/history`, fetcher);
   const sample = [
     {
       player1: {
@@ -33,7 +33,7 @@ const GamesHistoryModal = ({
     },
   ];
 
-  const isLoading = false && !!username;
+  const isLoading = false; // && !!username;
 
   const data = Array.from(
     { length: 20 },

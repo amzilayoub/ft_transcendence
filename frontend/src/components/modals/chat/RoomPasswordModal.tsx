@@ -3,8 +3,8 @@ import React, { useState } from "react";
 import BaseModal from "@ui/BaseModal";
 import Button from "@ui/Button";
 import TextInput from "@ui/TextInput";
-import { IRoom, RoomType } from "global/types";
 import basicFetch from "@utils/basicFetch";
+import { IRoom, RoomType } from "global/types";
 
 const PasswordModal = ({
   setCurrentOption,
@@ -37,7 +37,7 @@ const PasswordModal = ({
   const handlePasswordSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     if (password !== passwordConfirmation) {
-      console.log("passwords don't match");
+      //console.log("passwords don't match");
     } else {
       await setRoomPassword(
         roomCurrentData.room_id,

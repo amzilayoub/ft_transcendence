@@ -30,51 +30,51 @@
     "@typescript-eslint/no-explicit-any": 0,
     "@typescript-eslint/no-var-requires": 0,
     "@typescript-eslint/no-use-before-define": 0,
-    "@typescript-eslint/no-unused-vars": [
-      2,
-      {
-        "argsIgnorePattern": "^_"
-      }
-    ],
+    // "@typescript-eslint/no-unused-vars": [
+    //   2,
+    //   {
+    //     "argsIgnorePattern": "^_"
+    //   }
+    // ],
     "no-console": [
       2,
       {
         "allow": ["warn", "error"]
       }
-    ],
-    "import/order": [
-      "error",
-      {
-        "groups": [
-          "builtin",
-          "external",
-          "internal",
-          "unknown",
-          "parent",
-          "sibling",
-          "index",
-          "object",
-          "type"
-        ],
-        "pathGroups": [
-          {
-            "pattern": "react",
-            "group": "external",
-            "position": "before"
-          },
-          {
-            "pattern": "@/**",
-            "group": "internal",
-            "position": "after"
-          }
-        ],
-        "pathGroupsExcludedImportTypes": ["react"],
-        "newlines-between": "always",
-        "alphabetize": {
-          "order": "asc",
-          "caseInsensitive": true
-        }
-      }
     ]
+    // "import/order": [
+    //   "error",
+    //   {
+    //     "groups": [
+    //       "builtin",
+    //       "external",
+    //       "internal",
+    //       "unknown",
+    //       "parent",
+    //       "sibling",
+    //       "index",
+    //       "object",
+    //       "type"
+    //     ],
+    //     "pathGroups": [
+    //       {
+    //         "pattern": "react",
+    //         "group": "external",
+    //         "position": "before"
+    //       },
+    //       {
+    //         "pattern": "@/**",
+    //         "group": "internal",
+    //         "position": "after"
+    //       }
+    //     ],
+    //     "pathGroupsExcludedImportTypes": ["react"],
+    //     "newlines-between": "always",
+    //     "alphabetize": {
+    //       "order": "asc",
+    //       "caseInsensitive": true
+    //     }
+    //   }
+    // ]
   }
 }

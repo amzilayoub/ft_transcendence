@@ -32,6 +32,18 @@ export class UserController {
         return users;
     }
 
+    /*
+     ** Friend means following or follower or both
+     */
+    @Get('friends/:username')
+    async getFollowings(@Req() req) {
+        const { username } = req.params;
+        const followings = await this.userService.searchFriendsByUsername(
+            username,
+        );
+        return followings;
+    }
+
     @Get('followers/:username')
     async getFollowers(@Req() req) {
         const { username } = req.params;
@@ -77,12 +89,12 @@ export class UserController {
     @Post('update')
     async updateUser(@Req() req) {
         const { id } = req.user;
-        const { username, bio, first_name, last_name, avatar_url, cover_url } =
+        const { nickname, bio, first_name, last_name, avatar_url, cover_url } =
             req.body;
         const user = await this.userService.update(id, {
+            nickname,
             first_name,
             last_name,
-            username,
             bio,
             avatar_url,
             cover_url,

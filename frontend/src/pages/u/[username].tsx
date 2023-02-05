@@ -51,11 +51,13 @@ const SocialLink = ({
 const UserInfo = ({
   fullName,
   username,
+  nickname,
   bio,
   links,
 }: {
   fullName: string;
   username: string;
+  nickname: string;
   bio: string;
   links: {
     twitter: string | null;
@@ -66,7 +68,9 @@ const UserInfo = ({
     <div className="flex h-full items-start justify-between p-5 sm:px-6">
       <header className="flex flex-col ">
         {fullName && (
-          <p className="text-2xl font-bold text-gray-900">{fullName}</p>
+          <p className="text-2xl font-bold text-gray-900">
+            {fullName} <span>| {nickname}</span>
+          </p>
         )}
         <p className="text-sm font-normal text-gray-400">@{username}</p>
         <p className="text-base">{bio}</p>
@@ -221,6 +225,7 @@ const UserInfoHeader = ({
                 <UserInfo
                   fullName={`${user?.first_name} ${user?.last_name}`}
                   username={user?.username as string}
+                  nickname={user?.nickname}
                   bio={user?.bio}
                   links={{
                     twitter: user?.twitterUsername!,
@@ -270,7 +275,7 @@ export default function ProfilePage() {
 
   return (
     <MainLayout
-      title={username ? username + " | " + APP_NAME : APP_NAME}
+      title={username ? `@${username} | ${APP_NAME}` : APP_NAME}
       backgroundColor="bg-gray-100"
     >
       <div className="flex w-full max-w-7xl flex-col gap-3 px-2 xl:px-0">
@@ -283,9 +288,9 @@ export default function ProfilePage() {
             setIsAvatarModalOpen={setIsAvatarModalOpen}
             setIsCoverModalOpen={setIsCoverModalOpen}
           />
-          <UserStats username={username} />
+          <UserStats userID={user.data?.id} />
         </div>
-        <LastGames username={username} />
+        <LastGames userId={user.data?.id} />
       </div>
 
       {/* Modals */}
@@ -294,7 +299,7 @@ export default function ProfilePage() {
           isOpen={isAvatarModalOpen}
           onClose={() => setIsAvatarModalOpen(false)}
         >
-          <div className="flex h-[600px] w-[600px] flex-col items-center justify-center ">
+          <div className="flex h-[600px] w-[600px] flex-col items-center justify-center">
             <Image
               src={user.data?.avatar_url || "/images/default-avatar.jpg"}
               alt={`avatar for ${username}`}

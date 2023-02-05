@@ -14,6 +14,7 @@ import { uploadFile } from "@utils/uploadFile";
 import { useAuthContext } from "context/auth.context";
 
 import QRModal from "./QRModal";
+import { useRouter } from "next/router";
 
 const SettingsModal = ({
   isOpen = false,
@@ -22,6 +23,7 @@ const SettingsModal = ({
   isOpen: boolean;
   onClose: () => void;
 }) => {
+  const router = useRouter();
   const ctx = useAuthContext();
   const [settings, setSettings] = useState({});
   const [switchEnabled, setSwitchEnabled] = useState(
@@ -33,6 +35,10 @@ const SettingsModal = ({
   const [deleteButtonText, setDeleteButtonText] = useState("Delete");
   const [isSaving, setIsSaving] = useState(false);
 
+  const [inputFiles, setInputFiles] = useState({
+    avatar: null,
+    cover: null,
+  });
   const avatarInputRef = React.useRef<HTMLInputElement>(null);
   const coverInputRef = React.useRef<HTMLInputElement>(null);
 
@@ -50,29 +56,14 @@ const SettingsModal = ({
     e: React.ChangeEvent<HTMLInputElement>,
     type: string
   ) => {
+    console.count("handleFileInputChange");
     const { files } = e.target;
     if (files && files.length > 0) {
       if (type === "avatar") {
-        setSettings({ ...settings, avatar: files[0] });
+        setInputFiles({ ...inputFiles, avatar: files[0] });
       }
       if (type === "cover") {
-        setSettings({ ...settings, cover: files[0] });
-      }
-    }
-  };
-
-  const handleSwitchChange = async () => {
-    if (!switchEnabled) {
-      setShowQRModal(true);
-    } else {
-      try {
-        const res = await basicFetch.get("/2fa/turn-off");
-        if (res.status === 200) {
-          setSwitchEnabled(false);
-          ctx.loadUserData();
-        }
-      } catch (error) {
-        console.log(error);
+        setInputFiles({ ...inputFiles, cover: files[0] });
       }
     }
   };
@@ -83,31 +74,55 @@ const SettingsModal = ({
     e.preventDefault();
     setIsSaving(true);
     try {
-      if (settings.avatar) {
+      if (inputFiles.avatar) {
         setButtonText("Uploading...");
-        const file_data = await uploadFile(settings.avatar);
-        if (file_data) {
-          delete settings.avatar;
-          settings.avatar_url = file_data.secure_url || null;
-        }
+        const file_data = await uploadFile(inputFiles.avatar);
+        if (file_data) settings.avatar_url = file_data.secure_url || null;
       }
-      if (settings.cover) {
+      if (inputFiles.cover) {
         setButtonText("Uploading...");
-        const file_data = await uploadFile(settings.cover);
-        if (file_data) {
-          delete settings.cover;
-          settings.cover_url = file_data.secure_url || null;
-        }
+        const file_data = await uploadFile(inputFiles.cover);
+        if (file_data) settings.cover_url = file_data.secure_url || null;
+      }
+      if (
+        settings.first_name?.length === 0 ||
+        settings.last_name?.length === 0 ||
+        settings.nickname?.length === 0
+      ) {
+        delete settings.first_name;
+      }
+      if (
+        settings.first_name?.length > 16 ||
+        settings.last_name?.length > 16 ||
+        settings.nickname?.length > 16
+      ) {
+        return;
       }
       setButtonText("Saving...");
       const res = await basicFetch.post("/users/update", {}, settings);
       if (res.ok) {
         setButtonText("Saved!");
+        {
+          /*
+            If the current user is on their profile page and they change their username,
+            we redirect them to the new username page. That's because we use it as the
+            unique identifier for the user. So if the username changes, the URL should change too.
+          */
+          const data = await res.json();
+          if (
+            data.username &&
+            data.username !== ctx.user?.username &&
+            window.location.pathname === `/u/${ctx.user?.username}`
+          ) {
+            window.location.pathname = `/u/${data.username}`;
+          }
+        }
+
         ctx.updateUserData();
         onClose();
       }
     } catch (error) {
-      console.log(error);
+      //console.log(error);
     } finally {
       setIsSaving(false);
       setButtonText("Save");
@@ -149,7 +164,6 @@ const SettingsModal = ({
                               ? `cover for ${ctx.user?.username}`
                               : "cover placeholder"
                           }
-                          // onClick={() => user?.cover_url && setIsCoverModalOpen(true)}
                           fill
                           className={cn("object-cover rounded-t-xl absolute", {
                             "cursor-pointer": ctx.user?.cover_url,
@@ -165,15 +179,14 @@ const SettingsModal = ({
                           handleFileInputChange(event, "cover")
                         }
                         accept="image/jpeg,image/png,image/webp"
-                        tabindex="-1"
+                        // tabindex="-1"
                         type="file"
                         className="hidden"
                       />
                     </figure>
-
-                    <div className="absolute -bottom-12 -left-2 h-[160px] w-[160px] gap-4">
+                    <div className="absolute -bottom-12 left-6 h-[160px] w-[160px] gap-4">
                       <figure
-                        className="group absolute flex h-[160px] w-[160px] cursor-pointer items-center justify-center rounded-full bg-black transition"
+                        className="group absolute flex h-[160px] w-[160px] cursor-pointer items-center justify-center rounded-full bg-black transition ring-4 ring-white"
                         onClick={() => avatarInputRef.current?.click()}
                       >
                         <Image
@@ -198,7 +211,7 @@ const SettingsModal = ({
                             handleFileInputChange(event, "avatar")
                           }
                           accept="image/jpeg,image/png,image/webp"
-                          tabindex="-1"
+                          // tabindex="-1"
                           type="file"
                           className="hidden"
                         />
@@ -208,28 +221,33 @@ const SettingsModal = ({
                   {/* first and last name */}
 
                   <div className="flex w-full gap-x-4 pt-10">
-                    <TextInput
-                      defaultValue={ctx.user?.first_name}
-                      label="First Name"
-                      type="text"
-                      name="first_name"
-                      onChange={handleInputChange}
-                    />
-                    <TextInput
-                      defaultValue={ctx.user?.last_name}
-                      label="Last Name"
-                      type="text"
-                      name="last_name"
-                      onChange={handleInputChange}
-                    />
-
-                    <TextInput
-                      defaultValue={ctx.user?.username}
-                      label="Username"
-                      type="username"
-                      name="username"
-                      onChange={handleInputChange}
-                    />
+                    <div className="w-full">
+                      <TextInput
+                        defaultValue={ctx.user?.first_name}
+                        label="First Name"
+                        type="text"
+                        name="first_name"
+                        onChange={handleInputChange}
+                      />
+                    </div>
+                    <div className="w-full">
+                      <TextInput
+                        defaultValue={ctx.user?.last_name}
+                        label="Last Name"
+                        type="text"
+                        name="last_name"
+                        onChange={handleInputChange}
+                      />
+                    </div>
+                    <div className="w-full">
+                      <TextInput
+                        defaultValue={ctx.user?.nickname}
+                        label="Nickname"
+                        type="text"
+                        name="nickname"
+                        onChange={handleInputChange}
+                      />
+                    </div>
                   </div>
                 </div>
               </div>
@@ -301,9 +319,10 @@ const SettingsModal = ({
           isOpen={showQRModal}
           onClose={() => setShowQRModal(false)}
           onSuccess={() => {
-            ctx
-              .loadUserData()
-              .then((data) => setSwitchEnabled(data?.isTwoFactorEnabled));
+            ctx.loadUserData().then((data) => {
+              setSwitchEnabled(data?.isTwoFactorEnabled);
+              router.reload();
+            });
             setShowQRModal(false);
           }}
           actionType={switchEnabled ? "turn-off" : "turn-on"}

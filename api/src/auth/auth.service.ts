@@ -45,6 +45,7 @@ export class AuthService {
             const user = await this.prisma.user.create({
                 data: {
                     username: dto.login,
+                    nickname: dto.login,
                     email: dto.email,
                     first_name: dto.first_name || null,
                     last_name: dto.last_name || null,
@@ -56,7 +57,7 @@ export class AuthService {
             });
             return user;
         } catch (error) {
-            console.log('error:', error);
+            //console.log('error:', error);
             if (error instanceof PrismaClientKnownRequestError) {
                 throw error;
             }

@@ -3,14 +3,14 @@ import React, { useCallback, useEffect, useRef, useState } from "react";
 import cn from "classnames";
 import Image from "next/image";
 import Link from "next/link";
+import { useRouter } from "next/router";
 import { BsThreeDots } from "react-icons/bs";
+import { GrGamepad } from "react-icons/gr";
 import { RxCross2 } from "react-icons/rx";
 
 import ChatroomSettingsModal from "@components/modals/chat/ChatroomSettingsModal";
-import { ChatdmSettingsModal } from "@components/modals/chat/ChatroomSettingsModal";
-import RoundedImage from "@ui/RoundedImage";
 import basicFetch from "@utils/basicFetch";
-import { truncateString } from "@utils/format";
+import { isURL, truncateString } from "@utils/format";
 import {
   IConversation,
   IMessage,
@@ -23,12 +23,10 @@ import {
 const Message = ({
   message,
   isMe,
-
   senderAvatar,
 }: {
   message: string;
   isMe: boolean;
-
   senderAvatar: string;
 }) => (
   <li className="">
@@ -47,24 +45,51 @@ const Message = ({
           }
         )}
       >
-        <div>
-          <span className={cn("inline-block px-4 py-2", {})}>
-            {message.split("\n").map((item, key) => (
-              <span key={key}>
-                {item}
-                <br />
-              </span>
-            ))}
-          </span>
-        </div>
+        <span className={cn("inline-block px-4 py-2", {})}>
+          {message.split("\n").map((item, key) => (
+            <span key={key}>
+              {isURL(item) ? (
+                <a
+                  href={item.replace(window.location.origin, "")}
+                  target="_blank"
+                  rel="noreferrer"
+                  className="text-blue-500"
+                >
+                  {item}
+                </a>
+              ) : (
+                item
+              )}
+              <br />
+            </span>
+          ))}
+        </span>
       </div>
+
       <Image
         src={senderAvatar || "/public/images/default_avatar.jpg"}
         alt="Sender Avatar"
-        width={24}
-        height={24}
-        className="rounded-full"
+        width={100}
+        height={100}
+        className="rounded-full h-6 w-6"
       />
+
+      {/* <div className="relative">
+            <Image
+              src={
+                conversationMetaData?.avatar_url ||
+                "/public/images/default_avatar.jpg"
+              }
+              alt={`${conversationMetaData?.name || "User"}'s avatar`}
+              // width={showChatBox ? 44 : 32}
+              // height={showChatBox ? 44 : 32}
+              width={100}
+              height={100}
+              className={cn("rounded-full", {
+                "h-10 w-10": showChatBox,
+                "h-9 w-9": !showChatBox,
+              })}
+            /> */}
     </div>
   </li>
 );
@@ -86,6 +111,7 @@ const ChatBox = ({
   onConversationClick: () => void;
   setActiveBoxes: () => {};
 }) => {
+  const router = useRouter();
   const [conversation, setConversation] = useState<IConversation | null>(null);
   const [input, setInput] = useState("");
   const [showChatSettingModal, setShowChatSettingModal] = useState(false);
@@ -156,6 +182,22 @@ const ChatBox = ({
     },
     [input]
   );
+  const handleSendInvite = React.useCallback(
+    (e: any) => {
+      e.preventDefault();
+      socket?.emit(
+        "sendInvite",
+        { roomId: conversationMetaData.user_id, message: router.asPath },
+        (msg: any) => {
+          if (msg.status != 200) {
+            alert(msg.message);
+            return;
+          }
+        }
+      );
+    },
+    [input]
+  );
 
   useEffect(() => {
     bottomDivRef?.current?.scrollIntoView({ behavior: "smooth" });
@@ -220,9 +262,7 @@ const ChatBox = ({
     //   );
   };
   useEffect(() => {
-    // const msg_input_textarea = document.getElementById("msg_input_textarea");
-    // msg_input_textarea?.addEventListener("keydown", handleKeyDown);
-    textareaRef.current.addEventListener("keydown", handleKeyDown);
+    textareaRef.current?.addEventListener("keydown", handleKeyDown);
 
     const prepareData = async () => {
       try {
@@ -244,8 +284,7 @@ const ChatBox = ({
     setSocketEvents();
 
     return () => {
-      // msg_input_textarea?.removeEventListener("keydown", handleKeyDown);
-      textareaRef.current.removeEventListener("keydown", handleKeyDown);
+      textareaRef.current?.removeEventListener("keydown", handleKeyDown);
       //   socket.off("createMessage");
     };
   }, [conversationMetaData.room_id, loadMessages, loadMembers]);
@@ -282,73 +321,115 @@ const ChatBox = ({
     });
   });
 
+  const checkIfUserIsWaitingForGame = () =>
+    router.query?.mode && router.query.mode !== "spectate";
+
   return (
     <section
       className={cn(
-        " transition-height ease-in-out delay-150 relative flex w-[340px] flex-col rounded-t-xl border border-gray-200 bg-white shadow-md",
+        "relative flex flex-col rounded-t-xl border border-gray-200 bg-white shadow-md",
         {
-          "h-[500px]": showChatBox,
-          "h-20": !showChatBox,
+          "transition-close-bubble w-[340px] h-[500px]": showChatBox,
+          "transition-open-bubble h-12 w-[240px]": !showChatBox,
+          "shadow-primary/70": conversationMetaData.type !== "dm",
         }
       )}
     >
       <div
         onClick={() => setShowChatBox(!showChatBox)}
-        className="cursor-pointer flex justify-between border-b-2 border-gray-200 p-3 sm:items-center"
+        className={cn(
+          "cursor-pointer flex justify-between border-b-2 rounded-t-xl  border-gray-200  sm:items-center h-14",
+          {
+            "p-3": showChatBox,
+            "p-2": !showChatBox,
+            "bg-primary/90": conversationMetaData.type !== "dm",
+          }
+        )}
       >
         {/* <div className="relative flex items-center space-x-4"> */}
-        <Link
-          href={`/u/${conversationMetaData.name}`}
-          className="relative flex items-center space-x-4"
-        >
+        <div className="relative flex items-center space-x-4">
           <div className="relative">
-            <RoundedImage
+            <Image
               src={
                 conversationMetaData?.avatar_url ||
                 "/public/images/default_avatar.jpg"
               }
               alt={`${conversationMetaData?.name || "User"}'s avatar`}
-              size="60px"
-              className="h-8 w-8"
+              // width={showChatBox ? 44 : 32}
+              // height={showChatBox ? 44 : 32}
+              width={100}
+              height={100}
+              className={cn("rounded-full", {
+                "h-10 w-10": showChatBox,
+                "h-9 w-9": !showChatBox,
+              })}
             />
             {conversationMetaData.type === "dm" && (
               <svg
                 id="status-circle"
-                width="13"
-                height="13"
-                className={cn("absolute bottom-0 right-1 ", {
+                width={showChatBox ? 12 : 9}
+                height={showChatBox ? 12 : 9}
+                className={cn("absolute bottom-0 ", {
                   "text-green-500":
                     conversationMetaData.userStatus === "online",
                   "text-gray-500":
                     conversationMetaData.userStatus === "offline",
                   "text-yellow-500":
                     conversationMetaData.userStatus === "playing",
+                  "right-1": showChatBox,
+                  "right-0": !showChatBox,
                 })}
               >
-                <circle cx="6" cy="6" r="6" fill="currentColor" />
+                {showChatBox ? (
+                  <circle cx="6" cy="6" r="6" fill="currentColor" />
+                ) : (
+                  <circle cx="4" cy="4" r="4" fill="currentColor" />
+                )}
               </svg>
             )}
           </div>
-          <div
-            onClick={(e) => {
-              e.stopPropagation();
-            }}
-            className="flex flex-col leading-tight"
-          >
-            <p className="flex items-center text-xl">
-              <span className="mr-3 text-gray-700">
-                {truncateString(conversationMetaData.name, 14)}
-              </span>
-            </p>
-          </div>
-          {/* </div> */}
-        </Link>
+          {showChatBox && conversationMetaData.type === "dm" ? (
+            <Link
+              href={`/u/${conversationMetaData.name}`}
+              onClick={(e) => {
+                e.stopPropagation();
+              }}
+              className="flex flex-col leading-tight"
+            >
+              <p className="flex items-center text-xl">
+                <span className="mr-3 text-gray-800 font-semibold text-base hover:text-gray-600 hover:underline">
+                  {truncateString(conversationMetaData.name, 20)}
+                </span>
+              </p>
+            </Link>
+          ) : (
+            <div className="flex flex-col leading-tight">
+              <p className="flex items-center text-xl">
+                <span className="mr-3 text-gray-800 font-semibold text-base ">
+                  {truncateString(conversationMetaData.name, 14)}
+                </span>
+              </p>
+            </div>
+          )}
+        </div>
         <span
           onClick={onClose}
           className="absolute top-3 right-3 cursor-pointer rounded-full p-1 text-gray-400 duration-300 hover:bg-gray-200 hover:text-slate-600"
         >
           <RxCross2 className="h-5 w-5" />
         </span>
+        {conversationMetaData.type === "dm" && checkIfUserIsWaitingForGame() && (
+          <span
+            onClick={(e) => {
+              e.stopPropagation();
+              handleSendInvite(e);
+            }}
+            className="absolute top-3 right-10 cursor-pointer rounded-full p-1 text-gray-400 duration-300  hover:bg-gray-200 hover:text-slate-600"
+          >
+            <GrGamepad className="h-5 w-5" />
+          </span>
+        )}
+
         {conversationMetaData.type !== "dm" && (
           <span
             onClick={(e) => {

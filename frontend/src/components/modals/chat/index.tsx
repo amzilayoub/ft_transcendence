@@ -49,20 +49,23 @@ const ChatActionsModal = ({
             ))}
           </Tab.List>
           <Tab.Panels className="mt-2">
-            <Tab.Panel key={"people-panel"}>
+            <Tab.Panel key="people-panel" className="rounded-xl bg-white p-1">
               <SearchPeopleTab createRoom={createRoom} />
             </Tab.Panel>
             <Tab.Panel
               key={"create-panel"}
-              className={cn("rounded-xl bg-white p-3")}
+              className={cn("rounded-xl bg-white p-1")}
             >
-              <ExploreRoomsTab socket={socket} />
+              <ExploreRoomsTab socket={socket} onSuccess={() => onClose()} />
             </Tab.Panel>
             <Tab.Panel
               key={"discover-panel"}
-              className={cn("rounded-xl bg-white p-3")}
+              className={cn("rounded-xl bg-white p-1")}
             >
-              <CreateRoomTab createRoom={createRoom} />
+              <CreateRoomTab
+                createRoom={createRoom}
+                onSuccess={() => onClose()}
+              />
             </Tab.Panel>
           </Tab.Panels>
         </Tab.Group>

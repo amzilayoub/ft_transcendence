@@ -1,9 +1,10 @@
 import { useEffect, useRef, useState } from "react";
 
-import { IGame } from "@utils/game/IGame";
-import { useAuthContext } from "context/auth.context";
 import { useRouter } from "next/router";
 import { io, Socket } from "socket.io-client";
+
+import { IGame } from "@utils/game/IGame";
+import { useAuthContext } from "context/auth.context";
 
 const Game = () => {
   const [games, setGames] = useState<Array<IGame>>([]);
@@ -27,16 +28,16 @@ const Game = () => {
 
         socketRef.current.on("get_info", (newGames) => {
           setGames(newGames);
-          console.log(newGames, newGames.length);
+          //console.log(newGames, newGames.length);
         });
         // var id = crypto.randomBytes(8).toString("hex");
       } catch (error: any) {
-        console.log(error.message);
+        //console.log(error.message);
       }
     };
     initSocket();
   }, []);
-  console.log(router.query.error);
+  //console.log(router.query.error);
 
   if (!ctx.isAuthenticated) return;
 

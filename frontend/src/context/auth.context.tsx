@@ -58,7 +58,6 @@ const AuthContextProvider = ({ children }: { children: React.ReactNode }) => {
   const updateUserData = async () => {
     const data = await loadUserData();
     setUser(data);
-    console.log("updateUserData", data);
     setLocalStorage("user", JSON.stringify(data));
   };
 

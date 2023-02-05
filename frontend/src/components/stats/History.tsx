@@ -6,6 +6,8 @@ import Link from "next/link";
 
 import GamesHistoryModal from "@components/modals/GamesHistoryModal";
 import { truncateString } from "@utils/format";
+import { fetcher } from "@utils/swr.fetcher";
+import useSWR from "swr/immutable";
 
 interface GameSummaryProps {
   player1: {
@@ -88,55 +90,17 @@ export const GameSummary = (props: GameSummaryProps) => (
   </div>
 );
 
-const LastGames = ({ username }: { username: string }) => {
+const LastGames = ({ userId }: { userId: number }) => {
   const [seeAll, setSeeAll] = React.useState(false);
-  //   const { data, isLoading } = useSWR(`/stats/${username}/history`, fetcher);
-  const sample = [
-    {
-      player1: {
-        username: "Aristotle",
-        avatar_url:
-          "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSZpSv4PVhx_Bc7QOyklw0fNTpHr6K1px9Rzw&usqp=CAU",
-        score: 5,
-      },
-      player2: {
-        username: "Plato",
-        avatar_url:
-          "https://images.saymedia-content.com/.image/c_limit%2Ccs_srgb%2Cq_auto:eco%2Cw_700/MTgwMDE1OTM1MjA4NjI5Mzcw/the-ancient-greek-philosopher-plato-his-life-and-works.webp",
-        score: 4,
-      },
-      gameId: "123",
-      gameDuration: "10",
-      gameTime: "2021-09-01T12:00:00.000Z",
-    },
-  ];
-  const isLoading = false && !!username;
+  const { data, isLoading } = useSWR(
+    userId !== undefined ? `/games/${userId}` : null,
+    fetcher
+  );
 
-  const data = Array.from(
-    { length: 10 },
-    () => sample[Math.floor(Math.random() * sample.length)]
-  ).map((game) => {
-    const score1 = Math.floor(Math.random() * 9);
-    const score2 = 9 - score1;
-    return {
-      ...game,
-      player1: {
-        ...game.player1,
-        score: score1,
-      },
-      player2: {
-        ...game.player2,
-        score: score2,
-      },
-      gameId:
-        Math.random().toString(36).substring(2, 15) +
-        Math.random().toString(36).substring(2, 15),
-    };
-  });
-
+  console.log("D:", data);
   return (
     <>
-      <nav className="flex min-h-[400px] flex-col gap-y-4 rounded-xl border bg-white px-4 py-5 shadow-lg">
+      <nav className="flex min-h-[400px] flex-col gap-y-4 rounded-xl border bg-white px-4 py-5 shadow-lg #max-w-lg">
         <div className="flex items-center justify-between">
           <p className="text-xl font-bold text-gray-900">Recent Games</p>
           <button
@@ -151,7 +115,7 @@ const LastGames = ({ username }: { username: string }) => {
           <p>Loading...</p>
         ) : (
           <ul className="flex flex-col gap-y-2 ">
-            {data.slice(0, 10).map((game) => (
+            {data?.slice(0, 10).map((game) => (
               <li
                 key={game.gameId}
                 className="rounded-md border border-gray-100"
@@ -164,7 +128,7 @@ const LastGames = ({ username }: { username: string }) => {
       </nav>
       {seeAll && (
         <GamesHistoryModal
-          username={username}
+          userId={userId}
           isOpen={seeAll}
           onClose={() => setSeeAll(false)}
         />

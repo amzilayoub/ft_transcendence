@@ -18,7 +18,7 @@ export class UserService {
             });
             return user;
         } catch (error) {
-            console.log(error);
+            //console.log(error);
             if (error instanceof PrismaClientKnownRequestError) {
                 throw error;
             }
@@ -33,7 +33,7 @@ export class UserService {
             });
             return users;
         } catch (error) {
-            console.log(error);
+            //console.log(error);
             if (error instanceof PrismaClientKnownRequestError) {
                 throw error;
             }
@@ -49,7 +49,7 @@ export class UserService {
             });
             return user;
         } catch (error) {
-            console.log(error);
+            //console.log(error);
             if (error instanceof PrismaClientKnownRequestError) {
                 throw error;
             }
@@ -63,7 +63,7 @@ export class UserService {
                     id: id,
                 },
                 data: {
-                    username: updateUserDto.username,
+                    nickname: updateUserDto.nickname,
                     first_name: updateUserDto.first_name,
                     last_name: updateUserDto.last_name,
                     bio: updateUserDto.bio,
@@ -73,8 +73,12 @@ export class UserService {
             });
             return user;
         } catch (error) {
-            console.log(error);
+            //console.log(error);
             if (error instanceof PrismaClientKnownRequestError) {
+                throw error;
+            }
+            // if field is not unique
+            if (error.code === 'P2002') {
                 throw error;
             }
         }
@@ -89,7 +93,7 @@ export class UserService {
             });
             return user;
         } catch (error) {
-            console.log(error);
+            //console.log(error);
             if (error instanceof PrismaClientKnownRequestError) {
                 throw error;
             }
@@ -112,6 +116,26 @@ export class UserService {
                 avatar_url: true,
                 cover_url: true,
                 created_at: true,
+            },
+            skip: offset,
+            take: limit,
+        });
+        return users;
+    }
+
+    async searchFriendsByUsername(query: string, offset = 0, limit = 10) {
+        const users = await this.prisma.user.findMany({
+            where: {
+                username: {
+                    contains: query,
+                },
+            },
+            select: {
+                id: true,
+                username: true,
+                first_name: true,
+                last_name: true,
+                avatar_url: true,
             },
             skip: offset,
             take: limit,

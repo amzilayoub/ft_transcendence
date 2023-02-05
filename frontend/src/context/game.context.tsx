@@ -78,23 +78,23 @@
 //   fetch("/api/socket");
 //   socket = io();
 
-//   socket.on("connect", () => {
+//   socket?.on("connect", () => {
 // 	  // TODO: some way to get a valid roomID
 
 //     if (mode === "play") socket.emit("join_room", roomID);
 //     else if (mode === "spectate") socket.emit("spectate_room", roomID);
 //   });
 
-//   socket.on("ping", (t0) => {
-//     console.log("ping", performance.now() - t0);
+//   socket?.on("ping", (t0) => {
+//     //console.log("ping", performance.now() - t0);
 // });
 
-// socket.on("error", () => {
+// socket?.on("error", () => {
 // 	socket.disconnect();
 //     Router.replace(`/game/${roomID}/spectate`);
 // });
 
-// socket.on("state", (res, serverGameStarted) => {
+// socket?.on("state", (res, serverGameStarted) => {
 //     state = res;
 
 //     p1 = state === 1;
@@ -118,18 +118,18 @@
 // 				gameStarted = serverGameStarted;
 // 			});
 
-// 			socket.on("broadcast", (res) =>
-// 			console.log("################\n", res, "\n################\n")
+// 			socket?.on("broadcast", (res) =>
+// 			//console.log("################\n", res, "\n################\n")
 // 			);
 
-// 			socket.on("ready", () => {
+// 			socket?.on("ready", () => {
 // 				ready = true;
 // 				startText.text = p1
 // 				? "Press Space\nto Start Game"
 // 				: "Waiting for P1\nto Start the Game";
 // 			});
 
-// 			socket.on("stop_game", (win) => {
+// 			socket?.on("stop_game", (win) => {
 // 				if (!gameStarted) return;
 
 // 				gameStarted = false;
@@ -145,7 +145,7 @@
 //     paddle2.y = centerY;
 // });
 
-// socket.on("start_game", () => {
+// socket?.on("start_game", () => {
 // 	gameStarted = true;
 
 //     const ballDir = p2 ? -1 : 1;
@@ -154,7 +154,7 @@
 //     startText.visible = false;
 // });
 
-// socket.on("moved", (movement) => {
+// socket?.on("moved", (movement) => {
 // 	if (p2 === false) {
 // 		if (movement.p1 !== undefined)
 //         paddle1.body.velocity.y = movement.p1 * 650;
@@ -172,14 +172,14 @@
 //     if (p2 === true && movement.p2 === 0) socket.emit("sync", paddle1.y, 2);
 // });
 
-// socket.on("sync", (py, idx) => {
+// socket?.on("sync", (py, idx) => {
 // 	if (p2 === true) idx = idx === 1 ? 2 : 1;
 
 //     if (idx === 1) paddle1.y = py;
 //     else if (idx === 2) paddle2.y = py;
 // });
 
-// socket.on("ball_sync", (newBall) => {
+// socket?.on("ball_sync", (newBall) => {
 // 	ball.x = p2 ? width - newBall.pos.x : newBall.pos.x;
 //     ball.y = newBall.pos.y;
 //     ball.body.velocity.x = newBall.vel.x * (p2 ? -1 : 1);

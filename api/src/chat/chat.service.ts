@@ -63,6 +63,18 @@ export class ChatService {
 					SELECT receiver.id, receiver.room_id, room.updated_at AS "lastMessageTime", room_type.type, room.created_at AS "created_at",
 					users.avatar_url,
 					(
+                        SELECT users.avatar_url
+                        FROM users
+                        WHERE sender.user_id = users.id
+                        LIMIT 1
+                    ) AS "senderAvatarUrl",
+                    (
+                        SELECT users.username
+                        FROM users
+                        WHERE sender.user_id = users.id
+                        LIMIT 1
+                    ) AS "senderUsername",
+					(
 						SELECT message
 						FROM messages
 						WHERE room_id = receiver.room_id
@@ -113,6 +125,9 @@ export class ChatService {
 				UNION
 				(
 				SELECT receiver.id, receiver.room_id, room.updated_at AS "lastMessageTime", room_type.type, room.created_at AS "created_at",
+				users.avatar_url,
+				'' AS "senderAvatarUrl",
+				'' AS "senderUsername",
 				(	SELECT room_details.avatar_url
 					FROM room_details
 					WHERE room.id = room_details.room_id
@@ -245,7 +260,7 @@ export class ChatService {
             additionalCond = `AND users.username LIKE '%${username}%'`;
 
         const query = `
-			-- Here we get firs the owner
+			-- Here we get first the owner
 			(
 				SELECT users.id, users.username AS username, users.avatar_url,
 						'Owner' AS "membershipStatus",room_user_rel.banned AS "isBanned",

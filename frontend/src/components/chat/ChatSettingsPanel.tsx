@@ -1,8 +1,8 @@
 import React, { useState } from "react";
 
 import Image from "next/image";
-import Select from "react-select";
 import { TbCameraPlus } from "react-icons/tb";
+import Select from "react-select";
 
 import PasswordModal from "@components/modals/chat/RoomPasswordModal";
 import Button from "@ui/Button";
@@ -34,7 +34,7 @@ export const RoomInfo = ({
   const avatarInputRef = React.useRef<HTMLInputElement>(null);
 
   const handleChange = (selectedOption: any) => {
-    console.log(`Selected: ${selectedOption.value}`);
+    //console.log(`Selected: ${selectedOption.value}`);
     setCurrentRoomTypeOptions(selectedOption);
     if (selectedOption.value === "protected") {
       setShowPasswordModal(true);

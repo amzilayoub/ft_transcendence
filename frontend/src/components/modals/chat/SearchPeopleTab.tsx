@@ -47,7 +47,7 @@ const UserListItem = ({
             userId: user["id"],
           },
           (resp) => {
-            console.log("resp = ", resp);
+            //console.log("resp = ", resp);
           }
         );
       }}

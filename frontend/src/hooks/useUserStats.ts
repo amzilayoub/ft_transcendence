@@ -2,11 +2,12 @@ import useSWR from "swr";
 
 import { fetcher } from "@utils/swr.fetcher";
 
-const useUserStats = (username: string, shouldFetch: boolean = true) => {
-  const { data, error, isLoading, isValidating } = useSWR(
-    shouldFetch ? `/stats/${username}` : null,
-    fetcher
-  );
+const useUserStats = (userID: number, shouldFetch: boolean = true) => {
+  const { data, error, isLoading, isValidating } = useSWR<{
+    gamesPlayed: number;
+    wins: number;
+    losses: number;
+  } | null>(shouldFetch ? `/games/stats/${userID}` : null, fetcher);
 
   return {
     data,

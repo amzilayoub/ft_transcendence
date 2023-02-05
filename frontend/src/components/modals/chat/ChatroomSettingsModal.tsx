@@ -2,29 +2,27 @@ import React, { useEffect, useState } from "react";
 
 import cn from "classnames";
 import Image from "next/image";
+import Link from "next/link";
 import { BiBlock } from "react-icons/bi";
 import { IoPersonRemoveOutline, IoSearchOutline } from "react-icons/io5";
 import { RiVolumeMuteLine } from "react-icons/ri";
+import Select from "react-select";
 
 import { RoomInfo } from "@components/chat/ChatSettingsPanel";
 import BaseModal from "@ui/BaseModal";
 import Button from "@ui/Button";
-import Link from "next/link";
+import ConfirmationModal from "@ui/ConfirmationModal";
 import UserListItemLoading from "@ui/skeletons/UserSkeletons";
 import TextInput from "@ui/TextInput";
 import basicFetch from "@utils/basicFetch";
+import { uploadFile } from "@utils/uploadFile";
 import {
-  IConversation,
   IRoom,
   IRoomMember,
   MemberGameStatus,
   MembershipStatus,
 } from "global/types";
-import { uploadFile } from "@utils/uploadFile";
-import Select from "react-select";
-import ConfirmationModal from "@ui/ConfirmationModal";
 import { AiOutlineUserAdd } from "react-icons/ai";
-import { Socket } from "socket.io-client";
 
 const MemberListItem = ({
   member,
@@ -335,7 +333,7 @@ const MemberListItem = ({
 //       <form
 //         onSubmit={(e) => {
 //           e.preventDefault();
-//           console.log("search");
+//           //console.log("search");
 //         }}
 //         className="group relative h-10 w-full"
 //       >
@@ -482,7 +480,7 @@ const ChatroomSettingsModal = ({
         }
       }
     } catch (error) {
-      console.log(error);
+      //console.log(error);
     } finally {
       setIsSaving(false);
       setButtonText("Save");
@@ -496,7 +494,7 @@ const ChatroomSettingsModal = ({
         onClose();
       }
     } catch (error) {
-      console.log(error);
+      //console.log(error);
     }
   };
 
@@ -521,7 +519,7 @@ const ChatroomSettingsModal = ({
             <form
               onSubmit={(e) => {
                 e.preventDefault();
-                console.log("search");
+                //console.log("search");
               }}
               className="group relative h-10 w-full "
             >

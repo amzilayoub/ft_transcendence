@@ -3,6 +3,7 @@ import React, { useEffect } from "react";
 import cn from "classnames";
 import Head from "next/head";
 import { useRouter } from "next/router";
+import { ToastContainer } from "react-toastify";
 
 import ChatStuff from "@components/chat/ChatStuff";
 import SettingsModal from "@components/modals/settings";
@@ -32,25 +33,24 @@ const MainLayout: React.FC<MainLayoutProps> = ({
   const uiCtx = useUIContext();
 
   useEffect(() => {
-    // console.log(
+    // //console.log(
     //   pageIsProtected,
     //   ctx.loadingUser,
     //   ctx?.isAuthenticated,
     //   window.location.pathname !== "/"
     // );
-
     if (
       pageIsProtected &&
       !ctx.loadingUser &&
       !ctx?.isAuthenticated &&
       window.location.pathname !== "/"
     ) {
-      console.log("redirecting to login page");
+      //console.log("redirecting to login page");
       router.replace("/");
     }
   }, [ctx.loadingUser]);
 
-  // console.log(pageIsProtected, ctx?.isAuthenticated, ctx?.loadingUser);
+  // //console.log(pageIsProtected, ctx?.isAuthenticated, ctx?.loadingUser);
 
   return (
     <>
@@ -79,6 +79,7 @@ const MainLayout: React.FC<MainLayoutProps> = ({
               />
             )}
           </main>
+          <ToastContainer />
         </>
       ) : (
         <LoadingPage message="Not authenticated, redirecting to login page..." />

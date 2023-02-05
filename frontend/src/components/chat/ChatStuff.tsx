@@ -2,7 +2,9 @@ import React, { useEffect, useState } from "react";
 
 import { io } from "socket.io-client";
 
+import { toastGameChallenge, toastNewMessage } from "@components/toast";
 import basicFetch from "@utils/basicFetch";
+import { useAuthContext } from "context/auth.context";
 import { useChatContext } from "context/chat.context";
 
 import ChatBox from "./ChatBox";
@@ -20,6 +22,7 @@ const ChatStuff = () => {
     setConversationsMetadata,
     setActiveBoxes,
   } = useChatContext(socketIO);
+  const ctx = useAuthContext();
 
   useEffect(() => {
     let socket = io(`${process.env.NEXT_PUBLIC_SOCKET_URL}/chat`, {
@@ -36,13 +39,19 @@ const ChatStuff = () => {
         return resp.json();
       }
     };
-
     if (socket) {
       socket?.on("updateListConversations", async (obj) => {
+        if (ctx?.user?.id != obj.data.userId) {
+          toastNewMessage(
+            obj.data.room.senderAvatarUrl,
+            obj.data.room.senderUsername,
+            obj.data.room.lastMessage
+          );
+        }
         let targetedRoom = (await getRoomInfo(obj.data.room.room_id))[0];
 
         targetedRoom.userStatus = obj.data.room.userStatus;
-        // console.log({ targetedRoom }, { action: obj.data.action });
+        // //console.log({ targetedRoom }, { action: obj.data.action });
         setConversationsMetadata((state) => {
           if (obj.data.action == "add") {
             const newState = state.filter((item) => {
@@ -78,6 +87,13 @@ const ChatStuff = () => {
           }
         });
       });
+
+      socket?.on("sendInvite", (data) => {
+        console.log(data);
+
+        toastGameChallenge(data.username, data.avatar_url, data.message);
+      });
+
       socket?.on("userConnect", (resp) => {
         const userId = resp.data.userId;
         const mode = resp.data.mode;
@@ -109,12 +125,12 @@ const ChatStuff = () => {
         setShowChatSidebar={setShowChatSidebar}
         onConversationClick={activateBox}
         conversationsMetadata={conversationsMetadata}
-        onNewConversationClick={() => console.log("new conversation")}
+        onNewConversationClick={() => {}}
         setConversationsMetadata={setConversationsMetadata}
         socket={socketIO}
         activeBoxes={activeBoxes}
       />
-      <ul className="absolute bottom-0 right-[400px] flex gap-x-3 items-end">
+      <ul className="absolute bottom-0 right-[390px] flex gap-x-3 items-end">
         {activeBoxes?.map((item) => (
           <li key={item.id} className="w-full">
             <ChatBox
