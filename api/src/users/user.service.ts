@@ -1,4 +1,6 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable,
+    HttpException,
+    HttpStatus, } from '@nestjs/common';
 
 import { UpdateUserDto } from './dto/user.dto';
 import { PrismaService } from 'src/prisma/prisma.service';
@@ -73,13 +75,11 @@ export class UserService {
             });
             return user;
         } catch (error) {
-            //console.log(error);
             if (error instanceof PrismaClientKnownRequestError) {
-                throw error;
+                throw new HttpException(error.message, HttpStatus.BAD_REQUEST);
             }
-            // if field is not unique
             if (error.code === 'P2002') {
-                throw error;
+                throw new HttpException('Nickname is already taken', HttpStatus.BAD_REQUEST);
             }
         }
     }
@@ -237,5 +237,27 @@ export class UserService {
 
         // return follows.following.length > 0;
         return false;
+    }
+
+    async getTopUsers(offset = 0, limit = 10) {
+        const users = await this.prisma.user.findMany({
+            select: {
+                id: true,
+                username: true,
+                avatar_url: true,
+                score: true,
+            },
+            where: {
+                score: {
+                    gt: 0,
+                },
+            },
+            orderBy: {
+                score: 'desc',
+            },
+            skip: offset,
+            take: limit,
+        });
+        return users;
     }
 }

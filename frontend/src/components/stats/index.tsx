@@ -18,7 +18,7 @@ const StatItem = ({
 }: {
   icon?: React.ReactNode;
   label: string;
-  value: number;
+  value: string | number;
   className?: string;
 }) => (
   <li className="flex justify-between">
@@ -70,9 +70,9 @@ const UserStats = ({ userID }: { userID: number }) => {
           icon={<SiMediafire />}
           label="Winrate"
           value={
-            stats.data?.wins && stats.data?.losses
+            (stats.data?.wins && stats.data?.losses
               ? Math.round((stats.data?.wins / stats.data?.gamesPlayed) * 100)
-              : 0
+              : 0) + "%"
           }
           className="text-blue-500"
         />

@@ -476,6 +476,7 @@ const ChatroomSettingsModal = ({
             setButtonText("Saving...");
             setIsSaving(false);
             setButtonText("Save");
+            onClose();
           }
         }
       }

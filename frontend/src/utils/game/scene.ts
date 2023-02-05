@@ -28,6 +28,7 @@ let ready: boolean = false;
 let powerUpMode: boolean = false;
 let gameStarted: boolean = false;
 let midGame: boolean = false;
+let scored: boolean = false;
 let p1!: boolean;
 let p2!: boolean;
 
@@ -245,6 +246,7 @@ export class pongScene extends Scene {
           opponentScore.text = tally.p2.score.toString();
         }
         midGame = false;
+        scored = false;
         this.newRound();
       });
 
@@ -264,7 +266,7 @@ export class pongScene extends Scene {
         Router.replace(`/home?error=${msg}`, "/home");
       });
 
-      socket.on("state", (res, serverGameStarted, mode) => {
+      socket.on("state", (res, serverGameStarted, mode, p1Score, p2Score) => {
         state = res;
 
         p1 = state === 1;
@@ -279,7 +281,8 @@ export class pongScene extends Scene {
             break;
           case 3:
             applyMode(mode);
-
+            myScore.text = p1Score.toString();
+            opponentScore.text = p2Score.toString();
             this.switchUI(serverGameStarted);
             startText.text = "Waiting for Game to Start";
             break;
@@ -402,6 +405,19 @@ export class pongScene extends Scene {
 
     ball.setX(centerX);
     ball.setY(centerY);
+
+    triggered = false;
+    if (powerUpMode) {
+      powerUp.setVisible(false);
+      powerUp.clearAlpha();
+      powerUp.clearTint();
+
+      paddle1.setScale(scale);
+      paddle2.setScale(scale);
+      ball.setScale(scale).setAlpha(1);
+
+      lastTime = 0;
+    }
     dir = 0;
     paddle1.setVelocityY(0);
     paddle1.setY(centerY);
@@ -441,6 +457,7 @@ export class pongScene extends Scene {
   };
 
   score = (myGoal: boolean) => {
+    scored = true;
     socket.emit("score", myGoal, userID);
   };
 
@@ -457,7 +474,7 @@ export class pongScene extends Scene {
             Number(pressedKeys.has("ArrowUp"))
         );
       }
-      if (state === 1) {
+      if (state === 1 && !scored) {
         //console.log(paddle1.x, paddle2.x);
 
         if (ball.x < ball.body.halfWidth + paddle1.x + paddle1.body.halfWidth) {
@@ -486,7 +503,7 @@ export class pongScene extends Scene {
             ball.setVelocityY(ball.body.velocity.y * -1);
           }
           lastTime = time;
-        } else if (p1) {
+        } else if (p1 && gameStarted && midGame) {
           lastTime = lastTime || time;
 
           if (time - lastTime >= 10000 && !powerUp.visible) {

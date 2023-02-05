@@ -25,11 +25,6 @@ export class GameController {
         return this.gameService.findAll(userId);
     }
 
-    @Get('top-players')
-    async getTopUsers() {
-        const users = await this.gameService.getTopUsers();
-        return users;
-    }
 
     @Get('stats/:userId')
     async getStats(@Param('userId') userId: number) {

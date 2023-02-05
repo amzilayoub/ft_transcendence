@@ -13,8 +13,13 @@ export class UserController {
     async getMe(@Req() request: RequestWithUser) {
         const { id } = request.user;
         const user = await this.userService.findOneById(id);
-
         return user;
+    }
+
+    @Get('stats/top-players')
+    async getTopUsers() {
+        const users = await this.userService.getTopUsers();
+        return users;
     }
 
     @Get(':username')
@@ -101,4 +106,8 @@ export class UserController {
         });
         return user;
     }
+
+    
+
+    
 }

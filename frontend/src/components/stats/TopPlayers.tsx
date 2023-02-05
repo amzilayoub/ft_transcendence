@@ -8,6 +8,7 @@ import RoundedImage from "@ui/RoundedImage";
 import TitledCard from "@ui/TitledCard";
 import { getOrdinal } from "@utils/format";
 import { fetcher } from "@utils/swr.fetcher";
+import Image from "next/image";
 
 interface IPlayer {
   id: string;
@@ -45,27 +46,28 @@ const OrdinalBadge = ({ rank }: { rank: number }) => (
 );
 
 const PlayerInfo = (player: IPlayer) => (
-  <div className="relative flex w-full gap-x-4 px-5 py-3 sm:w-72">
-    {player.rank < 4 && (
+  <div className="relative flex w-full gap-x-4 px-5 py-3 w-full">
+    {player.score < 4 && (
       <div className="absolute -top-2 -right-2">
-        <OrdinalBadge rank={player.rank} />
+        <OrdinalBadge rank={player.score} />
       </div>
     )}
     <Link
       key={player.id}
       href={`/u/${player.username}`}
-      className="flex flex-row gap-x-3"
+      className="flex gap-x-3 w-full"
     >
-      <RoundedImage
+      <Image
         src={player.avatar_url}
         alt={player.username + " avatar"}
-        size="60px"
+        width={100}
+        height={100}
+        className="rounded-full h-12 w-12"
       />
-      <div className="flex flex-col justify-start pt-2">
-        <p className="font-semibold">{player.username}</p>
-      </div>
     </Link>
-
+      <div className="flex flex-col justify-start pt-2 w-full">
+        <p className="font-semibold w-full min-w-full">{player.username}</p>
+      </div>
     <div className="flex w-full items-end justify-end">
       <p className="text-gray-500">{player.xp} XP</p>
     </div>
@@ -73,10 +75,10 @@ const PlayerInfo = (player: IPlayer) => (
 );
 
 const TopPlayers = () => {
-  const { data: players, error } = useSWR("/games/top-players", fetcher, {
-    revalidateOnFocus: false,
+  const { data: players, error } = useSWR("/users/stats/top-players", fetcher, {
+    // revalidateOnFocus: false,
   });
-  //console.log({ players });
+  console.log({ players });
 
   return (
     <div className="w-full sm:max-w-max min-w-[300px]">

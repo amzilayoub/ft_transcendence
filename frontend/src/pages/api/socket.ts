@@ -53,7 +53,9 @@ const handler = (req, res) => {
           "state",
           3,
           games[roomKeys[roomID]].gameStarted,
-          games[roomKeys[roomID]].mode
+          games[roomKeys[roomID]].mode,
+          games.p1?.score,
+          games.p2?.score
         );
 
         games[roomKeys[roomID]].spectators.push({
@@ -103,6 +105,7 @@ const handler = (req, res) => {
               socketID: socket.id,
               username: username,
               avatar_url: avatar_url,
+              ready: true,
             };
           } else if (game.p2 === undefined) {
             if (mode !== game.mode) {
@@ -116,6 +119,7 @@ const handler = (req, res) => {
               socketID: socket.id,
               username: username,
               avatar_url: avatar_url,
+              ready: true,
             };
           } else {
             socket.emit("error", "room_is_full");
@@ -168,10 +172,12 @@ const handler = (req, res) => {
           return;
         }
         if (socket.id === game.p1?.socketID) {
-          game.gameReady = true;
+          game.p1.ready = true;
+          game.gameReady = game.p1.ready && game.p2.ready;
           io.to(game.p2.socketID).emit("ready");
         } else if (socket.id === game.p2?.socketID) {
-          game.gameReady = true;
+          game.p2.ready = true;
+          game.gameReady = game.p1.ready && game.p2.ready;
           io.to(game.p1.socketID).emit("ready");
         }
       });
@@ -270,7 +276,6 @@ const handler = (req, res) => {
         } catch (err) {
           console.log(err);
         }
-
         game.p1.score = 0;
         game.p2.score = 0;
       };
@@ -282,8 +287,8 @@ const handler = (req, res) => {
         game = games[roomKeys[roomID!]];
         if (!game || !game.gameReady) return;
         if (
-          (goalOf && game.p1.userID === userID) ||
-          (!goalOf && game.p2.userID === userID)
+          (goalOf && game.p1?.userID === userID) ||
+          (!goalOf && game.p2?.userID === userID)
         ) {
           game.p1.score++;
         } else {
@@ -297,9 +302,11 @@ const handler = (req, res) => {
             score: game.p2.score,
           },
         });
+        io.to("subscribers").emit("get_info", games);
         let scoreToWin = 5;
         if (game.mode === "blitz") scoreToWin = 5;
         else if (game.mode === "classic") scoreToWin = 5;
+        if (!game.p1 || !game.p2) return;
         if (game.p1.score >= scoreToWin || game.p2.score >= scoreToWin) {
           gameEnd(game.p1.score >= scoreToWin, userID); // userID is always p1
         }
@@ -323,10 +330,16 @@ const handler = (req, res) => {
         if (!game) return;
 
         if (game.p1?.socketID === socket.id) {
+          game.p1.score = 0;
+          if (game.p2)
+            game.p2.score = 0;
           game.p1 = game.p2;
           if (game.p1) game.p1.score = 0;
           game.p2 = undefined;
         } else if (game.p2?.socketID === socket.id) {
+          if (game.p1)
+            game.p1.score = 0;
+          game.p2.score = 0;
           game.p2 = undefined;
         } else {
           game.spectators = game.spectators.filter(
@@ -342,7 +355,6 @@ const handler = (req, res) => {
         }
 
         io.to("subscribers").emit("get_info", games);
-
         io.to(roomID!).emit("stop_game");
         game.gameStarted = false;
         if (game?.p1 === undefined) return;
