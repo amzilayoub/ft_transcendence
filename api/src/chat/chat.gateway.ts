@@ -11,10 +11,11 @@ import {
     CreateMessageDto,
     CreateRoomDto,
     JoinRoomDto,
+    KickoutDto,
 } from './dto/chat_common.dto';
 import { AuthService } from 'src/auth/auth.service';
 import { ConfigService } from '@nestjs/config';
-import { UseGuards } from '@nestjs/common';
+import { HttpStatus, UseGuards } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import { PrismaClient, room, room_type, user } from '@prisma/client';
 import * as argon2 from 'argon2';
@@ -360,15 +361,17 @@ export class ChatGateway {
          ** its either a private/protected room
          */
         if (joinRoomDto.userId) {
-            const socketId = this.connectedClient[joinRoomDto.userId].clientId;
-            this.server.sockets
-                .get(socketId)
-                ?.join(NAMESPACE + joinRoomDto.roomId);
-            this.connectedClient[joinRoomDto.userId][
-                'duplicatedSockets'
-            ].forEach((item) => {
-                item.join(NAMESPACE + joinRoomDto.roomId);
-            });
+            const socketId = this.connectedClient[joinRoomDto.userId]?.clientId;
+            if (socketId) {
+                this.server.sockets
+                    .get(socketId)
+                    ?.join(NAMESPACE + joinRoomDto.roomId);
+                this.connectedClient[joinRoomDto.userId][
+                    'duplicatedSockets'
+                ].forEach((item) => {
+                    item.join(NAMESPACE + joinRoomDto.roomId);
+                });
+            }
         }
         const room = (
             await this.chatService.getUserRooms(user['id'], joinRoomDto.roomId)
@@ -487,6 +490,90 @@ export class ChatGateway {
                 item.userStatus = this.connectedClient[item.user_id].status;
         });
         return rooms;
+    }
+
+    @SubscribeMessage('room/kickout')
+    async roomKickout(
+        @ConnectedSocket() client: any,
+        @MessageBody() kickoutDto: KickoutDto,
+    ) {
+        /*
+         ** first check if the user has the admin/ownership access rights
+         ** check first if the user is the owner of the channel,
+         ** if so, then move the ownership to the firt admin
+         ** otherwise, remove the record
+         */
+        const user = this.getUserInfo(client);
+        let returnVal = {
+            status: 201,
+            userId: -1,
+        };
+
+        const myRole = (
+            await this.chatService.getMyRole(user.id, kickoutDto.roomId)
+        )[0];
+        if (['admin', 'owner'].includes(myRole.role.toLowerCase())) {
+            const getRoomInfo = (
+                await this.chatService.getRoomInfo(kickoutDto.roomId)
+            )[0];
+            if (getRoomInfo?.owner_id == kickoutDto.userId) {
+                const roomAdmins = await this.chatService.getRoomUsersByRole(
+                    kickoutDto.roomId,
+                    getRoomInfo?.owner_id,
+                    'Admin',
+                );
+                if (roomAdmins.length) {
+                    await this.chatService.setRoomOwnerShip(
+                        kickoutDto.roomId,
+                        roomAdmins[0].user_id,
+                    );
+                    returnVal = {
+                        status: 205,
+                        userId: roomAdmins[0].user_id,
+                    };
+                } else {
+                    const roomMembers =
+                        await this.chatService.getRoomUsersByRole(
+                            kickoutDto.roomId,
+                            getRoomInfo?.owner_id,
+                            'Member',
+                        );
+                    if (roomMembers.length) {
+                        await this.chatService.setRoomOwnerShip(
+                            kickoutDto.roomId,
+                            roomMembers[0].user_id,
+                        );
+                        returnVal = {
+                            status: 205,
+                            userId: roomMembers[0].user_id,
+                        };
+                    } else {
+                        await this.chatService.deleteRoom(kickoutDto.roomId);
+                        return {
+                            status: HttpStatus.NO_CONTENT,
+                            type: 'delete',
+                        };
+                    }
+                }
+            }
+
+            const socketId = this.connectedClient[kickoutDto.userId].clientId;
+            this.server.sockets
+                .get(socketId)
+                ?.leave(NAMESPACE + kickoutDto.roomId);
+            this.connectedClient[kickoutDto.userId][
+                'duplicatedSockets'
+            ].forEach((item) => {
+                item.leave(NAMESPACE + kickoutDto.roomId);
+            });
+            await this.chatService.kickout(
+                kickoutDto.userId,
+                kickoutDto.roomId,
+            );
+        } else {
+            return { status: 401 };
+        }
+        return returnVal;
     }
 
     /*

@@ -50,6 +50,7 @@ const ChatStuff = () => {
         }
         let targetedRoom = (await getRoomInfo(obj.data.room.room_id))[0];
 
+        if (!targetedRoom) return;
         targetedRoom.userStatus = obj.data.room.userStatus;
         // //console.log({ targetedRoom }, { action: obj.data.action });
         setConversationsMetadata((state) => {
@@ -140,7 +141,7 @@ const ChatStuff = () => {
               onClose={() => deleteBox(item["id"])}
               socket={socketIO}
               onConversationClick={activateBox}
-			  setActiveBoxes={setActiveBoxes}
+              setActiveBoxes={setActiveBoxes}
             />
           </li>
         ))}
