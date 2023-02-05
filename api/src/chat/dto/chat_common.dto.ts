@@ -58,6 +58,17 @@ export class RoomInfoDto {
     roomTypeName: string;
 }
 
+export class AddRoleDto {
+    @IsString()
+    role: string;
+
+    @IsInt()
+    userId: number;
+
+    @IsInt()
+    roomId: number;
+}
+
 export class UpdateRoomPassword {
     @IsInt()
     roomId: number;
