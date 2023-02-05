@@ -57,23 +57,66 @@ export class ChatService {
             else specificRoom = `AND name LIKE '%${roomName}%'`;
         }
         const query = `
-			SELECT *, 'offline' AS "userStatus"
-			FROM (
-				(
-					SELECT receiver.id, receiver.room_id, room.updated_at AS "lastMessageTime", room_type.type, room.created_at AS "created_at",
-					users.avatar_url,
+				SELECT *, 'offline' AS "userStatus"
+				FROM (
 					(
-                        SELECT users.avatar_url
-                        FROM users
-                        WHERE sender.user_id = users.id
-                        LIMIT 1
-                    ) AS "senderAvatarUrl",
-                    (
-                        SELECT users.username
-                        FROM users
-                        WHERE sender.user_id = users.id
-                        LIMIT 1
-                    ) AS "senderUsername",
+						SELECT receiver.id, receiver.room_id, room.updated_at AS "lastMessageTime", room_type.type, room.created_at AS "created_at",
+						users.avatar_url,
+						(
+							SELECT message
+							FROM messages
+							WHERE room_id = receiver.room_id
+							AND receiver.user_id NOT IN (
+								SELECT blacklist.user_id
+								FROM blacklist
+								WHERE blacklist.blocked_user_id = messages.user_id
+							)
+							ORDER BY id DESC
+							LIMIT 1
+						) AS "lastMessage",
+						CASE
+							WHEN
+							(SELECT COUNT(*)
+							FROM blacklist
+							WHERE sender.user_id = blacklist.user_id
+							AND receiver.user_id = blacklist.blocked_user_id) > 0
+								THEN true
+							ELSE
+								false
+						END AS "isBlocked",
+						CASE
+							WHEN
+							(SELECT COUNT(*)
+							FROM blacklist
+							WHERE sender.user_id = blacklist.blocked_user_id
+							AND receiver.user_id = blacklist.user_id ) > 0
+								THEN true
+							ELSE
+								false
+						END AS "amIBlocked",
+						sender.unread_message_count AS "unreadMessagesCount",
+						users.username AS name,
+						users.id AS user_id,
+						receiver.muted
+						FROM room_user_rel as sender, room_user_rel as receiver, room, room_type, users
+						-- here is inner join
+						WHERE sender.room_id = room.id
+						AND room.room_type_id = room_type.id
+						AND users.id = receiver.user_id
+						-- Here is a self join
+						AND sender.room_id = receiver.room_id
+						AND sender.user_id != receiver.user_id
+						AND room_type.type = 'dm'
+						AND sender.user_id = ${userId}
+						AND receiver.banned = false
+					)
+					UNION
+					(
+					SELECT receiver.id, receiver.room_id, room.updated_at AS "lastMessageTime", room_type.type, room.created_at AS "created_at",
+					(	SELECT room_details.avatar_url
+						FROM room_details
+						WHERE room.id = room_details.room_id
+					) AS "avatar_url",
 					(
 						SELECT message
 						FROM messages
@@ -86,86 +129,28 @@ export class ChatService {
 						ORDER BY id DESC
 						LIMIT 1
 					) AS "lastMessage",
-					CASE
-						WHEN
-						(SELECT COUNT(*)
-						FROM blacklist
-						WHERE sender.user_id = blacklist.user_id
-						AND receiver.user_id = blacklist.blocked_user_id) > 0
-							THEN true
-						ELSE
-							false
-					END AS "isBlocked",
-					CASE
-						WHEN
-						(SELECT COUNT(*)
-						FROM blacklist
-						WHERE sender.user_id = blacklist.blocked_user_id
-						AND receiver.user_id = blacklist.user_id ) > 0
-							THEN true
-						ELSE
-							false
-					END AS "amIBlocked",
-					sender.unread_message_count AS "unreadMessagesCount",
-					users.username AS name,
-					users.id AS user_id,
+					false AS "isBlocked",
+					false AS "amIBlocked",
+					receiver.unread_message_count AS "unreadMessagesCount",
+					(	SELECT room_details.name
+						FROM room_details
+						WHERE room.id = room_details.room_id
+					)
+					AS name,
+					-1 AS user_id,
 					receiver.muted
-					FROM room_user_rel as sender, room_user_rel as receiver, room, room_type, users
+					FROM room_user_rel as receiver, room, room_type, users
 					-- here is inner join
-					WHERE sender.room_id = room.id
+					WHERE receiver.room_id = room.id
 					AND room.room_type_id = room_type.id
 					AND users.id = receiver.user_id
-					-- Here is a self join
-					AND sender.room_id = receiver.room_id
-					AND sender.user_id != receiver.user_id
-					AND room_type.type = 'dm'
-					AND sender.user_id = ${userId}
+					AND room_type.type != 'dm'
+					AND receiver.user_id = ${userId}
 					AND receiver.banned = false
-				)
-				UNION
-				(
-				SELECT receiver.id, receiver.room_id, room.updated_at AS "lastMessageTime", room_type.type, room.created_at AS "created_at",
-				users.avatar_url,
-				'' AS "senderAvatarUrl",
-				'' AS "senderUsername",
-				(	SELECT room_details.avatar_url
-					FROM room_details
-					WHERE room.id = room_details.room_id
-				) AS "avatar_url",
-				(
-					SELECT message
-					FROM messages
-					WHERE room_id = receiver.room_id
-					AND receiver.user_id NOT IN (
-						SELECT blacklist.user_id
-						FROM blacklist
-						WHERE blacklist.blocked_user_id = messages.user_id
 					)
-					ORDER BY id DESC
-					LIMIT 1
-				) AS "lastMessage",
-				false AS "isBlocked",
-				false AS "amIBlocked",
-				receiver.unread_message_count AS "unreadMessagesCount",
-				(	SELECT room_details.name
-					FROM room_details
-					WHERE room.id = room_details.room_id
-				)
-				AS name,
-				-1 AS user_id,
-				receiver.muted
-				FROM room_user_rel as receiver, room, room_type, users
-				-- here is inner join
-				WHERE receiver.room_id = room.id
-				AND room.room_type_id = room_type.id
-				AND users.id = receiver.user_id
-				AND room_type.type != 'dm'
-				AND receiver.user_id = ${userId}
-				AND receiver.banned = false
-				)
-			) AS tbl
-			${specificRoom}
-			ORDER BY "lastMessageTime" DESC
+				) AS tbl
+				${specificRoom}
+				ORDER BY "lastMessageTime" DESC
 		`;
         return this.prismaService.$queryRaw(Prisma.raw(query));
     }
