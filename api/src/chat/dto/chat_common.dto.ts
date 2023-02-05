@@ -11,8 +11,10 @@ import {
     IsOptional,
     isString,
     IsString,
+    IsUrl,
     ValidateNested,
 } from 'class-validator';
+import { Url } from 'url';
 
 export class CreateRoomDto {
     @IsOptional()
@@ -40,6 +42,31 @@ export class CreateRoomDto {
     @ValidateNested({ each: true })
     @IsInt()
     usersId: number[];
+}
+
+export class RoomInfoDto {
+    @IsString()
+    name: string;
+
+    @IsUrl()
+    avatarUrl: string;
+
+    @IsInt()
+    roomId: number;
+
+    @IsString()
+    roomTypeName: string;
+}
+
+export class AddRoleDto {
+    @IsString()
+    role: string;
+
+    @IsInt()
+    userId: number;
+
+    @IsInt()
+    roomId: number;
 }
 
 export class UpdateRoomPassword {

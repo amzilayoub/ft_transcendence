@@ -20,6 +20,7 @@ const ChatStuff = () => {
     showChatSidebar,
     setShowChatSidebar,
     setConversationsMetadata,
+    setActiveBoxes,
   } = useChatContext(socketIO);
   const ctx = useAuthContext();
 
@@ -139,6 +140,7 @@ const ChatStuff = () => {
               onClose={() => deleteBox(item["id"])}
               socket={socketIO}
               onConversationClick={activateBox}
+			  setActiveBoxes={setActiveBoxes}
             />
           </li>
         ))}

@@ -128,6 +128,10 @@ export class ChatService {
 				users.avatar_url,
 				'' AS "senderAvatarUrl",
 				'' AS "senderUsername",
+				(	SELECT room_details.avatar_url
+					FROM room_details
+					WHERE room.id = room_details.room_id
+				) AS "avatar_url",
 				(
 					SELECT message
 					FROM messages
@@ -146,7 +150,7 @@ export class ChatService {
 				(	SELECT room_details.name
 					FROM room_details
 					WHERE room.id = room_details.room_id
-					)
+				)
 				AS name,
 				-1 AS user_id,
 				receiver.muted
@@ -198,7 +202,7 @@ export class ChatService {
 
     getRoomInfo(roomId: number) {
         return this.prismaService.$queryRaw(Prisma.sql`
-			SELECT room_details.name, room_type.type,
+			SELECT room_details.name, room_type.type, room.owner_id,
 				(
 					SELECT room_rules.rule
 					FROM room_rules
@@ -250,7 +254,7 @@ export class ChatService {
         });
     }
 
-    getRoomMembers(roomId: number, username?: string) {
+    getRoomMembers(roomId: number, userId: number, username?: string) {
         let additionalCond = '';
         if (username)
             additionalCond = `AND users.username LIKE '%${username}%'`;
@@ -260,7 +264,13 @@ export class ChatService {
 			(
 				SELECT users.id, users.username AS username, users.avatar_url,
 						'Owner' AS "membershipStatus",room_user_rel.banned AS "isBanned",
-						room_user_rel.muted AS "isMuted"
+						room_user_rel.muted AS "isMuted",
+						CASE
+							WHEN users.id = ${userId}
+								THEN true
+							ELSE
+								false
+						END AS "isMe"
 				FROM room_user_rel
 				INNER JOIN room ON room.id = room_user_rel.room_id
 				INNER JOIN users ON users.id = room_user_rel.user_id
@@ -277,7 +287,13 @@ export class ChatService {
 				SELECT users.id, users.username AS username, users.avatar_url,
 						room_user_rel.role AS "membershipStatus",
 						room_user_rel.banned AS "isBanned",
-						room_user_rel.muted AS "isMuted"
+						room_user_rel.muted AS "isMuted",
+						CASE
+							WHEN users.id = ${userId}
+								THEN true
+							ELSE
+								false
+						END AS "isMe"
 				FROM room_user_rel
 				INNER JOIN room ON room.id = room_user_rel.room_id
 				INNER JOIN users ON users.id = room_user_rel.user_id
@@ -285,7 +301,23 @@ export class ChatService {
 				AND room.owner_id != room_user_rel.user_id
 				${additionalCond}
 				ORDER BY room_user_rel.role ASC
-			)`;
+			)
+			UNION
+			(
+				SELECT users.id, users.username AS username, users.avatar_url,
+						'User' AS "membershipStatus",
+						false AS "isBanned",
+						false AS "isMuted",
+						false AS "isMe"
+				FROM users
+				WHERE id NOT IN (
+					SELECT room_user_rel.user_id
+					FROM room_user_rel
+					WHERE room_user_rel.room_id = ${roomId}
+				)
+				${additionalCond}
+			)
+			`;
         return this.prismaService.$queryRaw(Prisma.raw(query));
     }
 
@@ -494,6 +526,61 @@ export class ChatService {
 				FROM room_user_rel
 				WHERE user_id = ${userId}
 				AND room_id = ${roomId}
+		`);
+    }
+
+    kickout(userId: number, roomId: number) {
+        return this.prismaService.$queryRaw(Prisma.sql`
+			DELETE FROM room_user_rel
+			WHERE room_id = ${roomId}
+			AND user_id = ${userId}
+		`);
+    }
+
+    getRoomUsersByRole(
+        roomId: number,
+        actualOwnerId: number,
+        role: string,
+    ): Promise<room_user_rel[]> {
+        return this.prismaService.$queryRaw(Prisma.sql`
+			SELECT *
+			FROM room_user_rel
+			WHERE role LIKE ${role}
+			AND room_id = ${roomId}
+			AND user_id != ${actualOwnerId}
+		`);
+    }
+
+    setRoomOwnerShip(roomId: number, newOwnerId: number) {
+        return this.prismaService.$queryRaw(Prisma.sql`
+			UPDATE room
+			SET owner_id = ${newOwnerId}
+			WHERE id = ${roomId}
+		`);
+    }
+
+    deleteRoom(roomId: number) {
+        return this.prismaService.$queryRaw(Prisma.sql`
+			DELETE FROM room
+			WHERE id = ${roomId}
+		`);
+    }
+
+    updateRoomInfo(name: string, avatarUrl: string, roomId: number) {
+        return this.prismaService.$queryRaw(Prisma.sql`
+		UPDATE room_details
+		SET name = ${name},
+		avatar_url = ${avatarUrl}
+		WHERE room_id = ${roomId}
+		`);
+    }
+
+    updateUserRole(userId: number, roomId: number, role: string) {
+        return this.prismaService.$queryRaw(Prisma.sql`
+			UPDATE room_user_rel
+			SET role = ${role}
+			WHERE user_id = ${userId}
+			AND room_id = ${roomId}
 		`);
     }
 }

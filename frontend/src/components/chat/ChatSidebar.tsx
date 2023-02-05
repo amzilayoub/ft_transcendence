@@ -123,7 +123,11 @@ const ConversationMetadata = ({
       <div className="group w-full cursor-pointer">
         <div className="flex items-center">
           <div className="relative">
-            <RoundedImage src={avatar} alt={`${name} avatar`} size="60px" />
+            <RoundedImage
+              src={avatar || "/images/andrew-tate.png"}
+              alt={`${name} avatar`}
+              size="60px"
+            />
             {userId > 0 && (
               <>
                 {/* <Tooltip anchorId="status-circle" content={userStatus?.toUpperCase()} place="right" /> */}

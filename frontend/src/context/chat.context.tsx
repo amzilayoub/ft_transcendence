@@ -120,6 +120,7 @@ export const ChatProvider = ({ children }: { children: React.ReactNode }) => {
       activateBox,
       loadConversationsMetadata,
       loadSingleConversation,
+	  setActiveBoxes
     }),
     [
       showChatSidebar,
@@ -132,6 +133,7 @@ export const ChatProvider = ({ children }: { children: React.ReactNode }) => {
       activateBox,
       deleteBox,
       loadSingleConversation,
+	  setActiveBoxes
     ]
   );
 
