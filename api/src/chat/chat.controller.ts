@@ -22,6 +22,7 @@ import {
     MuteUserDto,
     UpdateRoomPassword,
     RoomInfoDto,
+    AddRoleDto,
 } from './dto/chat_common.dto';
 import JwtGuard from 'src/common/guards/jwt_guard';
 import { AuthService } from 'src/auth/auth.service';
@@ -313,5 +314,26 @@ export class ChatController {
             JSON.stringify(roomRule),
         );
         return true;
+    }
+
+    @Post('/room/members/add-role')
+    async setRole(
+        @Req() request: RequestWithUser,
+        @Body() addRoleDto: AddRoleDto,
+    ) {
+        const user = await this.authService.getMe(request.user.id);
+        const myRole = (
+            await this.chatService.getMyRole(user.id, addRoleDto.roomId)
+        )[0];
+
+        if (['Admin', 'Owner'].includes(myRole.role)) {
+            await this.chatService.updateUserRole(
+                addRoleDto.userId,
+                addRoleDto.roomId,
+                addRoleDto.role,
+            );
+            return { status: 200 };
+        }
+        throw new HttpException('Unauthorized', HttpStatus.UNAUTHORIZED);
     }
 }

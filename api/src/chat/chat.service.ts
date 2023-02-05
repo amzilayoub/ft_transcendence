@@ -559,4 +559,13 @@ export class ChatService {
 		WHERE room_id = ${roomId}
 		`);
     }
+
+    updateUserRole(userId: number, roomId: number, role: string) {
+        return this.prismaService.$queryRaw(Prisma.sql`
+			UPDATE room_user_rel
+			SET role = ${role}
+			WHERE user_id = ${userId}
+			AND room_id = ${roomId}
+		`);
+    }
 }
