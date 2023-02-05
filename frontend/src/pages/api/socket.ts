@@ -186,6 +186,11 @@ const handler = (req, res) => {
         }
 
         if (game.gameStarted) {
+          if (game.p2.socketID === socket.id) {
+            game.p1.score = 5;
+          } else if (game.p1.socketID === socket.id) {
+            game.p2.score = 5;
+          }
           gameEnd(game.p2.socketID === socket.id, game.p1.userID); // defaulting to p1 for consistency
           return;
         }
@@ -250,16 +255,6 @@ const handler = (req, res) => {
         io.to(roomID!).emit("stop_game", win);
 
         try {
-          console.log("sending game to db");
-          console.log(
-          {
-              player_1: +game.p1.userID,
-              player_2: +game.p2.userID,
-              player_1_score: game.p1.score,
-              player_2_score: game.p2.score,
-              winner: +(win ? userID : game.p2.userID),
-              mode: game.mode,
-            });
           const resp = await basicFetch.post(
             "/games",
             {},
@@ -272,10 +267,6 @@ const handler = (req, res) => {
               mode: game.mode,
             }
           );
-          console.log("game sent to db", resp);
-          if (resp.data) {
-            console.log(resp.data);
-          }
         } catch (err) {
           console.log(err);
         }

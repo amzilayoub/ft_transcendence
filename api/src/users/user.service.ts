@@ -143,7 +143,6 @@ export class UserService {
         return users;
     }
 
-
     async getFollowers(username: string) {
         return [];
     }

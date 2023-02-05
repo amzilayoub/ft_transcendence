@@ -84,10 +84,18 @@ const SettingsModal = ({
         const file_data = await uploadFile(inputFiles.cover);
         if (file_data) settings.cover_url = file_data.secure_url || null;
       }
-      if (settings.first_name?.length === 0 || settings.last_name?.length === 0 || settings.nickname?.length === 0) {
+      if (
+        settings.first_name?.length === 0 ||
+        settings.last_name?.length === 0 ||
+        settings.nickname?.length === 0
+      ) {
         delete settings.first_name;
       }
-      if (settings.first_name?.length > 16 || settings.last_name?.length > 16 || settings.nickname?.length > 16) {
+      if (
+        settings.first_name?.length > 16 ||
+        settings.last_name?.length > 16 ||
+        settings.nickname?.length > 16
+      ) {
         return;
       }
       setButtonText("Saving...");
@@ -213,36 +221,33 @@ const SettingsModal = ({
                   {/* first and last name */}
 
                   <div className="flex w-full gap-x-4 pt-10">
-                  <div className="w-full">
-                    <TextInput
-                      defaultValue={ctx.user?.first_name}
-                      label="First Name"
-                      type="text"
-                      name="first_name"
-                      onChange={handleInputChange}
-
+                    <div className="w-full">
+                      <TextInput
+                        defaultValue={ctx.user?.first_name}
+                        label="First Name"
+                        type="text"
+                        name="first_name"
+                        onChange={handleInputChange}
                       />
-                  </div>
-                  <div className="w-full">
-                    <TextInput
-                      defaultValue={ctx.user?.last_name}
-                      label="Last Name"
-                      type="text"
-                      name="last_name"
-                      onChange={handleInputChange}
-
-                      
+                    </div>
+                    <div className="w-full">
+                      <TextInput
+                        defaultValue={ctx.user?.last_name}
+                        label="Last Name"
+                        type="text"
+                        name="last_name"
+                        onChange={handleInputChange}
                       />
-                      </div>
-                  <div className="w-full">
-                    <TextInput
-                      defaultValue={ctx.user?.nickname}
-                      label="Nickname"
-                      type="text"
-                      name="nickname"
-                      onChange={handleInputChange}
+                    </div>
+                    <div className="w-full">
+                      <TextInput
+                        defaultValue={ctx.user?.nickname}
+                        label="Nickname"
+                        type="text"
+                        name="nickname"
+                        onChange={handleInputChange}
                       />
-                      </div>
+                    </div>
                   </div>
                 </div>
               </div>
@@ -314,9 +319,10 @@ const SettingsModal = ({
           isOpen={showQRModal}
           onClose={() => setShowQRModal(false)}
           onSuccess={() => {
-            ctx
-              .loadUserData()
-              .then((data) => {setSwitchEnabled(data?.isTwoFactorEnabled); router.reload()});
+            ctx.loadUserData().then((data) => {
+              setSwitchEnabled(data?.isTwoFactorEnabled);
+              router.reload();
+            });
             setShowQRModal(false);
           }}
           actionType={switchEnabled ? "turn-off" : "turn-on"}

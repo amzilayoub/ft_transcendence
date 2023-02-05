@@ -18,7 +18,7 @@ const StatItem = ({
 }: {
   icon?: React.ReactNode;
   label: string;
-  value: string;
+  value: number;
   className?: string;
 }) => (
   <li className="flex justify-between">
@@ -38,9 +38,10 @@ const StatItem = ({
     </p>
   </li>
 );
-const UserStats = ({ username }: { username: string }) => {
+
+const UserStats = ({ userID }: { userID: number }) => {
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  const _stats = useUserStats(username, false);
+  const stats = useUserStats(userID, true);
   return (
     <nav className="flex max-h-[500px] flex-col gap-y-4 rounded-xl border bg-white px-4 py-5 shadow-lg">
       <div className="flex items-center justify-between">
@@ -48,23 +49,31 @@ const UserStats = ({ username }: { username: string }) => {
       </div>
       <div className="h-px bg-gray-200 " />
       <ul className="flex flex-col gap-y-2 ">
-        <StatItem icon={<GiPingPongBat />} label="Total Games" value="17" />
+        <StatItem
+          icon={<GiPingPongBat />}
+          label="Total Games"
+          value={stats.data?.gamesPlayed || 0}
+        />
         <StatItem
           icon={<AiOutlineCheck />}
           label="Wins"
-          value="10"
+          value={stats.data?.wins || 0}
           className="text-green-500"
         />
         <StatItem
           icon={<IoMdClose />}
           label="Losses"
-          value="7"
+          value={stats.data?.losses || 0}
           className="text-red-500"
         />
         <StatItem
           icon={<SiMediafire />}
           label="Winrate"
-          value="58%"
+          value={
+            stats.data?.wins && stats.data?.losses
+              ? Math.round((stats.data?.wins / stats.data?.gamesPlayed) * 100)
+              : 0
+          }
           className="text-blue-500"
         />
       </ul>

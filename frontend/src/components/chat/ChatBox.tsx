@@ -48,23 +48,18 @@ const Message = ({
         <span className={cn("inline-block px-4 py-2", {})}>
           {message.split("\n").map((item, key) => (
             <span key={key}>
-              {
-                isURL(item) ? (
-                  <a
-                    href={item.replace(
-                      window.location.origin,
-                      ""
-                    )}
-                    target="_blank"
-                    rel="noreferrer"
-                    className="text-blue-500"
-                  >
-                    {item}
-                  </a>
-                ) : (
-                 item
-                )
-              }
+              {isURL(item) ? (
+                <a
+                  href={item.replace(window.location.origin, "")}
+                  target="_blank"
+                  rel="noreferrer"
+                  className="text-blue-500"
+                >
+                  {item}
+                </a>
+              ) : (
+                item
+              )}
               <br />
             </span>
           ))}
@@ -75,11 +70,11 @@ const Message = ({
         src={senderAvatar || "/public/images/default_avatar.jpg"}
         alt="Sender Avatar"
         width={100}
-              height={100}
-              className="rounded-full h-6 w-6"
+        height={100}
+        className="rounded-full h-6 w-6"
       />
 
-{/* <div className="relative">
+      {/* <div className="relative">
             <Image
               src={
                 conversationMetaData?.avatar_url ||
@@ -95,7 +90,6 @@ const Message = ({
                 "h-9 w-9": !showChatBox,
               })}
             /> */}
-
     </div>
   </li>
 );

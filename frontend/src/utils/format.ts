@@ -15,10 +15,12 @@ export const getOrdinal = (n: number) => {
 };
 
 export const isURL = (text: string) => {
-  var httpUrlRegex = /^https?:\/\/(?:www\.)?[-a-zA-Z0-9@:%._\+~#=]{1,256}\.[a-zA-Z0-9()]{1,6}\b(?:[-a-zA-Z0-9()@:%_\+.~#?&\/=]*)$/
-  var urlRegex = /^[-a-zA-Z0-9@:%._\+~#=]{1,256}\.[a-zA-Z0-9()]{1,6}\b(?:[-a-zA-Z0-9()@:%_\+.~#?&//=]*)$/
-  return (urlRegex.test(text) || httpUrlRegex.test(text))
-}
+  var httpUrlRegex =
+    /^https?:\/\/(?:www\.)?[-a-zA-Z0-9@:%._\+~#=]{1,256}\.[a-zA-Z0-9()]{1,6}\b(?:[-a-zA-Z0-9()@:%_\+.~#?&\/=]*)$/;
+  var urlRegex =
+    /^[-a-zA-Z0-9@:%._\+~#=]{1,256}\.[a-zA-Z0-9()]{1,6}\b(?:[-a-zA-Z0-9()@:%_\+.~#?&//=]*)$/;
+  return urlRegex.test(text) || httpUrlRegex.test(text);
+};
 
 // export const urlify = (text: string) => {
 //   var urlRegex = /(https?:\/\/[^\s]+)/g;

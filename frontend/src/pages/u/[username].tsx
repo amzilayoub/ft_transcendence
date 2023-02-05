@@ -68,7 +68,9 @@ const UserInfo = ({
     <div className="flex h-full items-start justify-between p-5 sm:px-6">
       <header className="flex flex-col ">
         {fullName && (
-          <p className="text-2xl font-bold text-gray-900">{fullName} <span>| {nickname}</span></p>
+          <p className="text-2xl font-bold text-gray-900">
+            {fullName} <span>| {nickname}</span>
+          </p>
         )}
         <p className="text-sm font-normal text-gray-400">@{username}</p>
         <p className="text-base">{bio}</p>
@@ -286,7 +288,7 @@ export default function ProfilePage() {
             setIsAvatarModalOpen={setIsAvatarModalOpen}
             setIsCoverModalOpen={setIsCoverModalOpen}
           />
-          <UserStats username={username} />
+          <UserStats userID={user.data?.id} />
         </div>
         <LastGames userId={user.data?.id} />
       </div>

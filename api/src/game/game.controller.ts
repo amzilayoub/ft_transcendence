@@ -21,9 +21,7 @@ export class GameController {
     }
 
     @Get(':userId')
-    findAll(
-        @Param('userId') userId: number,
-    ) {
+    findAll(@Param('userId') userId: number) {
         return this.gameService.findAll(userId);
     }
 
@@ -31,5 +29,11 @@ export class GameController {
     async getTopUsers() {
         const users = await this.gameService.getTopUsers();
         return users;
+    }
+
+    @Get('stats/:userId')
+    async getStats(@Param('userId') userId: number) {
+        const stats = await this.gameService.getStats(userId);
+        return stats;
     }
 }

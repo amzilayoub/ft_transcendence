@@ -42,10 +42,9 @@ const ChatStuff = () => {
       socket?.on("updateListConversations", async (obj) => {
         if (ctx?.user?.id != obj.data.userId) {
           toastNewMessage(
-            obj.data.room.avatar_url,
-            obj.data.room.name,
+            obj.data.room.senderAvatarUrl,
+            obj.data.room.senderUsername,
             obj.data.room.lastMessage
-            // obj.data.room.room_id
           );
         }
         let targetedRoom = (await getRoomInfo(obj.data.room.room_id))[0];
@@ -90,12 +89,8 @@ const ChatStuff = () => {
 
       socket?.on("sendInvite", (data) => {
         console.log(data);
-        
-        toastGameChallenge(
-          data.username,
-          data.avatar_url,
-          data.message,
-        );
+
+        toastGameChallenge(data.username, data.avatar_url, data.message);
       });
 
       socket?.on("userConnect", (resp) => {

@@ -13,7 +13,7 @@ const GamesHistoryModal = ({
   isOpen: boolean;
   onClose: () => void;
 }) => {
-    // const { data, isLoading } = useSWR(`/stats/${username}/history`, fetcher);
+  // const { data, isLoading } = useSWR(`/stats/${username}/history`, fetcher);
   const sample = [
     {
       player1: {
@@ -33,7 +33,7 @@ const GamesHistoryModal = ({
     },
   ];
 
-  const isLoading = false;// && !!username;
+  const isLoading = false; // && !!username;
 
   const data = Array.from(
     { length: 20 },

@@ -63,6 +63,18 @@ export class ChatService {
 					SELECT receiver.id, receiver.room_id, room.updated_at AS "lastMessageTime", room_type.type, room.created_at AS "created_at",
 					users.avatar_url,
 					(
+                        SELECT users.avatar_url
+                        FROM users
+                        WHERE sender.user_id = users.id
+                        LIMIT 1
+                    ) AS "senderAvatarUrl",
+                    (
+                        SELECT users.username
+                        FROM users
+                        WHERE sender.user_id = users.id
+                        LIMIT 1
+                    ) AS "senderUsername",
+					(
 						SELECT message
 						FROM messages
 						WHERE room_id = receiver.room_id
@@ -114,6 +126,8 @@ export class ChatService {
 				(
 				SELECT receiver.id, receiver.room_id, room.updated_at AS "lastMessageTime", room_type.type, room.created_at AS "created_at",
 				users.avatar_url,
+				'' AS "senderAvatarUrl",
+				'' AS "senderUsername",
 				(
 					SELECT message
 					FROM messages

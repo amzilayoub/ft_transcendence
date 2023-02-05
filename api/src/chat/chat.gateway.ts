@@ -164,8 +164,6 @@ export class ChatGateway {
         return { status: 200, data: newRoom };
     }
 
-    
-
     @SubscribeMessage('sendInvite')
     sendInvite(
         @ConnectedSocket() client: any,
@@ -173,12 +171,14 @@ export class ChatGateway {
     ) {
         const user = this.getUserInfo(client);
         if (user === null) return { status: 401 };
-        
-        let clientId = this.connectedClient[body.roomId].clientSocket
-        clientId?.join(body.message)
-        this.connectedClient[body.roomId]['duplicatedSockets'].forEach((item) => {
-            item.join(body.message)
-        })
+
+        const clientId = this.connectedClient[body.roomId].clientSocket;
+        clientId?.join(body.message);
+        this.connectedClient[body.roomId]['duplicatedSockets'].forEach(
+            (item) => {
+                item.join(body.message);
+            },
+        );
         // clientId?.emit('sendInvite', {
         //     message: body.message
         // })
@@ -188,9 +188,16 @@ export class ChatGateway {
             avatar_url: user['avatar_url'],
             message: body.message,
         });
+
+        clientId?.leave(body.message);
+        this.connectedClient[body.roomId]['duplicatedSockets'].forEach(
+            (item) => {
+                item.leave(body.message);
+            },
+        );
         // //console.log("@", clientId);
         // clientId.leave('/game')
-        return {status: 200}
+        return { status: 200 };
     }
     /*
      ** if there's a userId in the coming request
@@ -276,7 +283,7 @@ export class ChatGateway {
         const exceptRoomName = NAMESPACE + '/blacklist/' + user['id'];
         const exceptSockets = [];
         listOfBlockedUsers.forEach((item) => {
-            let socketId = this.connectedClient[item.user_id].clientId;
+            const socketId = this.connectedClient[item.user_id].clientId;
             if (socketId) {
                 const clientSocket = this.server.sockets.get(socketId);
                 if (clientSocket) {
@@ -532,8 +539,7 @@ export class ChatGateway {
     }
 
     getTokenFromCookie(@ConnectedSocket() client: any) {
-        if (!client.handshake.headers.cookie)
-            return null;
+        if (!client.handshake.headers.cookie) return null;
         // //console.log("@@@@@@@@@@@@", client.handshake.headers.cookie)
         const authToken = this.cookie.parse(client.handshake.headers.cookie)[
             'Authentication'

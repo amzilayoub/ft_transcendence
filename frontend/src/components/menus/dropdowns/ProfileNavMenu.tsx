@@ -58,7 +58,9 @@ const ProfileNavMenu: React.FC<Props> = (props) => {
           />
           <div className="flex flex-col">
             <p className="flex items-center font-semibold ">
-              <span className="text-sm">{truncateString(props.first_name + ' ' + props.last_name, 16)}</span>
+              <span className="text-sm">
+                {truncateString(props.first_name + " " + props.last_name, 16)}
+              </span>
             </p>
             <p className="flex items-center text-gray-500 hover:text-white group-hover:text-gray-300">
               @{props.username}

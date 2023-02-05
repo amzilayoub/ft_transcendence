@@ -92,9 +92,12 @@ export const GameSummary = (props: GameSummaryProps) => (
 
 const LastGames = ({ userId }: { userId: number }) => {
   const [seeAll, setSeeAll] = React.useState(false);
-    const { data, isLoading } = useSWR(userId !== undefined ? `/games/${userId}` : null, fetcher);
-  
-console.log("D:", data);
+  const { data, isLoading } = useSWR(
+    userId !== undefined ? `/games/${userId}` : null,
+    fetcher
+  );
+
+  console.log("D:", data);
   return (
     <>
       <nav className="flex min-h-[400px] flex-col gap-y-4 rounded-xl border bg-white px-4 py-5 shadow-lg #max-w-lg">
