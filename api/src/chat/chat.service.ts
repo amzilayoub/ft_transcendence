@@ -582,4 +582,12 @@ export class ChatService {
 			AND room_id = ${roomId}
 		`);
     }
+
+    updateUserStatus(userId: number, status: string) {
+        return this.prismaService.$queryRaw(Prisma.sql`
+			UPDATE users
+			SET status = ${status}
+			WHERE id = ${userId}
+		`);
+    }
 }

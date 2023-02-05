@@ -72,9 +72,10 @@ export class ChatGateway {
                 userId: user['id'],
             },
         });
+        await this.chatService.updateUserStatus(user['id'], 'online');
     }
 
-    handleDisconnect(@ConnectedSocket() client: any) {
+    async handleDisconnect(@ConnectedSocket() client: any) {
         const user = this.getUserInfo(client);
         if (user === null) return { status: 401 };
 
@@ -93,6 +94,7 @@ export class ChatGateway {
                 userId: user['id'],
             },
         });
+        await this.chatService.updateUserStatus(user['id'], 'offline');
     }
 
     @SubscribeMessage('createRoom')
