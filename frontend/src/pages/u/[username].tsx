@@ -22,6 +22,8 @@ import { useUIContext } from "context/ui.context";
 import { IUser, SetStateFunc } from "global/types";
 import FriendsList from "@components/lists/FriendsList";
 import basicFetch from "@utils/basicFetch";
+import { useSWRConfig } from 'swr'
+
 
 const LastGames = dynamic(() => import("@components/stats/History"), {
   ssr: false,
@@ -150,6 +152,8 @@ const UserInfoHeader = ({
   setIsCoverModalOpen: SetStateFunc<boolean>;
   setIsAvatarModalOpen: SetStateFunc<boolean>;
 }) => {
+  const { mutate } = useSWRConfig()
+
   const { setIsSettingsOpen } = useUIContext();
   const [
     followState, setFollowState,
@@ -164,17 +168,22 @@ const UserInfoHeader = ({
     }/${user.username}`);
     if (resp.ok) {
       setFollowState((prev) => (prev === "following" ? "not-following" : "following"));
+      mutate(`/users/${username}/friends`);
     }
   };
 
   useEffect(() => {
     if (!user) return;
     const fetchFollowState = async () => {
-      const resp = await basicFetch.get(`/users/follows/${user.username}`);
-      if (resp.status === 200) {
-        setFollowState("following");
-      } else {
-        setFollowState("not-following");
+      try {
+        const resp = await basicFetch.get(`/users/is-following/${user.username}`);
+        if (resp.ok) {
+          setFollowState("following");
+        } else {
+          setFollowState("not-following");
+        }
+      } catch (error) {
+        
       }
     };
     fetchFollowState();
@@ -295,6 +304,7 @@ export default function ProfilePage() {
   const [isCoverModalOpen, setIsCoverModalOpen] = useState(false);
   const user = useUser(username, router.isReady);
 
+
   useEffect(() => {
     if (
       router.isReady &&
@@ -322,6 +332,7 @@ export default function ProfilePage() {
             user={user.data}
             username={username}
             isMyProfile={isMyProfile}
+            
             setIsAvatarModalOpen={setIsAvatarModalOpen}
             setIsCoverModalOpen={setIsCoverModalOpen}
           />

@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 
 import cn from "classnames";
 import Image from "next/image";
@@ -50,8 +50,8 @@ const Friend = (props: {
   );
   
 
-const FriendsList = ({ username }: { username: number }) => {
-	const { data, isLoading } = useSWR(
+const FriendsList = ({ username } : { username: string }) => {
+	const { data, isLoading, mutate } = useSWR(
 		username !== undefined ? `/users/${username}/friends` : null,
 		fetcher, 
 	  { revalidateOnFocus: false },
@@ -59,8 +59,7 @@ const FriendsList = ({ username }: { username: number }) => {
 
 	let [socketIO, setSocketIO] = useState(null);
 	const {
-		conversationsMetadata,
-		
+		conversationsMetadata,		
 	} = useChatContext(socketIO);
 
 	console.log(conversationsMetadata);

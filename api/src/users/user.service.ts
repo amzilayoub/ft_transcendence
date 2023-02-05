@@ -166,16 +166,15 @@ export class UserService {
         // });
         // return friends[0].friends.map((friend) => friend.userLink2);
         const friends = await this.prisma.$queryRaw(Prisma.sql`
-        SELECT u.id, u.username, u.nickname, u.avatar_url
-        FROM users u
-        INNER JOIN friends f ON u.id = f.user_id_2
-        WHERE f.user_id_1 = (SELECT id FROM users WHERE username = ${username})
-        UNION
-        SELECT u.id, u.username, u.nickname, u.avatar_url
-        FROM users u
-        INNER JOIN friends f ON u.id = f.user_id_1
-        WHERE f.user_id_2 = (SELECT id FROM users WHERE username = ${username})
-        `);
+        SELECT DISTINCT users.*
+        FROM friends
+        INNER JOIN users ON (friends.user_id_2 = users.id OR friends.user_id_1 = users.id)
+        WHERE (friends.user_id_1 IN ((SELECT users.id FROM users WHERE users.username = ${username}))
+        OR friends.user_id_2 IN ((SELECT users.id FROM users WHERE users.username = ${username})))
+        AND friends.user_id_1 != friends.user_id_2
+        AND users.username != ${username}
+        `
+        );
         console.log("###", friends);
         return friends;
 
@@ -212,49 +211,36 @@ export class UserService {
                 id: true,
             },
         });
-
-        const follow = await this.prisma.friends.create({
-            data: {
-                user_id_1: followerId,
-                user_id_2: user.id,
-            },
-        });
-
-        return follow;
+        if (followerId !== user.id) {
+            return await this.prisma.$queryRaw(Prisma.sql`
+                INSERT INTO friends (user_id_1, user_id_2, updated_at)
+                VALUES (${followerId}, ${user.id}, NOW())   
+            `)
+        }
+        return null;
     }
 
-    async unfollowUser(followerId: number, username: string) {
-        const user = await this.prisma.user.findUnique({
-            where: {
-                username,
-            },
-            select: {
-                id: true,
-            },
-        });
-
-        // const unfollow = await this.prisma.user.update({
-        //     where: {
-        //         id: followerId,
-        //     },
-        //     data: {
-        //     },
-        // });
-
-        // return unfollow;
+    async unfollowUser(userId: number, username: string) {
+        const q = await this.prisma.$queryRaw(Prisma.sql`
+        DELETE FROM friends
+        WHERE user_id_1 = ${userId}
+        AND user_id_2 IN (SELECT id FROM users WHERE username = ${username})
+        `);
+        return q
     }
 
     // checks if user follows the other user
-    async followsUser(followerId: number, username: string) {
+    async isfollowingsUser(userId1: number, username: string) {
         // check if user follows the other user without selecting any data
         const q = await this.prisma.$queryRaw(Prisma.sql`
-        SELECT * FROM friends
-        WHERE user_id_1 = ${followerId} AND user_id_2 = (SELECT id FROM users WHERE username = ${username})
-        OR user_id_2 = ${followerId} AND user_id_1 = (SELECT id FROM users WHERE username = ${username})
+        SELECT *
+        FROM friends 
+        WHERE user_id_1 IN (${userId1})
+        AND user_id_2 IN ((SELECT id FROM users WHERE username = ${username}))
         `
         );
         console.log({q});
-        return q ? true : false;
+        return !!q[0];
     }
 
     async getTopUsers(offset = 0, limit = 10) {
