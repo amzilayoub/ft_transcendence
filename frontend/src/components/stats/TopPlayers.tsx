@@ -9,13 +9,15 @@ import TitledCard from "@ui/TitledCard";
 import { getOrdinal } from "@utils/format";
 import { fetcher } from "@utils/swr.fetcher";
 import Image from "next/image";
+import { GOLDEN_RATIO } from "@utils/constants";
 
 interface IPlayer {
   id: string;
   username: string;
   avatar_url: string;
-  xp: number;
-  rank: number;
+  // xp: number;
+  // rank: number;
+  score: number;
 }
 
 // const MOCK_PLAYER: IPlayer = {
@@ -45,11 +47,14 @@ const OrdinalBadge = ({ rank }: { rank: number }) => (
   </div>
 );
 
-const PlayerInfo = (player: IPlayer) => (
+const PlayerInfo = ({player, rank} : {
+  player: IPlayer,
+  rank: number
+}) => (
   <div className="relative flex w-full gap-x-4 px-5 py-3 w-full">
-    {player.score < 4 && (
+    {rank < 4 && (
       <div className="absolute -top-2 -right-2">
-        <OrdinalBadge rank={player.score} />
+        <OrdinalBadge rank={rank} />
       </div>
     )}
     <Link
@@ -69,7 +74,7 @@ const PlayerInfo = (player: IPlayer) => (
         <p className="font-semibold w-full min-w-full">{player.username}</p>
       </div>
     <div className="flex w-full items-end justify-end">
-      <p className="text-gray-500">{player.xp} XP</p>
+      <p className="text-sm text-gray-500">{player.score * GOLDEN_RATIO} XP</p>
     </div>
   </div>
 );
@@ -84,14 +89,14 @@ const TopPlayers = () => {
     <div className="w-full sm:max-w-max min-w-[300px]">
       <TitledCard
         title="Top Players"
-        actions={
-          <button
-            // onClick={() => setSeeAll(true)}
-            className="text-sm font-semibold text-primary"
-          >
-            See All
-          </button>
-        }
+        // actions={
+        //   <button
+        //     // onClick={() => setSeeAll(true)}
+        //     className="text-sm font-semibold text-primary"
+        //   >
+        //     See All
+        //   </button>
+        // }
       >
         <ul className="flex flex-col gap-y-3 p-2">
           {!players?.length && (
@@ -102,7 +107,7 @@ const TopPlayers = () => {
               key={player.id}
               className="flex flex-col gap-y-3 rounded-lg border shadow-lg  duration-200 hover:shadow-xl"
             >
-              <PlayerInfo {...player} rank={idx + 1} />
+              <PlayerInfo player={player} rank={idx + 1} />
             </li>
           ))}
         </ul>

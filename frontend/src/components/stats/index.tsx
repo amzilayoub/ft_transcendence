@@ -9,6 +9,7 @@ import { SiMediafire } from "react-icons/si";
 import useUserStats from "@hooks/useUserStats";
 
 import PlayerStatsChart from "./RadarChart";
+import { GOLDEN_RATIO } from "@utils/constants";
 
 const StatItem = ({
   icon,
@@ -43,7 +44,7 @@ const UserStats = ({ userID }: { userID: number }) => {
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const stats = useUserStats(userID, true);
   return (
-    <nav className="flex max-h-[500px] flex-col gap-y-4 rounded-xl border bg-white px-4 py-5 shadow-lg">
+    <nav className="flex max-h-[500px] flex-col gap-y-4 rounded-xl border bg-white px-4 py-5 shadow-lg min-w-[300px]">
       <div className="flex items-center justify-between">
         <p className="text-xl font-bold text-gray-900">Stats</p>
       </div>
@@ -77,9 +78,20 @@ const UserStats = ({ userID }: { userID: number }) => {
           className="text-blue-500"
         />
       </ul>
-      <div className="flex justify-center">
-        <PlayerStatsChart />
-      </div>
+      {/* <div className="flex justify-center">
+        <PlayerStatsChart 
+          data={
+            {
+              // data: [data.total_games, data.total_points, data.losses, data.winRate, data.wins * 1.2],
+              wins: stats.data?.wins || 0,
+              losses: stats.data?.losses || 0,
+              total_games: stats.data?.gamesPlayed || 0,
+              total_points: (stats.data?.wins || 0) * 1.4,
+              winRate: stats.data?.wins && stats.data?.losses ? Math.round((stats.data?.wins / stats.data?.gamesPlayed) * 100) : 0,
+            }
+          }
+        />
+      </div> */}
     </nav>
   );
 };

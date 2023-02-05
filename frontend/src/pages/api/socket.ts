@@ -285,10 +285,10 @@ const handler = (req, res) => {
           (id) => id !== socket.id
         );
         game = games[roomKeys[roomID!]];
-        if (!game || !game.gameReady) return;
+        if (!game || !game.p1 || !game.p2 || !game.gameReady) return;
         if (
-          (goalOf && game.p1?.userID === userID) ||
-          (!goalOf && game.p2?.userID === userID)
+          (goalOf && game.p1.userID === userID) ||
+          (!goalOf && game.p2.userID === userID)
         ) {
           game.p1.score++;
         } else {

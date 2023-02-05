@@ -97,18 +97,17 @@ const LastGames = ({ userId }: { userId: number }) => {
     fetcher
   );
 
-  console.log("D:", data);
   return (
     <>
-      <nav className="flex min-h-[400px] flex-col gap-y-4 rounded-xl border bg-white px-4 py-5 shadow-lg #max-w-lg">
+      <nav className="flex min-h-[400px] flex-col gap-y-4 rounded-xl border bg-white px-4 py-5 shadow-lg #max-w-lg w-full">
         <div className="flex items-center justify-between">
           <p className="text-xl font-bold text-gray-900">Recent Games</p>
-          <button
+          {/* <button
             onClick={() => setSeeAll(true)}
             className="text-sm font-semibold text-primary"
           >
             See all
-          </button>
+          </button> */}
         </div>
         <div className="h-px bg-gray-200 " />
         {isLoading ? (

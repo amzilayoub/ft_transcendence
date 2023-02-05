@@ -281,8 +281,8 @@ export class pongScene extends Scene {
             break;
           case 3:
             applyMode(mode);
-            myScore.text = p1Score.toString();
-            opponentScore.text = p2Score.toString();
+            myScore.text = (p1Score || 0).toString();
+            opponentScore.text = (p2Score || 0).toString();
             this.switchUI(serverGameStarted);
             startText.text = "Waiting for Game to Start";
             break;
@@ -506,7 +506,7 @@ export class pongScene extends Scene {
         } else if (p1 && gameStarted && midGame) {
           lastTime = lastTime || time;
 
-          if (time - lastTime >= 10000 && !powerUp.visible) {
+          if (time - lastTime >= 5000 && !powerUp.visible) {
             //console.log("powerup");
 
             socket.emit("powerup", {

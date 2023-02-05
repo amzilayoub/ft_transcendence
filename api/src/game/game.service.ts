@@ -136,7 +136,6 @@ model games {
     
 
     async getStats(userID: number) {
-        //get count of games played, wins, losses
         const games = await this.prisma.games.findMany({
             where: {
                 OR: [

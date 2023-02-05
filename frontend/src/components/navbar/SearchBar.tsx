@@ -28,40 +28,37 @@ const UserListItem = ({
   user: PartialWithRequired<IUser, "username">;
 }) => {
   const ctx = useAuthContext();
+  const [
+    followState, setFollowState,
+  ] = useState<"following" | "not-following" | "loading">(
+    "loading",
+  );
+
+  const handleFollowUnfollow = async () => {
+    if (!user) return;
+    const resp = await basicFetch.get(`/users/${
+      followState === "following" ? "unfollow" : "follow"
+    }/${user.username}`);
+    if (resp.ok) {
+      setFollowState((prev) => (prev === "following" ? "not-following" : "following"));
+    }
+  };
+
   const [isFollowing, setIsFollowing] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
 
-  const handleFollowUnfollow = async () => {
-    if (isLoading) return;
-    try {
-      setIsLoading(true);
-      const url = isFollowing ? "/users/unfollow" : "/users/follow";
-      const res = await basicFetch.get(url + `/${user.username}`);
-      if (!res.ok) {
-        throw new Error("Error following user");
-      }
-      setIsFollowing(!isFollowing);
-    } catch (error) {
-      console.error(error);
-    }
-    setIsLoading(false);
-  };
-
   useEffect(() => {
-    (async () => {
-      if (isLoading) return;
-      try {
-        const res = await basicFetch.get("/users/follows/" + user.username);
-        if (!res.ok) {
-          throw new Error("Error checking if following");
-        }
-        setIsFollowing(true);
-      } catch (error) {
-        console.error(error);
-        setIsFollowing(false);
+    if (!user) return;
+    const fetchFollowState = async () => {
+      const resp = await basicFetch.get(`/users/follows/${user.username}`);
+      if (resp.status === 200) {
+        setFollowState("following");
+      } else {
+        setFollowState("not-following");
       }
-    })();
-  }, [user.username, isLoading]);
+    };
+    fetchFollowState();
+  }, [user]);
 
   return (
     <li className="flex items-center justify-between p-4 hover:bg-gray-100">
@@ -92,22 +89,22 @@ const UserListItem = ({
                 "hover/following:bg-red-600 shadow-lg": isFollowing,
               })}
             >
-              <>
-                {isFollowing ? (
-                  <>
-                    <span className="hidden text-sm  font-medium group-hover/following:block">
+                {
+                  followState === "following" ? (
+                    <span className="text-sm font-medium">
                       Unfollow
                     </span>
-                    <span className="ml-2 block text-sm  font-medium group-hover/following:hidden">
-                      Following
+                  ) : followState === "not-following" ? (
+                    <span className="text-sm font-medium">
+                      Follow
                     </span>
-                  </>
-                ) : (
-                  <span className="group-following:hidden text-sm font-medium">
-                    Follow
-                  </span>
-                )}
-              </>
+                  ) : (
+                    <span className="text-sm font-medium">
+                      Loading
+                    </span>
+                  )
+                  
+                }
             </Button>
           )
         }

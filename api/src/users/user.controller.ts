@@ -49,6 +49,13 @@ export class UserController {
         return followings;
     }
 
+    @Get(':username/friends')
+    async getFriends(@Req() req) {
+        const { username } = req.params;
+        const friends = await this.userService.getFriends(username);
+        return friends;
+    }
+
     @Get('followers/:username')
     async getFollowers(@Req() req) {
         const { username } = req.params;
