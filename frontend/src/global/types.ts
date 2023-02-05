@@ -41,6 +41,7 @@ export enum MemberGameStatus {
 export interface IUser {
   id: string;
   username: string;
+  nickname: string;
   first_name: string;
   last_name: string;
   twitterUsername?: string;

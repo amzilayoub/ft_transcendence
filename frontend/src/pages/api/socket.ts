@@ -192,10 +192,10 @@ const handler = (req, res) => {
 
         if (socket.id === game.p1?.socketID) {
           game.gameReady = false;
-          io.to(game.p2.socketID).emit("not_ready");
+          io.to(game.p2?.socketID).emit("not_ready");
         } else if (socket.id === game.p2?.socketID) {
           game.gameReady = false;
-          io.to(game.p1.socketID).emit("not_ready");
+          io.to(game.p1?.socketID).emit("not_ready");
         }
       });
 
@@ -250,6 +250,16 @@ const handler = (req, res) => {
         io.to(roomID!).emit("stop_game", win);
 
         try {
+          console.log("sending game to db");
+          console.log(
+          {
+              player_1: +game.p1.userID,
+              player_2: +game.p2.userID,
+              player_1_score: game.p1.score,
+              player_2_score: game.p2.score,
+              winner: +(win ? userID : game.p2.userID),
+              mode: game.mode,
+            });
           const resp = await basicFetch.post(
             "/games",
             {},
@@ -258,14 +268,16 @@ const handler = (req, res) => {
               player_2: +game.p2.userID,
               player_1_score: game.p1.score,
               player_2_score: game.p2.score,
-              winner: win ? game.p1.userID : game.p2.userID,
+              winner: +(win ? userID : game.p2.userID),
+              mode: game.mode,
             }
           );
+          console.log("game sent to db", resp);
           if (resp.data) {
-            //console.log(resp.data);
+            console.log(resp.data);
           }
         } catch (err) {
-          //console.log(err);
+          console.log(err);
         }
 
         game.p1.score = 0;

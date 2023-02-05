@@ -6,6 +6,7 @@ import { IoSettingsOutline } from "react-icons/io5";
 
 import DropDown from "@ui/DropDown";
 import { useUIContext } from "context/ui.context";
+import { truncateString } from "@utils/format";
 
 /**
  * TODO:
@@ -57,8 +58,7 @@ const ProfileNavMenu: React.FC<Props> = (props) => {
           />
           <div className="flex flex-col">
             <p className="flex items-center font-semibold ">
-              <span className="text-sm">{props.first_name}</span>
-              <span className="ml-1 text-sm">{props.last_name}</span>
+              <span className="text-sm">{truncateString(props.first_name + ' ' + props.last_name, 16)}</span>
             </p>
             <p className="flex items-center text-gray-500 hover:text-white group-hover:text-gray-300">
               @{props.username}

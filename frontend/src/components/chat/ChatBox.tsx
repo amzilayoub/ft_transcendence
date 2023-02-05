@@ -10,7 +10,7 @@ import { RxCross2 } from "react-icons/rx";
 
 import ChatroomSettingsModal from "@components/modals/chat/ChatroomSettingsModal";
 import basicFetch from "@utils/basicFetch";
-import { truncateString } from "@utils/format";
+import { isURL, truncateString } from "@utils/format";
 import {
   IConversation,
   IMessage,
@@ -48,7 +48,23 @@ const Message = ({
         <span className={cn("inline-block px-4 py-2", {})}>
           {message.split("\n").map((item, key) => (
             <span key={key}>
-              {item}
+              {
+                isURL(item) ? (
+                  <a
+                    href={item.replace(
+                      window.location.origin,
+                      ""
+                    )}
+                    target="_blank"
+                    rel="noreferrer"
+                    className="text-blue-500"
+                  >
+                    {item}
+                  </a>
+                ) : (
+                 item
+                )
+              }
               <br />
             </span>
           ))}
@@ -58,10 +74,28 @@ const Message = ({
       <Image
         src={senderAvatar || "/public/images/default_avatar.jpg"}
         alt="Sender Avatar"
-        width={24}
-        height={24}
-        className="rounded-full"
+        width={100}
+              height={100}
+              className="rounded-full h-6 w-6"
       />
+
+{/* <div className="relative">
+            <Image
+              src={
+                conversationMetaData?.avatar_url ||
+                "/public/images/default_avatar.jpg"
+              }
+              alt={`${conversationMetaData?.name || "User"}'s avatar`}
+              // width={showChatBox ? 44 : 32}
+              // height={showChatBox ? 44 : 32}
+              width={100}
+              height={100}
+              className={cn("rounded-full", {
+                "h-10 w-10": showChatBox,
+                "h-9 w-9": !showChatBox,
+              })}
+            /> */}
+
     </div>
   </li>
 );
@@ -291,6 +325,7 @@ const ChatBox = ({
         {
           "transition-close-bubble w-[340px] h-[500px]": showChatBox,
           "transition-open-bubble h-12 w-[240px]": !showChatBox,
+          "shadow-primary/70": conversationMetaData.type !== "dm",
         }
       )}
     >
@@ -301,7 +336,7 @@ const ChatBox = ({
           {
             "p-3": showChatBox,
             "p-2": !showChatBox,
-            "bg-primary/80": conversationMetaData.type !== "dm",
+            "bg-primary/90": conversationMetaData.type !== "dm",
           }
         )}
       >
@@ -314,9 +349,14 @@ const ChatBox = ({
                 "/public/images/default_avatar.jpg"
               }
               alt={`${conversationMetaData?.name || "User"}'s avatar`}
-              width={showChatBox ? 44 : 32}
-              height={showChatBox ? 44 : 32}
-              className="rounded-full"
+              // width={showChatBox ? 44 : 32}
+              // height={showChatBox ? 44 : 32}
+              width={100}
+              height={100}
+              className={cn("rounded-full", {
+                "h-10 w-10": showChatBox,
+                "h-9 w-9": !showChatBox,
+              })}
             />
             {conversationMetaData.type === "dm" && (
               <svg
@@ -342,7 +382,7 @@ const ChatBox = ({
               </svg>
             )}
           </div>
-          {showChatBox ? (
+          {showChatBox && conversationMetaData.type === "dm" ? (
             <Link
               href={`/u/${conversationMetaData.name}`}
               onClick={(e) => {

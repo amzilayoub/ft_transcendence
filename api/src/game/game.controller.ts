@@ -15,7 +15,8 @@ export class GameController {
     constructor(private readonly gameService: GameService) {}
 
     @Post()
-    create(@Body() createGameDto: CreateGameDto) {
+    create(@Body() createGameDto: any) {
+        console.log('createGameDto:', createGameDto);
         return this.gameService.create(createGameDto);
     }
 

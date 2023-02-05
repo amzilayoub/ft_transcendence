@@ -2,7 +2,7 @@ import React, { useEffect, useState } from "react";
 
 import { io } from "socket.io-client";
 
-import { toastNewMessage } from "@components/toast";
+import { toastGameChallenge, toastNewMessage } from "@components/toast";
 import basicFetch from "@utils/basicFetch";
 import { useAuthContext } from "context/auth.context";
 import { useChatContext } from "context/chat.context";
@@ -88,8 +88,14 @@ const ChatStuff = () => {
         });
       });
 
-      socket?.on("sendInvite", (obj) => {
-        toastNewMessage(obj.data.room.avatar_url);
+      socket?.on("sendInvite", (data) => {
+        console.log(data);
+        
+        toastGameChallenge(
+          data.username,
+          data.avatar_url,
+          data.message,
+        );
       });
 
       socket?.on("userConnect", (resp) => {

@@ -185,6 +185,7 @@ export class ChatGateway {
 
         this.server.to(body.message).emit('sendInvite', {
             username: user['username'],
+            avatar_url: user['avatar_url'],
             message: body.message,
         });
         // //console.log("@", clientId);
@@ -531,8 +532,8 @@ export class ChatGateway {
     }
 
     getTokenFromCookie(@ConnectedSocket() client: any) {
-        // if (!client.handshake.headers.cookie)
-        //     return null;
+        if (!client.handshake.headers.cookie)
+            return null;
         // //console.log("@@@@@@@@@@@@", client.handshake.headers.cookie)
         const authToken = this.cookie.parse(client.handshake.headers.cookie)[
             'Authentication'

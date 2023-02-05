@@ -15,6 +15,7 @@ model user {
     intra_id Int?
 
     username           String?  @unique
+    nickname           String?  @unique
     email              String   @unique
     intra_url          String?
     first_name         String?
@@ -183,10 +184,6 @@ model notification_type {
     notifications notifications[]
 }
 
-enum GAME_MODE {
-    CLASSIC
-    POWER_UP
-}
 
 model games {
     id Int @id @default(autoincrement())
@@ -201,9 +198,8 @@ model games {
     player_2_score Int
 
     winner Int
-    mode GAME_MODE
+    mode  String
 
     created_at DateTime @default(now())
-    updated_at DateTime @updatedAt
 }
 

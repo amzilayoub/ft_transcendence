@@ -63,7 +63,7 @@ export class UserService {
                     id: id,
                 },
                 data: {
-                    username: updateUserDto.username,
+                    nickname: updateUserDto.nickname,
                     first_name: updateUserDto.first_name,
                     last_name: updateUserDto.last_name,
                     bio: updateUserDto.bio,
@@ -75,6 +75,10 @@ export class UserService {
         } catch (error) {
             //console.log(error);
             if (error instanceof PrismaClientKnownRequestError) {
+                throw error;
+            }
+            // if field is not unique
+            if (error.code === 'P2002') {
                 throw error;
             }
         }

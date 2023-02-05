@@ -51,11 +51,13 @@ const SocialLink = ({
 const UserInfo = ({
   fullName,
   username,
+  nickname,
   bio,
   links,
 }: {
   fullName: string;
   username: string;
+  nickname: string;
   bio: string;
   links: {
     twitter: string | null;
@@ -66,7 +68,7 @@ const UserInfo = ({
     <div className="flex h-full items-start justify-between p-5 sm:px-6">
       <header className="flex flex-col ">
         {fullName && (
-          <p className="text-2xl font-bold text-gray-900">{fullName}</p>
+          <p className="text-2xl font-bold text-gray-900">{fullName} <span>| {nickname}</span></p>
         )}
         <p className="text-sm font-normal text-gray-400">@{username}</p>
         <p className="text-base">{bio}</p>
@@ -221,6 +223,7 @@ const UserInfoHeader = ({
                 <UserInfo
                   fullName={`${user?.first_name} ${user?.last_name}`}
                   username={user?.username as string}
+                  nickname={user?.nickname}
                   bio={user?.bio}
                   links={{
                     twitter: user?.twitterUsername!,
@@ -285,7 +288,7 @@ export default function ProfilePage() {
           />
           <UserStats username={username} />
         </div>
-        <LastGames username={username} />
+        <LastGames userId={user.data?.id} />
       </div>
 
       {/* Modals */}

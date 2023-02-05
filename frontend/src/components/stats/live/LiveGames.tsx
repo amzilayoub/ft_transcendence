@@ -8,34 +8,6 @@ import TitledCard from "@ui/TitledCard";
 import { truncateString } from "@utils/format";
 import { IGame } from "@utils/game/IGame";
 
-const GameSummary = dynamic(
-  () => import("@components/stats/History").then((mod) => mod.GameSummary),
-  {
-    ssr: false,
-  }
-);
-
-const MOCK_GAMES: IGame[] = [
-  {
-    id: "1",
-    viewsCount: 3,
-    player1: {
-      id: "1",
-      username: "Aristotle",
-      avatar_url:
-        "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSZpSv4PVhx_Bc7QOyklw0fNTpHr6K1px9Rzw&usqp=CAU",
-      score: 5,
-    },
-    player2: {
-      id: "2",
-      username: "Plato",
-      avatar_url:
-        "https://images.saymedia-content.com/.image/c_limit%2Ccs_srgb%2Cq_auto:eco%2Cw_700/MTgwMDE1OTM1MjA4NjI5Mzcw/the-ancient-greek-philosopher-plato-his-life-and-works.webp",
-      score: 4,
-    },
-  },
-];
-
 const LiveGame = ({ game }: { game: IGame }) => (
   <div className="flex w-full items-center justify-between rounded-lg px-3 py-2 shadow-lg hover:shadow-xl">
     <div className="flex w-full flex-col">
