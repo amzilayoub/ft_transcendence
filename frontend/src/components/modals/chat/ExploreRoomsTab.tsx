@@ -27,7 +27,6 @@ const RoomListItem = ({
 
   const handleJoinRoom = async () => {
     await joinRoom();
-    onJoinRoom();
   };
 
   const joinRoom = async () => {
@@ -37,14 +36,17 @@ const RoomListItem = ({
       {
         roomId: room.id,
         password: roomPassword,
+        passCheck: false,
       }
     );
+    console.log("join = ", res);
     if (res.status == 201) {
       setShowPasswordModal(false);
       setPasswordIsCorrect(true);
       socket.emit("joinRoom", {
         roomId: room.id,
       });
+      onJoinRoom();
     } else if (res.status == 401) {
       setPasswordIsCorrect(false);
     }

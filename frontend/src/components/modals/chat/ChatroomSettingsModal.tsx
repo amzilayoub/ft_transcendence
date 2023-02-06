@@ -494,6 +494,7 @@ const ChatroomSettingsModal = ({
             roomTypeName: settings.roomeType || "public",
             avatarUrl: file_data?.secure_url || roomData.avatar_url,
             roomId: roomData.room_id,
+            description: settings.description || roomData.description,
           }
         );
 
@@ -505,6 +506,7 @@ const ChatroomSettingsModal = ({
               if (item.room_id == roomData.room_id) {
                 item.avatar_url = file_data?.secure_url || roomData.avatar_url;
                 item.name = settings.name || roomData.name;
+                item.description = settings.description || roomData.description;
               }
             });
             return newState;
@@ -544,6 +546,7 @@ const ChatroomSettingsModal = ({
               roomData={roomData}
               setAvatar={setRoomAvatar}
               setSettings={setSettings}
+              myRole={myRole}
             />
           )}
         </div>

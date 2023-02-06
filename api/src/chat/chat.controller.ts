@@ -272,6 +272,7 @@ export class ChatController {
             roomInfoDto.name,
             roomInfoDto.avatarUrl,
             roomInfoDto.roomId,
+            roomInfoDto.description,
         );
 
         const roomType = await this.chatService.getRoomType(
