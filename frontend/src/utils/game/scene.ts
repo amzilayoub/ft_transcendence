@@ -2,8 +2,8 @@ import Router from "next/router";
 import { Scene } from "phaser";
 import { io, Socket } from "socket.io-client";
 
-const defaultPaddleSpeed = 650;
-const defaultBallSpeed = 500;
+const defaultPaddleSpeed = 550;
+const defaultBallSpeed = 400;
 const defaultScale = 0.5;
 let ballSpeed = defaultBallSpeed;
 let paddleSpeed = defaultPaddleSpeed;
@@ -73,23 +73,16 @@ export class pongScene extends Scene {
 
         ball.setVelocity(
           Math.cos(angle) * ballSpeed,
-          Math.sin(angle) *
-            ballSpeed *
-            (paddle.body.velocity.y > 0 ? 1 : -1) *
-            (ball.x < centerX ? 1 : -1)
+          Math.sin(angle) * ballSpeed * (paddle.body.velocity.y > 0 ? 1 : -1)
         );
         const newBall = {
-          pos: {
-            x: ball.x,
-            y: ball.y,
-          },
-          vel: {
-            x: ball.body.velocity.x,
-            y: ball.body.velocity.y,
-          },
+          x: ball.x,
+          y: ball.y,
+          vx: ball.body.velocity.x,
+          vy: ball.body.velocity.y,
         };
 
-        socket.emit("ball_sync", newBall);
+        socket.emit("ball_sync", newBall, true);
       }
     });
     return paddle;
@@ -232,8 +225,8 @@ export class pongScene extends Scene {
       });
 
       socket.on("ping", (t0) => {
-        const ping = performance.now() - t0;
-
+        let ping = performance.now() - t0;
+        ping = ping > 999 ? 999 : ping;
         pingText.text = `ping: ${ping.toFixed()}ms`;
       });
 
@@ -351,18 +344,20 @@ export class pongScene extends Scene {
         else if (idx === 2) paddle2.y = py;
       });
 
-      socket.on("ball_sync", (newBall) => {
+      socket.on("ball_sync", (newBall, touch) => {
         //clear effects
-        if (powerUpMode) {
+        console.log(touch);
+        
+        if (powerUpMode && touch) {
           // ballSpeed = defaultBallSpeed;
           paddle1.setScale(scale);
           paddle2.setScale(scale);
           ball.setScale(scale).setAlpha(1);
         }
-        ball.setX(p2 ? width - newBall.pos.x : newBall.pos.x);
-        ball.setY(newBall.pos.y);
-        ball.setVelocityX(newBall.vel.x * (p2 ? -1 : 1));
-        ball.setVelocityY(newBall.vel.y);
+        ball.setX(p2 ? width - newBall.x : newBall.x);
+        ball.setY(newBall.y);
+        ball.setVelocityX(newBall.vx * (p2 ? -1 : 1));
+        ball.setVelocityY(newBall.vy);
       });
 
       socket.on("powerup", (serverPowerUp) => {
@@ -525,6 +520,16 @@ export class pongScene extends Scene {
     tickCount++;
     if (tickCount === 60) {
       tickCount = 0;
+      if (p1) {
+        let newBall = {
+          x: ball.x,
+          y: ball.y,
+          vx: ball.body.velocity.x,
+          vy: ball.body.velocity.y,
+        };
+        socket.emit("ball_sync", newBall, false);
+
+      }
 
       socket.emit("ping", performance.now());
     }
