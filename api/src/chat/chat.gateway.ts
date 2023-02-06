@@ -50,6 +50,7 @@ export class ChatGateway {
         let user = this.getUserInfo(client);
         if (user === null) return { status: 401 };
         user = await this.authService.getMe(user['id']);
+        if (!user) return;
         const userRooms = await this.chatService.getUserRooms(user['id']);
         if (user['id'] in this.connectedClient) {
             this.connectedClient[user['id']]['duplicatedSockets'].push(client);

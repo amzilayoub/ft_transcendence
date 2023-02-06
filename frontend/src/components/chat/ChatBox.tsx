@@ -47,7 +47,7 @@ const Message = ({
       >
         <span className={cn("inline-block px-4 py-2", {})}>
           {message.split("\n").map((item, key) => (
-            <span key={key}>
+            <span key={key} className="break-all">
               {isURL(item) ? (
                 <a
                   href={item.replace(window.location.origin, "")}
