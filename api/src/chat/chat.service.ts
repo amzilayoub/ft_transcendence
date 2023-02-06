@@ -199,7 +199,7 @@ export class ChatService {
 				AND room_type.type = 'dm'
 				AND room.id = ${roomId}
 				AND room_user_rel.user_id IN (${userId})
-				AND (blacklist.user_id = ${userId} OR blacklist.blocked_user_id = ${userId})
+				AND (blacklist.blocked_user_id = ${userId})
 			) > 0
 		`);
     }
