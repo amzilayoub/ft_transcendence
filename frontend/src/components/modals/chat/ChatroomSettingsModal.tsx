@@ -43,19 +43,20 @@ const MemberListItem = ({
   onCloseActiveBox: () => {};
   socket: any;
 }) => {
-  useEffect(() => {
-    if (myRole == undefined) {
-      onCloseActiveBox();
-      onClose();
-      setConversationsMetadata((allConv) => {
-        return allConv.filter((cnv) => cnv.room_id != roomId);
-      });
-      console.log("You don't have access to this room");
-    } else myRole = myRole.toLocaleLowerCase();
-  }, []);
-
-  const [memberRole, setMemberRole] = useState(member.membershipStatus);
-
+	
+	const [memberRole, setMemberRole] = useState(member.membershipStatus);
+	
+	useEffect(() => {
+	  if (myRole == undefined) {
+		onCloseActiveBox();
+		onClose();
+		setConversationsMetadata((allConv) => {
+		  return allConv.filter((cnv) => cnv.room_id != roomId);
+		});
+		console.log("You don't have access to this room");
+	  } else myRole = myRole.toLocaleLowerCase();
+	}, []);
+	
   const handleMute = async (userId: number, muted: boolean) => {
     const resp = await basicFetch.post(
       "/chat/room/mute",
@@ -276,11 +277,17 @@ const MemberListItem = ({
                         { value: "admin", label: "Admin" },
                         { value: "member", label: "Member" },
                       ]}
+                    //   value={{
+                    //     value: member.membershipStatus,
+                    //     label:
+                    //       member.membershipStatus.charAt(0).toUpperCase() +
+                    //       member.membershipStatus.slice(1),
+                    //   }}
                       value={{
-                        value: member.membershipStatus,
+                        value: memberRole,
                         label:
-                          member.membershipStatus.charAt(0).toUpperCase() +
-                          member.membershipStatus.slice(1),
+                          memberRole.charAt(0).toUpperCase() +
+                          memberRole.slice(1),
                       }}
                       onChange={(option: any) => {
                         handleRoleChange(member.id, option.value);
