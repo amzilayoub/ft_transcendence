@@ -83,7 +83,6 @@ const TopPlayers = () => {
   const { data: players, error } = useSWR("/users/stats/top-players", fetcher, {
     // revalidateOnFocus: false,
   });
-  console.log({ players });
 
   return (
     <div className="w-full sm:max-w-max min-w-[300px]">
