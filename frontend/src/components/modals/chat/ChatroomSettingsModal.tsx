@@ -528,9 +528,19 @@ const ChatroomSettingsModal = ({
 
   const handleDeleteRoom = async () => {
     try {
-      const res = await basicFetch.get(`/chat/room/${roomData.room_id}/delete`);
+      const res = await basicFetch.post(
+        `/chat/room/delete`,
+        {},
+        {
+          roomId: roomData.room_id,
+        }
+      );
       if (res.ok) {
+        onCloseActiveBox();
         onClose();
+        setConversationsMetadata((allConv) => {
+          return allConv.filter((cnv) => cnv.room_id != roomData.room_id);
+        });
       }
     } catch (error) {
       //console.log(error);

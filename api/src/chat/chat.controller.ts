@@ -337,4 +337,19 @@ export class ChatController {
         }
         throw new HttpException('Unauthorized', HttpStatus.UNAUTHORIZED);
     }
+    @Post('/room/delete')
+    async deleteRoom(
+        @Req() request: RequestWithUser,
+        @Body('roomId') roomId: number,
+    ) {
+        const user = await this.authService.getMe(request.user.id);
+
+        const myRole = (await this.chatService.getMyRole(user.id, roomId))[0];
+
+        if (myRole.role == 'owner') {
+            await this.chatService.deleteRoom(roomId);
+            return true;
+        }
+        throw new HttpException('UNAUTHORIZED', HttpStatus.UNAUTHORIZED);
+    }
 }
