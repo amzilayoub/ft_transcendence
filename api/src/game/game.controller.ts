@@ -15,7 +15,6 @@ export class GameController {
 
     @Post()
     create(@Body() createGameDto: any) {
-        console.log('createGameDto:', createGameDto);
         return this.gameService.create(createGameDto);
     }
 

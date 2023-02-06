@@ -63,6 +63,7 @@ const ChatActionsModal = ({
               className={cn("rounded-xl bg-white p-1")}
             >
               <CreateRoomTab
+                // key={"create-room-tab"}
                 createRoom={createRoom}
                 onSuccess={() => onClose()}
               />

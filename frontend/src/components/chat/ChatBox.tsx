@@ -448,11 +448,7 @@ const ChatBox = ({
           // eslint-disable-next-line tailwindcss/no-custom-classname
           className="scrolling-touch scrollbar-thumb scrollbar-thumb-rounded scrollbar-track scrollbar-w-2 flex h-full flex-col space-y-4 overflow-y-scroll p-3"
         >
-          {conversation?.messages?.map((message: IMessage, index: number) => {
-            
-            console.log("####", message);
-            
-            return(
+          {conversation?.messages?.map((message: IMessage, index: number) => (
             <Message
               key={`message-${message.id}-${index}`}
               message={message.message}
@@ -461,7 +457,7 @@ const ChatBox = ({
                 message?.avatar_url || message?.senderAvatar|| "/images/default-avatar.png"
               }
               isMe={message.isMe}
-            />)}
+            />)
           )}
           <div ref={bottomDivRef}></div>
         </ul>
