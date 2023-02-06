@@ -327,7 +327,7 @@ export class ChatController {
             await this.chatService.getMyRole(user.id, addRoleDto.roomId)
         )[0];
 
-        if (['Admin', 'Owner'].includes(myRole.role)) {
+        if (['Admin', 'Owner', 'admin', 'owner'].includes(myRole.role)) {
             await this.chatService.updateUserRole(
                 addRoleDto.userId,
                 addRoleDto.roomId,

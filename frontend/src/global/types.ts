@@ -28,7 +28,6 @@ export enum RoomType {
 export enum MembershipStatus {
   OWNER = "owner",
   MEMBER = "member",
-  MODERATOR = "moderator",
 }
 
 export enum MemberGameStatus {
