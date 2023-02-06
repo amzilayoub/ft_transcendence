@@ -267,10 +267,10 @@ const MemberListItem = ({
                         { value: "member", label: "Member" },
                       ]}
                       value={{
-                        value: memberRole,
+                        value: member.membershipStatus,
                         label:
-                          memberRole.charAt(0).toUpperCase() +
-                          memberRole.slice(1),
+                          member.membershipStatus.charAt(0).toUpperCase() +
+                          member.membershipStatus.slice(1),
                       }}
                       onChange={(option: any) => {
                         handleRoleChange(member.id, option.value);
@@ -469,39 +469,42 @@ const ChatroomSettingsModal = ({
     setButtonText("Saving...");
 
     try {
+      //   if (roomAvatar) {
+      let file_data = {};
       if (roomAvatar) {
         setButtonText("Uploading...");
-        const file_data = await uploadFile(roomAvatar);
-        if (file_data) {
-          const resp = await basicFetch.post(
-            "/chat/room/update-info",
-            {},
-            {
-              name: settings.name,
-              roomTypeName: settings.roomeType || "public",
-              avatarUrl: file_data.secure_url || null,
-              roomId: roomData.room_id,
-            }
-          );
-
-          if (resp.status == 201) {
-            await resp.json();
-            setConversationsMetadata((state) => {
-              const newState = [...state];
-              newState.forEach((item) => {
-                if (item.room_id == roomData.room_id) {
-                  item.avatar_url = file_data.secure_url || null;
-                  item.name = settings.name;
-                }
-              });
-              return newState;
-            });
-            setButtonText("Saving...");
-            setIsSaving(false);
-            setButtonText("Save");
-            onClose();
+        file_data = await uploadFile(roomAvatar);
+      }
+      if (file_data || roomData.avatar_url) {
+        const resp = await basicFetch.post(
+          "/chat/room/update-info",
+          {},
+          {
+            name: settings.name || roomData.name,
+            roomTypeName: settings.roomeType || "public",
+            avatarUrl: file_data?.secure_url || roomData.avatar_url,
+            roomId: roomData.room_id,
           }
+        );
+
+        if (resp.status == 201) {
+          await resp.json();
+          setConversationsMetadata((state) => {
+            const newState = [...state];
+            newState.forEach((item) => {
+              if (item.room_id == roomData.room_id) {
+                item.avatar_url = file_data?.secure_url || roomData.avatar_url;
+                item.name = settings.name || roomData.name;
+              }
+            });
+            return newState;
+          });
+          setButtonText("Saving...");
+          setIsSaving(false);
+          setButtonText("Save");
+          onClose();
         }
+        // }
       }
     } catch (error) {
       //console.log(error);
