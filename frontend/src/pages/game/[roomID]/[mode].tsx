@@ -4,10 +4,24 @@ import { useRouter } from "next/router";
 
 import Pong from "@components/game/pong";
 import MainLayout from "@components/layout";
-import Button from "@ui/Button";
 import { useAuthContext } from "context/auth.context";
+import { io } from "socket.io-client";
 
 const Game = () => {
+
+  // let [socketIO, setSocketIO] = useState(null);
+
+  // useEffect(() => {
+  //   let socket = io(`${process.env.NEXT_PUBLIC_SOCKET_URL}/chat`, {
+  //     withCredentials: true, // this is needed to send cookies
+  //     transports: ["websocket"],
+  //   });
+  //   socket.emit("userConnect", {}, (resp) => {
+  //   });
+  //   setSocketIO(socket);
+  // }, []);
+
+  
   const [pageLoaded, setPageLoaded] = useState(false);
   const ctx = useAuthContext();
   const router = useRouter();

@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React from "react";
 
 import cn from "classnames";
 import Image from "next/image";
@@ -6,8 +6,6 @@ import Link from "next/link";
 
 import { fetcher } from "@utils/swr.fetcher";
 import useSWR from "swr/immutable";
-import { useChatContext } from "context/chat.context";
-
 
 const Friend = (props: {
 	  username: string;
@@ -15,11 +13,7 @@ const Friend = (props: {
 	  nickname: string;
 	  userStatus: string;
   }) => (
-	<div
-	  className={cn(
-		"flex gap-x-4 border-black p-2 w-full h-full items-center",
-	  )}
-	>
+	<div className="flex gap-x-4 border-black p-2 w-full h-full items-center" >
 	  <Link href={`/u/${props.username}`} className="flex items-center w-full gap-x-2 relative">
 			<Image
 			  src={props.avatar_url}
@@ -48,21 +42,16 @@ const Friend = (props: {
 	  </Link>
 	</div>
   );
-  
 
 const FriendsList = ({ username } : { username: string }) => {
-	const { data, isLoading, mutate } = useSWR(
+	const { data, isLoading } = useSWR(
 		username !== undefined ? `/users/${username}/friends` : null,
 		fetcher, 
-	  { revalidateOnFocus: false },
+	  { 
+		refreshInterval: 2000,
+		
+	   },
 	);
-
-	let [socketIO, setSocketIO] = useState(null);
-	const {
-		conversationsMetadata,		
-	} = useChatContext(socketIO);
-
-	console.log(conversationsMetadata);
 	
 	return (
 	  <>
@@ -75,12 +64,12 @@ const FriendsList = ({ username } : { username: string }) => {
 			<p>Loading...</p>
 		  ) : (
 			<ul className="flex flex-col gap-y-2 ">
-			  {data?.slice(0, 10).map((friend) => (
+			  {data?.slice(0, 10).map((friend: any) => (
 				<li
 				  key={friend.id}
 				  className="rounded-md border border-gray-100"
 				>
-					<Friend {...friend} userStatus={conversationsMetadata.find((conv) => conv.id === friend.id)?.userStatus} />
+					<Friend {...friend} userStatus={friend.status} />
 				</li>
 			  ))}
 			</ul>

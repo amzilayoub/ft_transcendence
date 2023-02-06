@@ -92,7 +92,6 @@ export class UserController {
         const { username } = req.params;
         const { id } = req.user;
         const follows = await this.userService.isfollowingsUser(id, username);
-        console.log({follows});
         if (follows) {
             return res.status(200).send();
         }
