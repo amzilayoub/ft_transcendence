@@ -90,8 +90,6 @@ const ChatStuff = () => {
       });
 
       socket?.on("sendInvite", (data) => {
-        console.log(data);
-
         toastGameChallenge(data.username, data.avatar_url, data.message);
       });
 

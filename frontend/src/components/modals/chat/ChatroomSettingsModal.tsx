@@ -44,7 +44,6 @@ const MemberListItem = ({
   socket: any;
 }) => {
   useEffect(() => {
-    console.log();
     if (myRole == undefined) {
       onCloseActiveBox();
       onClose();
@@ -472,7 +471,6 @@ const ChatroomSettingsModal = ({
     try {
       if (roomAvatar) {
         setButtonText("Uploading...");
-        console.log({ settings });
         const file_data = await uploadFile(roomAvatar);
         if (file_data) {
           const resp = await basicFetch.post(
@@ -492,7 +490,6 @@ const ChatroomSettingsModal = ({
               const newState = [...state];
               newState.forEach((item) => {
                 if (item.room_id == roomData.room_id) {
-                  console.log({ item });
                   item.avatar_url = file_data.secure_url || null;
                   item.name = settings.name;
                 }
