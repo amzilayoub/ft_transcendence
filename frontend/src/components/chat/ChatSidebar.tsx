@@ -115,6 +115,7 @@ const ConversationMetadata = ({
   isBlocked: boolean;
   userStatus: string; // online, offline, playing
 }) => {
+  console.log({ userStatus });
   return (
     <div
       onClick={onConversationClick}

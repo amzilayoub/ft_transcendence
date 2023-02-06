@@ -46,8 +46,9 @@ export class ChatGateway {
     }
 
     async handleConnection(@ConnectedSocket() client: any) {
-        const user = this.getUserInfo(client);
+        let user = this.getUserInfo(client);
         if (user === null) return { status: 401 };
+        user = await this.authService.getMe(user['id']);
         const userRooms = await this.chatService.getUserRooms(user['id']);
         if (user['id'] in this.connectedClient) {
             this.connectedClient[user['id']]['duplicatedSockets'].push(client);
@@ -72,7 +73,8 @@ export class ChatGateway {
                 userId: user['id'],
             },
         });
-        await this.chatService.updateUserStatus(user['id'], 'online');
+        if (this.connectedClient[user['id']].status != 'in-game')
+            await this.chatService.updateUserStatus(user['id'], 'online');
     }
 
     async handleDisconnect(@ConnectedSocket() client: any) {
@@ -95,6 +97,22 @@ export class ChatGateway {
             },
         });
         await this.chatService.updateUserStatus(user['id'], 'offline');
+    }
+
+    @SubscribeMessage('userConnect')
+    async userConnectStatus(@ConnectedSocket() client: any) {
+        const user = this.getUserInfo(client);
+        if (user === null) return { status: 401 };
+        console.log('user connect = ', this.authService.getMe(user['id']));
+        this.connectedClient[user['id']].status = 'in-game';
+        this.server.emit('userConnect', {
+            status: 200,
+            data: {
+                mode: 'in-game',
+                userId: user['id'],
+            },
+        });
+        await this.chatService.updateUserStatus(user['id'], 'in-game');
     }
 
     @SubscribeMessage('createRoom')
