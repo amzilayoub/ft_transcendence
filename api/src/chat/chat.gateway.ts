@@ -7,6 +7,7 @@ import {
 } from '@nestjs/websockets';
 import { ChatService } from './chat.service';
 import {
+    BanFromRoom,
     BlockUserDto,
     CreateMessageDto,
     CreateRoomDto,
@@ -606,6 +607,57 @@ export class ChatGateway {
             return { status: 401 };
         }
         return returnVal;
+    }
+
+    @SubscribeMessage('room/ban')
+    async banUser(
+        @ConnectedSocket() client: any,
+        @MessageBody() banFromRoom: BanFromRoom,
+    ) {
+        const user = this.getUserInfo(client);
+        if (user === null) return { status: 401 };
+
+        const myRole = (
+            await this.chatService.getMyRole(user.id, banFromRoom.roomId)
+        )[0];
+        if (['admin', 'owner'].includes(myRole.role.toLowerCase()))
+            await this.chatService.banUserFromRoom(
+                banFromRoom.userId,
+                banFromRoom.roomId,
+                banFromRoom.banned,
+            );
+        else
+            return {
+                status: HttpStatus.FORBIDDEN,
+            };
+        if (this.connectedClient[banFromRoom.userId]) {
+            if (banFromRoom.banned) {
+                const socketId =
+                    this.connectedClient[banFromRoom.userId].clientId;
+                this.server.sockets
+                    .get(socketId)
+                    ?.leave(NAMESPACE + banFromRoom.roomId);
+                this.connectedClient[banFromRoom.userId][
+                    'duplicatedSockets'
+                ].forEach((item) => {
+                    item.leave(NAMESPACE + banFromRoom.roomId);
+                });
+            } else {
+                const socketId =
+                    this.connectedClient[banFromRoom.userId].clientId;
+                this.server.sockets
+                    .get(socketId)
+                    ?.join(NAMESPACE + banFromRoom.roomId);
+                this.connectedClient[banFromRoom.userId][
+                    'duplicatedSockets'
+                ].forEach((item) => {
+                    item.join(NAMESPACE + banFromRoom.roomId);
+                });
+            }
+        }
+        return {
+            status: HttpStatus.OK,
+        };
     }
 
     /*

@@ -79,27 +79,37 @@ const MemberListItem = ({
   };
 
   const handleBlock = async (userId: number, banned: boolean) => {
-    const resp = await basicFetch.post(
-      "/chat/room/ban",
-      {},
+    // const resp = await basicFetch.post(
+    //   "/chat/room/ban",
+    //   {},
+    //   {
+    //     roomId,
+    //     userId,
+    //     banned,
+    //   }
+    // );
+    socket.emit(
+      "room/ban",
       {
         roomId,
         userId,
         banned,
+      },
+      (resp) => {
+        if (resp.status == 200) {
+          setSearchResults((state) => {
+            const newState = [...state];
+
+            newState.forEach((item) => {
+              if (item.id == userId) item.isBanned = banned;
+            });
+            return newState;
+          });
+        } else {
+          alert("You don't have enough access rights to complete the action");
+        }
       }
     );
-    if (resp.status == 201) {
-      setSearchResults((state) => {
-        const newState = [...state];
-
-        newState.forEach((item) => {
-          if (item.id == userId) item.isBanned = banned;
-        });
-        return newState;
-      });
-    } else {
-      alert("You don't have enough access rights to complete the action");
-    }
   };
 
   const handleKick = async (userId: number) => {

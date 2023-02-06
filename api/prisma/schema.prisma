@@ -61,6 +61,8 @@ model room {
     created_at DateTime @default(now())
     updated_at DateTime @updatedAt
 
+    description String?
+
     room_user_rel room_user_rel[]
     messages      messages[]
     room_details  room_details[]
