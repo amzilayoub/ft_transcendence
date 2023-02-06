@@ -230,12 +230,12 @@ const handler = (req, res) => {
         io.to(roomID!).emit("sync", py, idx);
       });
 
-      socket.on("ball_sync", (newBall) => {
+      socket.on("ball_sync", (newBall, touch) => {
         // pls dont hak me
         const roomID = Array.from(socket.rooms.values()).find(
           (id) => id !== socket.id
         );
-        io.to(roomID!).emit("ball_sync", newBall);
+        io.to(roomID!).emit("ball_sync", newBall, touch);
       });
 
       socket.on("powerup", (powerUp) => {

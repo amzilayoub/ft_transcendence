@@ -108,17 +108,24 @@ export const RoomInfo = ({
               <div className="w-40">
                 <TextInputLabel label="Room Type" />
 
-                <Select
-                  value={{
-                    label:
-                      currentRoomTypeOptions.charAt(0).toUpperCase() +
-                      currentRoomTypeOptions.slice(1),
-                    value: currentRoomTypeOptions,
-                  }}
-                  options={roomTypeOptions}
-                  onChange={handleChange}
-                  isDisabled={String(myRole).toLocaleLowerCase() != "owner"}
-                />
+                <div className="relative">
+                  <Select
+                    // value={{
+                    //   label:
+                    //     currentRoomTypeOptions.charAt(0).toUpperCase() +
+                    //     currentRoomTypeOptions.slice(1),
+                    //   value: currentRoomTypeOptions,
+                    // }}
+                    options={roomTypeOptions}
+                    onChange={handleChange}
+                    isDisabled={String(myRole).toLocaleLowerCase() != "owner"}
+                  />
+                  <div className="absolute top-2 left-2 bg-white z-0 px-4 capitalize select-none pointer-events-none">
+                    <p>
+                      {currentRoomTypeOptions}
+                    </p>
+                  </div>
+                </div>
               </div>
             </div>
             <TextArea

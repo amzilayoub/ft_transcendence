@@ -58,6 +58,7 @@ export class RoomInfoDto {
     @IsString()
     roomTypeName: string;
 
+    @IsOptional()
     @IsString()
     description: string;
 }
