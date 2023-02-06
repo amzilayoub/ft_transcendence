@@ -52,7 +52,6 @@ const MemberListItem = ({
       setConversationsMetadata((allConv) => {
         return allConv.filter((cnv) => cnv.room_id != roomId);
       });
-      console.log("You don't have access to this room");
     } else myRole = myRole.toLocaleLowerCase();
   }, []);
 
@@ -224,7 +223,6 @@ const MemberListItem = ({
         role,
       }
     );
-    console.log({ resp });
     if (resp.status == 201) {
       setMemberRole(role);
     } else {
@@ -619,24 +617,28 @@ const ChatroomSettingsModal = ({
               )}
             </ul>
           </div>
-          <div className="flex h-full w-full items-end justify-end pt-5">
-            <div className="flex gap-x-2 ">
-              <Button
-                variant="danger"
-                onClick={() => setConfirmModalOpen(true)}
-              >
-                Delete Room
-              </Button>
-              <Button
-                variant="primary"
-                type="submit"
-                isLoading={isSaving}
-                onClick={handleSave}
-              >
-                {buttonText}
-              </Button>
+          {myRole == "owner" ? (
+            <div className="flex h-full w-full items-end justify-end pt-5">
+              <div className="flex gap-x-2 ">
+                <Button
+                  variant="danger"
+                  onClick={() => setConfirmModalOpen(true)}
+                >
+                  Delete Room
+                </Button>
+                <Button
+                  variant="primary"
+                  type="submit"
+                  isLoading={isSaving}
+                  onClick={handleSave}
+                >
+                  {buttonText}
+                </Button>
+              </div>
             </div>
-          </div>
+          ) : (
+            ""
+          )}
         </div>
       </div>
       {confirmModalOpen && (

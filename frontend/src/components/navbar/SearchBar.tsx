@@ -28,19 +28,21 @@ const UserListItem = ({
   user: PartialWithRequired<IUser, "username">;
 }) => {
   const ctx = useAuthContext();
-  const [
-    followState, setFollowState,
-  ] = useState<"following" | "not-following" | "loading">(
-    "loading",
-  );
+  const [followState, setFollowState] = useState<
+    "following" | "not-following" | "loading"
+  >("loading");
 
   const handleFollowUnfollow = async () => {
     if (!user) return;
-    const resp = await basicFetch.get(`/users/${
-      followState === "following" ? "unfollow" : "follow"
-    }/${user.username}`);
+    const resp = await basicFetch.get(
+      `/users/${followState === "following" ? "unfollow" : "follow"}/${
+        user.username
+      }`
+    );
     if (resp.ok) {
-      setFollowState((prev) => (prev === "following" ? "not-following" : "following"));
+      setFollowState((prev) =>
+        prev === "following" ? "not-following" : "following"
+      );
     }
   };
 
@@ -89,22 +91,13 @@ const UserListItem = ({
                 "hover/following:bg-red-600 shadow-lg": isFollowing,
               })}
             >
-                {
-                  followState === "following" ? (
-                    <span className="text-sm font-medium">
-                      Unfollow
-                    </span>
-                  ) : followState === "not-following" ? (
-                    <span className="text-sm font-medium">
-                      Follow
-                    </span>
-                  ) : (
-                    <span className="text-sm font-medium">
-                      Loading
-                    </span>
-                  )
-                  
-                }
+              {followState === "following" ? (
+                <span className="text-sm font-medium">Unfollow</span>
+              ) : followState === "not-following" ? (
+                <span className="text-sm font-medium">Follow</span>
+              ) : (
+                <span className="text-sm font-medium">Loading</span>
+              )}
             </Button>
           )
         }
@@ -151,7 +144,6 @@ const Searchbar = (props: SearchbarProps) => {
         </button>
       </label>
       <input
-        tabIndex={0}
         type="search"
         className={cn(
           "border z-50 h-full w-full rounded-xl py-2 pl-12 text-gray-500 list-none duration-150 outline-none",

@@ -141,7 +141,7 @@ export const RoomInfo = ({
 
           <figure
             className="group relative flex h-[160px] w-[400px] cursor-pointer items-center justify-center rounded-2xl bg-black transition"
-            onClick={() => avatarInputRef.current?.click()}
+            onClick={() => myRole == "owner" && avatarInputRef.current?.click()}
           >
             <Image
               src={
@@ -153,14 +153,16 @@ export const RoomInfo = ({
               fill
               className="object-cover opacity-70 shadow-inner duration-300 rounded-2xl hover:opacity-50"
             />
-            <span className="pointer-events-none absolute rounded-full bg-black/50 p-2 text-white duration-300 group-hover:block">
-              <TbCameraPlus className="h-5 w-5" />
-            </span>
+            {myRole == "owner" && (
+              <span className="pointer-events-none absolute rounded-full bg-black/50 p-2 text-white duration-300 group-hover:block">
+                <TbCameraPlus className="h-5 w-5" />
+              </span>
+            )}
+
             <input
               ref={avatarInputRef}
               onChange={(event) => handleFileInputChange(event, "avatar")}
               accept="image/jpeg,image/png,image/webp"
-              tabindex="-1"
               type="file"
               className="hidden"
             />

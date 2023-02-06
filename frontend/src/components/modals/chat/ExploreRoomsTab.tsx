@@ -39,7 +39,6 @@ const RoomListItem = ({
         passCheck: false,
       }
     );
-    console.log("join = ", res);
     if (res.status == 201) {
       setShowPasswordModal(false);
       setPasswordIsCorrect(true);
