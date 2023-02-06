@@ -9,12 +9,14 @@ import {
   import { catchError } from 'rxjs/operators';
   
   @Injectable()
-  export class ErrorsInterceptor implements NestInterceptor {
+  export class SegfaultInterceptor implements NestInterceptor {
 	intercept(context: ExecutionContext, next: CallHandler): Observable<any> {
 	  return next
 		.handle()
 		.pipe(
-		  catchError(err => throwError(() => new BadGatewayException(err.message))),
+		  catchError(err => 
+			throwError(() => new BadGatewayException(err.message))
+		),
 		);
 	}
   }

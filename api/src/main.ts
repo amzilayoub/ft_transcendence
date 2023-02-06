@@ -8,6 +8,7 @@ import { PrismaService } from './prisma/prisma.service';
 import { Prisma } from '@prisma/client';
 import fs = require('fs');
 import { join } from 'path';
+import { SegfaultInterceptor } from './common/interceptors/segfault.interceptor';
 
 async function bootstrap() {
     const app = await NestFactory.create(AppModule);
@@ -51,6 +52,7 @@ async function bootstrap() {
         .build();
     const document = SwaggerModule.createDocument(app, config);
     SwaggerModule.setup('api', app, document);
+    app.useGlobalInterceptors(new SegfaultInterceptor());
     await app.listen(3000);
 }
 

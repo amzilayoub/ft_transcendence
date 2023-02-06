@@ -98,7 +98,6 @@ const ChatStuff = () => {
       });
 
       socket?.on("userConnect", (resp) => {
-        console.log("userConnect = ", { resp });
         const userId = resp.data.userId;
         const mode = resp.data.mode;
 
@@ -112,7 +111,6 @@ const ChatStuff = () => {
           return newConv;
         });
       });
-      console.log(router);
 
       socket.emit(
         "userConnect",
