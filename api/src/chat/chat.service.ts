@@ -62,6 +62,7 @@ export class ChatService {
 					(
 						SELECT receiver.id, receiver.room_id, room.updated_at AS "lastMessageTime", room_type.type, room.created_at AS "created_at",
 						users.avatar_url,
+						'' AS description,
 						(
 							SELECT users.avatar_url
 							FROM users
@@ -129,6 +130,10 @@ export class ChatService {
 						FROM room_details
 						WHERE room.id = room_details.room_id
 					) AS "avatar_url",
+					(	SELECT room_details.description
+						FROM room_details
+						WHERE room.id = room_details.room_id
+					) AS description,
 					'' AS "senderAvatarUrl",
 					'' AS "senderUsername",
 					(
@@ -565,11 +570,17 @@ export class ChatService {
 		`);
     }
 
-    updateRoomInfo(name: string, avatarUrl: string, roomId: number) {
+    updateRoomInfo(
+        name: string,
+        avatarUrl: string,
+        roomId: number,
+        desc: string,
+    ) {
         return this.prismaService.$queryRaw(Prisma.sql`
 		UPDATE room_details
 		SET name = ${name},
-		avatar_url = ${avatarUrl}
+		avatar_url = ${avatarUrl},
+		description = ${desc}
 		WHERE room_id = ${roomId}
 		`);
     }

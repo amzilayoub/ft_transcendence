@@ -266,11 +266,13 @@ export class ChatController {
     }
 
     @Post('room/update-info')
-    async updateRoomInfo(@Body() roomInfoDto) {
+    async updateRoomInfo(@Body() roomInfoDto: RoomInfoDto) {
+        console.log({ roomInfoDto });
         await this.chatService.updateRoomInfo(
             roomInfoDto.name,
             roomInfoDto.avatarUrl,
             roomInfoDto.roomId,
+            roomInfoDto.description,
         );
 
         const roomType = await this.chatService.getRoomType(
