@@ -33,6 +33,7 @@ const ChatStuff = () => {
       withCredentials: true, // this is needed to send cookies
       transports: ["websocket"],
     });
+    console.log("create socket");
 
     setSocketIO(socket);
 
@@ -112,14 +113,15 @@ const ChatStuff = () => {
         });
       });
 
-      socket.emit(
-        "userConnect",
-        {
-          mode: router.asPath.includes("game/") ? "in-game" : "online",
-        },
-        (resp) => {
-        }
-      );
+      setTimeout(() => {
+        socket.emit(
+          "userConnect",
+          {
+            mode: router.asPath.includes("game/") ? "in-game" : "online",
+          },
+          (resp) => {}
+        );
+      }, 3000);
     }
 
     const users = [];
@@ -129,7 +131,7 @@ const ChatStuff = () => {
     return () => {
       socket.close();
     };
-  }, [setSocketIO]); // a hack to stop infinite rendering
+  }, []); // a hack to stop infinite rendering
   return (
     <div className="fixed bottom-0 right-0 hidden px-6 md:block">
       <ChatSidebar

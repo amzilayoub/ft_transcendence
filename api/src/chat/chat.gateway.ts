@@ -56,7 +56,7 @@ export class ChatGateway {
         } else {
             this.connectedClient[user['id']] = {
                 clientId: client.id,
-                status: 'online',
+                status: user.status == 'in-game' ? 'in-game' : 'online',
                 duplicatedSockets: [],
                 clientSocket: client,
             };
@@ -70,41 +70,43 @@ export class ChatGateway {
         this.server.emit('userConnect', {
             status: 200,
             data: {
-                mode:
-                    this.connectedClient[user['id']].status == 'in-game' ||
-                    user.status == 'in-game'
-                        ? 'in-game'
-                        : 'online',
+                mode: user.status == 'in-game' ? 'in-game' : 'online',
                 userId: user['id'],
             },
         });
-        if (this.connectedClient[user['id']].status != 'in-game') {
-            if (user.status != 'in-game')
-                await this.chatService.updateUserStatus(user['id'], 'in-game');
-            else await this.chatService.updateUserStatus(user['id'], 'online');
-        }
+        // if (this.connectedClient[user['id']].status != 'in-game') {
+        //     if (user.status != 'in-game')
+        //         await this.chatService.updateUserStatus(user['id'], 'in-game');
+        //     else await this.chatService.updateUserStatus(user['id'], 'online');
+        // }
     }
 
     async handleDisconnect(@ConnectedSocket() client: any) {
         const user = this.getUserInfo(client);
         if (user === null) return { status: 401 };
 
-        if (!this.connectedClient[user['id']]['duplicatedSockets'].length)
+        if (
+            this.connectedClient[user['id']] &&
+            !this.connectedClient[user['id']]['duplicatedSockets'].length
+        ) {
+            this.server.emit('userConnect', {
+                status: 200,
+                data: {
+                    mode: 'offline',
+                    userId: user['id'],
+                },
+            });
             delete this.connectedClient[user['id']];
-        else {
+        } else if (
+            this.connectedClient[user['id']] &&
+            this.connectedClient[user['id']]['duplicatedSockets']
+        ) {
             this.connectedClient[user['id']]['duplicatedSockets'] =
                 this.connectedClient[user['id']]['duplicatedSockets'].filter(
                     (item) => item.id != client.id,
                 );
         }
-        this.server.emit('userConnect', {
-            status: 200,
-            data: {
-                mode: 'offline',
-                userId: user['id'],
-            },
-        });
-        await this.chatService.updateUserStatus(user['id'], 'offline');
+        // await this.chatService.updateUserStatus(user['id'], 'offline');
     }
 
     @SubscribeMessage('userConnect')
