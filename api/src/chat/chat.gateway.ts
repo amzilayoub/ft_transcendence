@@ -604,6 +604,23 @@ export class ChatGateway {
                 kickoutDto.userId,
                 kickoutDto.roomId,
             );
+        } else if (String(myRole.role).toLowerCase() == 'member') {
+            if (this.connectedClient[kickoutDto.userId]) {
+                const socketId =
+                    this.connectedClient[kickoutDto.userId].clientId;
+                this.server.sockets
+                    .get(socketId)
+                    ?.leave(NAMESPACE + kickoutDto.roomId);
+                this.connectedClient[kickoutDto.userId][
+                    'duplicatedSockets'
+                ].forEach((item) => {
+                    item.leave(NAMESPACE + kickoutDto.roomId);
+                });
+            }
+            await this.chatService.kickout(
+                kickoutDto.userId,
+                kickoutDto.roomId,
+            );
         } else {
             return { status: 401 };
         }
