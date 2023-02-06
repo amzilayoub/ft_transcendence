@@ -89,14 +89,6 @@ const TopPlayers = () => {
     <div className="w-full sm:max-w-max min-w-[300px]">
       <TitledCard
         title="Top Players"
-        // actions={
-        //   <button
-        //     // onClick={() => setSeeAll(true)}
-        //     className="text-sm font-semibold text-primary"
-        //   >
-        //     See All
-        //   </button>
-        // }
       >
         <ul className="flex flex-col gap-y-3 p-2">
           {!players?.length && (

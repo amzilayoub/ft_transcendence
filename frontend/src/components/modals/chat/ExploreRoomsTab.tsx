@@ -71,7 +71,7 @@ const RoomListItem = ({
         <div className="flex w-full justify-between gap-x-2">
           <div className="ml-2 flex">
             <Image
-              src={room.avatar_url || "/images/default-avatar.jpg"}
+              src={room.avatar_url || "/images/default-avatar.png"}
               alt={room.name + " avatar"}
               width={32}
               height={32}
@@ -155,7 +155,7 @@ const ExploreRoomsTab = ({
       id: 1,
       name: "memers",
       description: "This is the first room",
-      avatar_url: "/images/default-avatar.jpg",
+      avatar_url: "/images/default-avatar.png",
       type: "public",
       created_at: today,
       am_i_admin: true,
@@ -168,7 +168,7 @@ const ExploreRoomsTab = ({
       id: 2,
       name: "gamers",
       description: "This is the second room",
-      avatar_url: "/images/default-avatar.jpg",
+      avatar_url: "/images/default-avatar.png",
       type: "protected",
       created_at: today,
       am_i_admin: false,

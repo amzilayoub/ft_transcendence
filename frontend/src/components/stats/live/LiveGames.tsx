@@ -43,22 +43,6 @@ const LiveGames = ({ liveGames }: { liveGames: IGame[] }) => {
     <div className="w-full">
       <TitledCard
         title="Live Games"
-        // actions={
-        //   <button
-        //     onClick={refresh}
-        //     className="text-2xl font-bold text-primary hover:text-primary/80"
-        //   >
-        //     <RiRefreshLine className={cn({ "animate-spin": isRefetching })} />
-        //   </button>
-        // }
-        actions={
-          <button
-            // onClick={() => setSeeAll(true)}
-            className="text-sm font-semibold text-primary"
-          >
-            See All
-          </button>
-        }
       >
         {liveGames?.length === 0 && (
           <div className="py-6">

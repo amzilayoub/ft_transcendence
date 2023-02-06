@@ -196,7 +196,7 @@ const SettingsModal = ({
                                   avatarInputRef.current?.files[0]
                                 )
                               : ctx.user?.avatar_url ||
-                                "/images/default-avatar.jpg"
+                                "/images/default-avatar.png"
                           }
                           alt={`avatar for ${ctx.user?.username}`}
                           fill

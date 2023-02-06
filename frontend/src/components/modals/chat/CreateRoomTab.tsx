@@ -24,17 +24,17 @@ export const friends = [
   {
     value: "chocolate",
     label: "ommagour",
-    img: "/images/default-avatar.jpg",
+    img: "/images/default-avatar.png",
   },
   {
     value: "mbifenzi",
     label: "Strawberry",
-    img: "/images/default-avatar.jpg",
+    img: "/images/default-avatar.png",
   },
   {
     value: "vanilla",
     label: "Apex",
-    img: "/images/default-avatar.jpg",
+    img: "/images/default-avatar.png",
   },
 ];
 
@@ -71,7 +71,7 @@ export const SearchchatTab = ({
       {
         value: "salut",
         label: "salut",
-        img: "/images/default-avatar.jpg",
+        img: "/images/default-avatar.png",
       },
     ];
   };
@@ -80,42 +80,7 @@ export const SearchchatTab = ({
     <>
       <form onSubmit={() => {}} className="pb-6">
         <div>
-          {/* <Creatable
-            defaultValue={[friends[2], friends[3]]}
-            isMulti
-            name="colors"
-            options={friends}
-            formatOptionLabel={(option) => (
-              <div className="flex gap-4 items-center">
-                <Image
-                  src={option.img}
-                  width={50}
-                  height={50}
-                  alt={""}
-                  className="rounded-full w-8 h-8"
-                />
-                <span>{option.label}</span>
-              </div>
-            )}
-            onChange={(e) => {
-              setRoomMembers(e);
-            }}
-            onInputChange={(e) => {
-              handleSearch(e);
-            }}
-            onCreateOption={handleCreate}
-            // className="basic-multi-select"
-            classNamePrefix="select"
-          /> */}
-          <AsyncSelect
-            cacheOptions
-            value={roomMembers}
-            defaultOptions
-            loadOptions={handleSearch}
-            components={{ LoadingIndicator }}
-            onChange={(value) => setRoomMembers(value)}
-            isMulti
-          />
+          
         </div>
       </form>
       <button

@@ -3,7 +3,7 @@ import React, { useState } from "react";
 import cn from "classnames";
 import Image from "next/image";
 
-import avatar from "/public/images/default-avatar.jpg";
+import avatar from "/public/images/default-avatar.png";
 
 import { AiOutlineUsergroupAdd } from "react-icons/ai";
 import { IoSearchOutline } from "react-icons/io5";

@@ -33,7 +33,7 @@ const WelcomeModal = ({
             </span>
           </h1>
           <Image
-            src="/images/andrew-tate.png"
+            src="/images/default-avatar.png"
             alt="Andrew Tate"
             width={200}
             height={200}

@@ -7,7 +7,7 @@ const useUserStats = (userID: number, shouldFetch: boolean = true) => {
     gamesPlayed: number;
     wins: number;
     losses: number;
-  } | null>(shouldFetch ? `/games/stats/${userID}` : null, fetcher);
+  } | null>(userID !== undefined && shouldFetch ? `/games/stats/${userID}` : null, fetcher);
 
   return {
     data,
