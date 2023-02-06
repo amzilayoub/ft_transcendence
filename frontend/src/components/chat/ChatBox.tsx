@@ -350,8 +350,7 @@ const ChatBox = ({
           <div className="relative">
             <Image
               src={
-                conversationMetaData?.avatar_url ||
-                "/images/default-avatar.png"
+                conversationMetaData?.avatar_url || "/images/default-avatar.png"
               }
               alt={`${conversationMetaData?.name || "User"}'s avatar`}
               // width={showChatBox ? 44 : 32}
@@ -363,29 +362,6 @@ const ChatBox = ({
                 "h-9 w-9": !showChatBox,
               })}
             />
-            {conversationMetaData.type === "dm" && (
-              <svg
-                id="status-circle"
-                width={showChatBox ? 12 : 9}
-                height={showChatBox ? 12 : 9}
-                className={cn("absolute bottom-0 ", {
-                  "text-green-500":
-                    conversationMetaData.userStatus === "online",
-                  "text-gray-500":
-                    conversationMetaData.userStatus === "offline",
-                  "text-yellow-500":
-                    conversationMetaData.userStatus === "playing",
-                  "right-1": showChatBox,
-                  "right-0": !showChatBox,
-                })}
-              >
-                {showChatBox ? (
-                  <circle cx="6" cy="6" r="6" fill="currentColor" />
-                ) : (
-                  <circle cx="4" cy="4" r="4" fill="currentColor" />
-                )}
-              </svg>
-            )}
           </div>
           {showChatBox && conversationMetaData.type === "dm" ? (
             <Link
@@ -453,11 +429,13 @@ const ChatBox = ({
               message={message.message}
               senderAvatar={
                 // conversation.members[0]?.avatar_url ||
-                message?.avatar_url || message?.senderAvatar|| "/images/default-avatar.png"
+                message?.avatar_url ||
+                message?.senderAvatar ||
+                "/images/default-avatar.png"
               }
               isMe={message.isMe}
-            />)
-          )}
+            />
+          ))}
           <div ref={bottomDivRef}></div>
         </ul>
         {/* inputa */}
@@ -528,7 +506,7 @@ const ChatBox = ({
               onClose={() => setShowChatSettingModal(false)}
               setConversationsMetadata={setConversationsMetadata}
               onCloseActiveBox={onClose}
-			  socket={socket}
+              socket={socket}
             />
           )}
         </div>
