@@ -11,6 +11,7 @@ import ChatBox from "./ChatBox";
 import ChatSidebar from "./ChatSidebar";
 import { RiLayoutRowFill } from "react-icons/ri";
 import { useRouter } from "next/router";
+import { FALLBACK_AVATAR } from "@utils/constants";
 
 const ChatStuff = () => {
   const router = useRouter();
@@ -46,7 +47,7 @@ const ChatStuff = () => {
       socket?.on("updateListConversations", async (obj) => {
         if (ctx?.user?.id != obj.data.userId) {
           toastNewMessage(
-            obj.data.room.senderAvatarUrl,
+            obj.data.room.senderAvatarUrl || FALLBACK_AVATAR,
             obj.data.room.senderUsername,
             obj.data.room.lastMessage
           );
