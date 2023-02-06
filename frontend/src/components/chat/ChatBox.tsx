@@ -135,7 +135,6 @@ const ChatBox = ({
         avatar_url: "/public/images/default_avatar.jpg",
         isOnline: true,
         gameStatus: MemberGameStatus.IDLE,
-        membershipStatus: MembershipStatus.MODERATOR,
         isBanned: false,
         isMuted: false,
         mutedUntil: new Date(),

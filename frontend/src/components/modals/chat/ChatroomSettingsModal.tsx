@@ -216,7 +216,7 @@ const MemberListItem = ({
 
   const handleRoleChange = async (userId: number, role: MembershipStatus) => {
     const resp = await basicFetch.post(
-      "/chat/room/role",
+      "/chat/room/members/add-role",
       {},
       {
         roomId,
@@ -224,6 +224,7 @@ const MemberListItem = ({
         role,
       }
     );
+    console.log({ resp });
     if (resp.status == 201) {
       setMemberRole(role);
     } else {
@@ -273,7 +274,6 @@ const MemberListItem = ({
                       className="w-32"
                       options={[
                         { value: "admin", label: "Admin" },
-                        { value: "moderator", label: "Moderator" },
                         { value: "member", label: "Member" },
                       ]}
                       value={{
