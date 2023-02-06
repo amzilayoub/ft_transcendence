@@ -79,27 +79,37 @@ const MemberListItem = ({
   };
 
   const handleBlock = async (userId: number, banned: boolean) => {
-    const resp = await basicFetch.post(
-      "/chat/room/ban",
-      {},
+    // const resp = await basicFetch.post(
+    //   "/chat/room/ban",
+    //   {},
+    //   {
+    //     roomId,
+    //     userId,
+    //     banned,
+    //   }
+    // );
+    socket.emit(
+      "room/ban",
       {
         roomId,
         userId,
         banned,
+      },
+      (resp) => {
+        if (resp.status == 200) {
+          setSearchResults((state) => {
+            const newState = [...state];
+
+            newState.forEach((item) => {
+              if (item.id == userId) item.isBanned = banned;
+            });
+            return newState;
+          });
+        } else {
+          alert("You don't have enough access rights to complete the action");
+        }
       }
     );
-    if (resp.status == 201) {
-      setSearchResults((state) => {
-        const newState = [...state];
-
-        newState.forEach((item) => {
-          if (item.id == userId) item.isBanned = banned;
-        });
-        return newState;
-      });
-    } else {
-      alert("You don't have enough access rights to complete the action");
-    }
   };
 
   const handleKick = async (userId: number) => {
@@ -267,10 +277,10 @@ const MemberListItem = ({
                         { value: "member", label: "Member" },
                       ]}
                       value={{
-                        value: memberRole,
+                        value: member.membershipStatus,
                         label:
-                          memberRole.charAt(0).toUpperCase() +
-                          memberRole.slice(1),
+                          member.membershipStatus.charAt(0).toUpperCase() +
+                          member.membershipStatus.slice(1),
                       }}
                       onChange={(option: any) => {
                         handleRoleChange(member.id, option.value);
@@ -469,39 +479,44 @@ const ChatroomSettingsModal = ({
     setButtonText("Saving...");
 
     try {
+      //   if (roomAvatar) {
+      let file_data = {};
       if (roomAvatar) {
         setButtonText("Uploading...");
-        const file_data = await uploadFile(roomAvatar);
-        if (file_data) {
-          const resp = await basicFetch.post(
-            "/chat/room/update-info",
-            {},
-            {
-              name: settings.name,
-              roomTypeName: settings.roomeType || "public",
-              avatarUrl: file_data.secure_url || null,
-              roomId: roomData.room_id,
-            }
-          );
-
-          if (resp.status == 201) {
-            await resp.json();
-            setConversationsMetadata((state) => {
-              const newState = [...state];
-              newState.forEach((item) => {
-                if (item.room_id == roomData.room_id) {
-                  item.avatar_url = file_data.secure_url || null;
-                  item.name = settings.name;
-                }
-              });
-              return newState;
-            });
-            setButtonText("Saving...");
-            setIsSaving(false);
-            setButtonText("Save");
-            onClose();
+        file_data = await uploadFile(roomAvatar);
+      }
+      if (file_data || roomData.avatar_url) {
+        const resp = await basicFetch.post(
+          "/chat/room/update-info",
+          {},
+          {
+            name: settings.name || roomData.name,
+            roomTypeName: settings.roomeType || "public",
+            avatarUrl: file_data?.secure_url || roomData.avatar_url,
+            roomId: roomData.room_id,
+            description: settings.description || roomData.description,
           }
+        );
+
+        if (resp.status == 201) {
+          await resp.json();
+          setConversationsMetadata((state) => {
+            const newState = [...state];
+            newState.forEach((item) => {
+              if (item.room_id == roomData.room_id) {
+                item.avatar_url = file_data?.secure_url || roomData.avatar_url;
+                item.name = settings.name || roomData.name;
+                item.description = settings.description || roomData.description;
+              }
+            });
+            return newState;
+          });
+          setButtonText("Saving...");
+          setIsSaving(false);
+          setButtonText("Save");
+          onClose();
         }
+        // }
       }
     } catch (error) {
       //console.log(error);
@@ -531,6 +546,7 @@ const ChatroomSettingsModal = ({
               roomData={roomData}
               setAvatar={setRoomAvatar}
               setSettings={setSettings}
+              myRole={myRole}
             />
           )}
         </div>

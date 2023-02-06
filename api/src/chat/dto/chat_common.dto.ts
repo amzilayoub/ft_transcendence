@@ -49,6 +49,7 @@ export class RoomInfoDto {
     name: string;
 
     @IsUrl()
+    @IsOptional()
     avatarUrl: string;
 
     @IsInt()
@@ -56,6 +57,9 @@ export class RoomInfoDto {
 
     @IsString()
     roomTypeName: string;
+
+    @IsString()
+    description: string;
 }
 
 export class AddRoleDto {

@@ -13,10 +13,12 @@ export const RoomInfo = ({
   roomData,
   setAvatar,
   setSettings,
+  myRole,
 }: {
   roomData: IRoom;
   setAvatar: (url: any) => void;
   setSettings: (settings: any) => void;
+  myRole: string;
 }) => {
   const [roomCurrentData, setRoomCurrentData] = useState<IRoom>(roomData);
   const [showPasswordModal, setShowPasswordModal] = useState(false);
@@ -35,7 +37,7 @@ export const RoomInfo = ({
 
   const handleChange = (selectedOption: any) => {
     //console.log(`Selected: ${selectedOption.value}`);
-    setCurrentRoomTypeOptions(selectedOption);
+    setCurrentRoomTypeOptions(selectedOption.value);
     if (selectedOption.value === "protected") {
       setShowPasswordModal(true);
       setRoomCurrentData({
@@ -88,6 +90,7 @@ export const RoomInfo = ({
               <TextInput
                 label="Room Name"
                 type="text"
+                disabled={String(myRole).toLocaleLowerCase() != "owner"}
                 value={roomCurrentData.name}
                 onChange={(e) => {
                   e.preventDefault();
@@ -95,9 +98,9 @@ export const RoomInfo = ({
                     ...roomCurrentData,
                     name: e.target.value,
                   });
-				  setSettings((state) => {
-					return {...state, name: e.target.value}
-				  })
+                  setSettings((state) => {
+                    return { ...state, name: e.target.value };
+                  });
                 }}
                 required
                 inputClassName="py-[6px] w-full"
@@ -106,9 +109,15 @@ export const RoomInfo = ({
                 <TextInputLabel label="Room Type" />
 
                 <Select
-                  value={currentRoomTypeOptions}
+                  value={{
+                    label:
+                      currentRoomTypeOptions.charAt(0).toUpperCase() +
+                      currentRoomTypeOptions.slice(1),
+                    value: currentRoomTypeOptions,
+                  }}
                   options={roomTypeOptions}
                   onChange={handleChange}
+                  isDisabled={String(myRole).toLocaleLowerCase() != "owner"}
                 />
               </div>
             </div>
@@ -116,8 +125,16 @@ export const RoomInfo = ({
               label="Room Description"
               placeholder="Room Description"
               value={roomCurrentData.description}
+              disabled={String(myRole).toLocaleLowerCase() != "owner"}
               onChange={(e) => {
                 e.preventDefault();
+                setRoomCurrentData({
+                  ...roomCurrentData,
+                  description: e.target.value,
+                });
+                setSettings((state) => {
+                  return { ...state, description: e.target.value };
+                });
               }}
             />
           </div>
