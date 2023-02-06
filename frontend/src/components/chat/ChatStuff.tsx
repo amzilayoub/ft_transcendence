@@ -9,8 +9,11 @@ import { useChatContext } from "context/chat.context";
 
 import ChatBox from "./ChatBox";
 import ChatSidebar from "./ChatSidebar";
+import { RiLayoutRowFill } from "react-icons/ri";
+import { useRouter } from "next/router";
 
 const ChatStuff = () => {
+  const router = useRouter();
   let [socketIO, setSocketIO] = useState(null);
   const {
     deleteBox,
@@ -94,7 +97,7 @@ const ChatStuff = () => {
       });
 
       socket?.on("userConnect", (resp) => {
-        console.log("userConnect", { resp });
+        console.log("userConnect = ", { resp });
         const userId = resp.data.userId;
         const mode = resp.data.mode;
 
@@ -108,6 +111,16 @@ const ChatStuff = () => {
           return newConv;
         });
       });
+      console.log(router);
+
+      socket.emit(
+        "userConnect",
+        {
+          mode: router.asPath.includes("game/") ? "in-game" : "online",
+        },
+        (resp) => {
+        }
+      );
     }
 
     const users = [];
