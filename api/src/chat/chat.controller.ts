@@ -267,7 +267,6 @@ export class ChatController {
 
     @Post('room/update-info')
     async updateRoomInfo(@Body() roomInfoDto: RoomInfoDto) {
-        console.log({ roomInfoDto });
         await this.chatService.updateRoomInfo(
             roomInfoDto.name,
             roomInfoDto.avatarUrl,

@@ -74,11 +74,10 @@ export class ChatGateway {
                 userId: user['id'],
             },
         });
-        // if (this.connectedClient[user['id']].status != 'in-game') {
-        //     if (user.status != 'in-game')
-        //         await this.chatService.updateUserStatus(user['id'], 'in-game');
-        //     else await this.chatService.updateUserStatus(user['id'], 'online');
-        // }
+        await this.chatService.updateUserStatus(
+            user['id'],
+            user.status == 'in-game' ? 'in-game' : 'online',
+        );
     }
 
     async handleDisconnect(@ConnectedSocket() client: any) {

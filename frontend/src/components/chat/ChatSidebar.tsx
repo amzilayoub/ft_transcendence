@@ -259,11 +259,20 @@ const ChatSidebar = ({
   useEffect(() => {
     const setSearchData = async () => {
       // const data = await loadSearch();
-      setSearchResults(await loadSearch());
+      const data = (await loadSearch()) || [];
+
+      data.forEach((item) => {
+        conversationsMetadata.forEach((cnv) => {
+          if (cnv.room_id == item.room_id) {
+            item.userStatus = cnv.userStatus;
+          }
+        });
+      });
+      setSearchResults(data);
     };
     setSearchData();
     // }, [searchQuery, conversationsMetadata]);
-  }, [searchQuery, conversationsMetadata, loadSearch]);
+  }, [searchQuery, conversationsMetadata]);
 
   const muteUser = async (roomId: number, userId: number, muted: boolean) => {
     const resp = await basicFetch.post(
@@ -353,6 +362,7 @@ const ChatSidebar = ({
     });
   };
 
+  console.log({ searchResults });
   return (
     <>
       <div
