@@ -32,22 +32,6 @@ const WaitingPlayers = ({ waitingPlayers }: { waitingPlayers: IGame[] }) => {
     <div className="w-full">
       <TitledCard
         title="Waiting Players"
-        // actions={
-        //   <button
-        //     onClick={refresh}
-        //     className="text-2xl font-bold text-primary hover:text-primary/80"
-        //   >
-        //     <RiRefreshLine className={cn({ "animate-spin": isRefetching })} />
-        //   </button>
-        // }
-        actions={
-          <button
-            // onClick={() => setSeeAll(true)}
-            className="text-sm font-semibold text-primary"
-          >
-            See All
-          </button>
-        }
       >
         {waitingPlayers?.length === 0 && (
           <div className="py-6">

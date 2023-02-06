@@ -222,7 +222,7 @@ const UserInfoHeader = ({
             >
               {user ? (
                 <Image
-                  src={user?.avatar_url || "/images/default-avatar.jpg"}
+                  src={user?.avatar_url || "/images/default-avatar.png"}
                   alt={
                     user?.avatar_url
                       ? `avatar for ${user?.username}`
@@ -354,7 +354,7 @@ export default function ProfilePage() {
         >
           <div className="flex h-[600px] w-[600px] flex-col items-center justify-center">
             <Image
-              src={user.data?.avatar_url || "/images/default-avatar.jpg"}
+              src={user.data?.avatar_url || "/images/default-avatar.png"}
               alt={`avatar for ${username}`}
               fill
               className="rounded-full object-cover"

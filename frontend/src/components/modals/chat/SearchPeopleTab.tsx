@@ -61,7 +61,7 @@ const UserListItem = ({
       <div className="flex w-full items-center justify-between gap-x-2">
         <div className="flex w-full gap-x-2">
           <Image
-            src={user.avatar_url || "/images/default-avatar.jpg"}
+            src={user.avatar_url || "/images/default-avatar.png"}
             alt={(user.first_name || user.username) + " avatar"}
             width={48}
             height={48}

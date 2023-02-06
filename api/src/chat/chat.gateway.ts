@@ -113,7 +113,8 @@ export class ChatGateway {
     ) {
         const user = this.getUserInfo(client);
         if (user === null) return { status: 401 };
-        this.connectedClient[user['id']].status = mode;
+        if (this.connectedClient[user['id']])
+            this.connectedClient[user['id']].status = mode;
         this.server.emit('userConnect', {
             status: 200,
             data: {

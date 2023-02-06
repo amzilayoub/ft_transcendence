@@ -125,7 +125,7 @@ const ChatBox = ({
     id: 1,
     name: "Spagueeetti",
     description: "this is a testing room",
-    avatar_url: "/public/images/default-avatar.jpg",
+    avatar_url: "/public/images/default-avatar.png",
     type: RoomType.PUBLIC,
     created_at: new Date(),
     members: [
@@ -352,7 +352,7 @@ const ChatBox = ({
             <Image
               src={
                 conversationMetaData?.avatar_url ||
-                "/public/images/default_avatar.jpg"
+                "/images/default-avatar.png"
               }
               alt={`${conversationMetaData?.name || "User"}'s avatar`}
               // width={showChatBox ? 44 : 32}
@@ -448,17 +448,21 @@ const ChatBox = ({
           // eslint-disable-next-line tailwindcss/no-custom-classname
           className="scrolling-touch scrollbar-thumb scrollbar-thumb-rounded scrollbar-track scrollbar-w-2 flex h-full flex-col space-y-4 overflow-y-scroll p-3"
         >
-          {conversation?.messages?.map((message: IMessage, index: number) => (
+          {conversation?.messages?.map((message: IMessage, index: number) => {
+            
+            console.log("####", message);
+            
+            return(
             <Message
               key={`message-${message.id}-${index}`}
               message={message.message}
               senderAvatar={
                 // conversation.members[0]?.avatar_url ||
-                message?.avatar_url || "/images/default-avatar.jpg"
+                message?.avatar_url || message?.senderAvatar|| "/images/default-avatar.png"
               }
               isMe={message.isMe}
-            />
-          ))}
+            />)}
+          )}
           <div ref={bottomDivRef}></div>
         </ul>
         {/* inputa */}

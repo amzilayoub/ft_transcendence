@@ -130,7 +130,7 @@ export const RoomInfo = ({
               src={
                 avatarInputRef.current?.files?.length > 0
                   ? URL.createObjectURL(avatarInputRef.current?.files[0])
-                  : roomCurrentData.avatar_url || "/images/default-avatar.jpg"
+                  : roomCurrentData.avatar_url || "/images/default-avatar.png"
               }
               alt={`avatar for ${roomCurrentData.name}`}
               fill

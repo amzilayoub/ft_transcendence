@@ -40,7 +40,7 @@ const ProfileNavMenu: React.FC<Props> = (props) => {
         menuButton={
           <div className="relative flex h-11 w-11 justify-center overflow-hidden rounded-full p-1 outline-none hover:bg-gray-100 hover:ring-1 hover:ring-secondary">
             <Image
-              src={props.avatar_url || "/images/default-avatar.jpg"}
+              src={props.avatar_url || "/images/default-avatar.png"}
               alt={props.username}
               fill
               className="cursor-pointer object-cover"

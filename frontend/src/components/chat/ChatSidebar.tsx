@@ -124,7 +124,7 @@ const ConversationMetadata = ({
         <div className="flex items-center">
           <div className="relative">
             <RoundedImage
-              src={avatar || "/images/andrew-tate.png"}
+              src={avatar || "/images/default-avatar.png"}
               alt={`${name} avatar`}
               size="60px"
             />
