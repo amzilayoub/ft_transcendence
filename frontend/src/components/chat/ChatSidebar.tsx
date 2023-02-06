@@ -138,7 +138,7 @@ const ConversationMetadata = ({
                   className={cn("absolute bottom-0 right-1 ", {
                     "text-green-500": userStatus === "online",
                     "text-gray-500": userStatus === "offline",
-                    "text-yellow-500": userStatus === "playing",
+                    "text-yellow-500": userStatus === "in-game",
                   })}
                 >
                   <circle cx="6" cy="6" r="6" fill="currentColor" />

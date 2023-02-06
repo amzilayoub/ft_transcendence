@@ -46,8 +46,9 @@ export class ChatGateway {
     }
 
     async handleConnection(@ConnectedSocket() client: any) {
-        const user = this.getUserInfo(client);
+        let user = this.getUserInfo(client);
         if (user === null) return { status: 401 };
+        user = await this.authService.getMe(user['id']);
         const userRooms = await this.chatService.getUserRooms(user['id']);
         if (user['id'] in this.connectedClient) {
             this.connectedClient[user['id']]['duplicatedSockets'].push(client);
@@ -68,11 +69,19 @@ export class ChatGateway {
         this.server.emit('userConnect', {
             status: 200,
             data: {
-                mode: 'online',
+                mode:
+                    this.connectedClient[user['id']].status == 'in-game' ||
+                    user.status == 'in-game'
+                        ? 'in-game'
+                        : 'online',
                 userId: user['id'],
             },
         });
-        await this.chatService.updateUserStatus(user['id'], 'online');
+        if (this.connectedClient[user['id']].status != 'in-game') {
+            if (user.status != 'in-game')
+                await this.chatService.updateUserStatus(user['id'], 'in-game');
+            else await this.chatService.updateUserStatus(user['id'], 'online');
+        }
     }
 
     async handleDisconnect(@ConnectedSocket() client: any) {
@@ -95,6 +104,24 @@ export class ChatGateway {
             },
         });
         await this.chatService.updateUserStatus(user['id'], 'offline');
+    }
+
+    @SubscribeMessage('userConnect')
+    async userConnectStatus(
+        @ConnectedSocket() client: any,
+        @MessageBody('mode') mode: string,
+    ) {
+        const user = this.getUserInfo(client);
+        if (user === null) return { status: 401 };
+        this.connectedClient[user['id']].status = mode;
+        this.server.emit('userConnect', {
+            status: 200,
+            data: {
+                mode: mode,
+                userId: user['id'],
+            },
+        });
+        await this.chatService.updateUserStatus(user['id'], mode);
     }
 
     @SubscribeMessage('createRoom')
